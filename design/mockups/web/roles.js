@@ -7,7 +7,7 @@ function T(o) { var r = {}; for (var k in TYM) r[k] = TYM[k]; for (var j in o) r
 window.ROLES = [
 /* ============================== 1. SUPER ADMIN ============================== */
 {
-  id: 'admin', name: 'Super Admin', tag: 'TYM × MCS JV platform owner', group: 'Platform', icon: 'shield', context: 'Platform console',
+  id: 'admin', name: 'Super Admin', tag: 'TYM × MCS JV platform owner', group: 'Platform', icon: 'shield', context: 'Console',
   tenantLabel: 'Platform', tenant: 'TYM × MCS Joint Venture', domain: 'console.platform.co.za', tenantIcon: 'lock',
   persona: 'Naledi Khumalo', personaTitle: 'Platform operations',
   screens: [
