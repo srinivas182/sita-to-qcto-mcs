@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skills Ecosystem — Sprint 0 mock-ups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; font-family: Inter, -apple-system, "Segoe UI", sans-serif; background: #0d1526; color: #fff; min-height: 100vh; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 64px 24px; }
+  .tag { display: inline-block; font-size: 12px; color: rgba(255,255,255,.65); border: 1px solid rgba(255,255,255,.12); border-radius: 999px; padding: 6px 12px; }
+  h1 { font-family: Fraunces, Georgia, serif; font-weight: 500; font-size: clamp(34px, 5vw, 58px); line-height: 1.05; margin: 28px 0 14px; letter-spacing: -.5px; }
+  h1 em { color: #e3c88d; }
+  p.lead { color: rgba(255,255,255,.7); font-size: 16px; max-width: 720px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; margin-top: 36px; }
+  a.card { display: block; text-decoration: none; color: #fff; border-radius: 22px; padding: 26px; border: 1px solid rgba(255,255,255,.1); background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02)); transition: transform .2s; }
+  a.card:hover { transform: translateY(-3px); border-color: rgba(227,200,141,.5); }
+  .card small { color: #e3c88d; letter-spacing: .14em; text-transform: uppercase; font-size: 11px; font-weight: 600; }
+  .card h2 { font-family: Fraunces, Georgia, serif; font-weight: 500; font-size: 26px; margin: 8px 0 6px; }
+  .card p { color: rgba(255,255,255,.65); margin: 0 0 16px; font-size: 14px; line-height: 1.5; }
+  .card span { color: #e3c88d; font-size: 14px; }
+  .card.m { background: radial-gradient(300px 200px at 100% 0%, rgba(139,108,255,.35), transparent 70%), radial-gradient(300px 200px at 0% 100%, rgba(34,211,197,.25), transparent 70%), rgba(255,255,255,.03); }
+  .card.m small, .card.m span { color: #22d3c5; }
+  .meta { margin-top: 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+  .meta div { border-top: 1px solid rgba(255,255,255,.12); padding-top: 12px; font-size: 13px; color: rgba(255,255,255,.65); }
+  .meta b { display: block; color: #fff; font-size: 14px; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="tag">Sprint 0 · TYM × MCS Joint Venture · Sample data only</span>
+  <h1>QCTO Skills Ecosystem — <em>clickable mock-ups</em></h1>
+  <p class="lead">Every role's journey on web and mobile, for review with Training Young Minds before any code is written. Click through, note what to change, and we refine before Sprint 1.</p>
+  <div class="cards">
+    <a class="card" href="web/index.html"><small>Web portals</small><h2>17 roles · 51 screens</h2><p>Super Admin, TP owner, centre manager, facilitator, assessor, moderator, learner, employer, supervisor, assessment centre, CETA, QCTO, hiring company, entrepreneur, investor, verifier and the JV compliance desk.</p><span>Open web mock-ups →</span></a>
+    <a class="card m" href="mobile/index.html"><small>Mobile apps</small><h2>5 apps · 23 screens</h2><p>Learner app (Aurora), careers & enterprise, site supervisor app (Site), facilitator & assessor app (Studio), and the assessment-centre tablet.</p><span>Open mobile mock-ups →</span></a>
+  </div>
+  <div class="meta">
+    <div><b>Web design</b>Deep ink navigation, warm ivory canvas, champagne-gold accents, editorial serif headings. Calm, premium, fast to scan.</div>
+    <div><b>Mobile design</b>Three personalities on one language: playful Aurora for learners, sunlight-readable Site for supervisors, calm Studio for staff.</div>
+    <div><b>Built for South Africa</b>Offline-first, low data, local languages, WhatsApp alerts, works on low-cost Android phones.</div>
+    <div><b>Next</b>Review with TYM → agreed changes → Sprint 1 (platform core).</div>
+  </div>
+</div>
+</body>
+</html>
