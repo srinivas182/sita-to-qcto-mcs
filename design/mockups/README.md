@@ -27,7 +27,7 @@ cd design/mockups && python3 -m http.server 8080
 - Each TP's own logo, colours and domain appear in the sidebar and on learner sign-in (white-label).
 
 **Mobile apps — three personalities on one design language**
-- **Aurora** (learners, graduates, entrepreneurs): deep indigo canvas with teal–violet–amber aurora gradients, glass cards, progress rings, streaks, badges and a centre capture button. Built to make daily learning a habit.
+- **Aurora** (learners, graduates, entrepreneurs): light, bright canvas matching the web theme, indigo primary with teal, amber and violet accents (dark mode as a user setting), clean cards, progress rings, streaks, badges and a centre capture button. Built to make daily learning a habit.
 - **Site** (site supervisors): high contrast and readable in bright sun, safety-yellow, oversized buttons for gloved hands, offline banner, voice logging.
 - **Studio** (facilitators, assessors, assessment centres): calm light canvas with teal accents for fast data entry; landscape tablet for exam-day check-in.
 

@@ -250,3 +250,50 @@ figure { margin: 0; }
 .scan .lbl { position: absolute; bottom: 12px; color: #fff; font-size: 12px; }
 
 .foot { padding: 30px clamp(20px, 5vw, 64px) 48px; color: #6b7080; font-size: 12.5px; }
+
+/* =====================================================================
+   LOCKED: light learner app (matches web theme C). Dark mode becomes a user setting.
+   Media surfaces (video, simulator, camera, interview call) stay dark by design.
+   ===================================================================== */
+.aurora { background: radial-gradient(320px 200px at 100% 0%, rgba(99,102,241,.10), transparent 70%), #f6f7fb; color: #14182b; }
+.aurora .muted, .a-hello small, .a-task span, .module span, .job span, .sec-t span, .lang small, .timer { color: #6b7185; }
+.glass { background: #fff; border: 1px solid #e6e8f0; box-shadow: 0 1px 2px rgba(20,24,43,.04), 0 4px 14px rgba(20,24,43,.05); backdrop-filter: none; }
+.chip { background: #eef0f6; color: #3f4560; }
+.chip.t { background: #ccfbf1; color: #0f766e; } .chip.a { background: #fef3c7; color: #92400e; } .chip.v { background: #e0e7ff; color: #3730a3; }
+.a-av { background: linear-gradient(135deg, #6366f1, #4338ca); color: #fff; }
+.ring2 { background: conic-gradient(#4f46e5 0, #818cf8 calc(var(--p) * 1%), #e8eaf3 0); }
+.ring2 div { background: #fff; color: #14182b; } .ring2 div small { color: #6b7185; }
+.ti.t { background: #ccfbf1; color: #0f766e; } .ti.v { background: #e0e7ff; color: #4338ca; } .ti.a { background: #fef3c7; color: #b45309; } .ti.r { background: #ffe4e6; color: #be123c; }
+.a-task .go { background: #f1f2f7; color: #4a5068; }
+.progress { background: #e8eaf3; } .progress i { background: linear-gradient(90deg, #4f46e5, #818cf8); }
+.tabbar { background: #fff; border-top: 1px solid #e6e8f0; }
+.tabbar span { color: #8a90a3; } .tabbar span.on { color: #4338ca; font-weight: 600; }
+.tabbar .fab { background: linear-gradient(135deg, #6366f1, #4338ca); box-shadow: 0 10px 22px rgba(67,56,202,.35); }
+.a-btn { background: #4338ca; color: #fff; }
+.a-btn.light { background: #eef0fb; color: #3730a3; }
+.a-btn.amber { background: #4338ca; color: #fff; }
+.lang div { background: #fff; border: 1px solid #e6e8f0; }
+.lang div.on { border-color: #4338ca; background: #eef0fb; }
+.otp div { background: #fff; border: 1px solid #e1e4ee; }
+.otp div.on { border-color: #4338ca; box-shadow: 0 0 0 3px #e0e7ff; }
+.module { background: #fff; border: 1px solid #e6e8f0; }
+.module .num { background: #eef0f6; color: #3f4560; } .module .num.done { background: #4338ca; color: #fff; }
+.seg2 { background: #eceef5; } .seg2 span { color: #6b7185; } .seg2 span.on { background: #fff; color: #14182b; box-shadow: 0 1px 3px rgba(20,24,43,.1); }
+.offline { background: #fef3c7; color: #92400e; }
+.opt { background: #fff; border: 1px solid #e1e4ee; }
+.opt i { border-color: #c7cbd8; color: #4a5068; }
+.opt.on { border-color: #4338ca; background: #eef0fb; } .opt.on i { background: #4338ca; border-color: #4338ca; color: #fff; }
+.bubble.me { background: #4338ca; color: #fff; }
+.bubble.ai { background: #fff; border: 1px solid #e6e8f0; } .bubble.ai b { color: #4338ca; }
+.inputbar { background: #fff; border: 1px solid #e1e4ee; color: #8a90a3; } .inputbar .m { background: #4338ca; color: #fff; }
+.badge3 div { background: #fff; border: 1px solid #e6e8f0; color: #4a5068; }
+.badge3 div.g { background: #fef3c7; color: #92400e; } .badge3 div.g .ic { color: #d97706; }
+.badge3 div.t { background: #ccfbf1; color: #0f766e; } .badge3 div.t .ic { color: #0d9488; }
+.badge3 div.v { background: #e0e7ff; color: #3730a3; } .badge3 div.v .ic { color: #4f46e5; }
+.lb { border-bottom-color: #eef0f5; } .lb em { color: #9aa0b2; } .lb.me { background: #eef0fb; }
+.why span { background: #f1f2f7; color: #4a5068; }
+.job .logo { background: #eef0fb; color: #3730a3; }
+.callbtns span { background: #eef0f6; color: #3f4560; } .callbtns span.end { background: #e11d48; color: #fff; }
+.video .play { color: #4338ca; }
+.sim, .video .cap, .avatar-call { color: #fff; }
+.aurora .shutter { border-color: #4338ca; } .aurora .shutter i { background: #4338ca; }
