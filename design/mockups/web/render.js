@@ -87,7 +87,7 @@
     }).join('');
   }
   function brand(sub) {
-    return '<div class="brand"><div class="brand-mark">S</div><div><div class="brand-name">Skills Ecosystem</div><div class="brand-sub">' + (sub || 'QCTO-ready SaaS') + '</div></div></div>';
+    return '<div class="brand"><div class="brand-mark">S</div><div class="brand-text"><div class="brand-name">Skills Ecosystem</div><div class="brand-sub">' + (sub || 'QCTO-ready SaaS') + '</div></div>' + (sub !== undefined && sub !== 'TYM × MCS Joint Venture' ? '<button class="collapse-btn" id="collapse" title="Collapse sidebar">' + I('back') + '</button>' : '') + '</div>';
   }
   function hub() {
     document.title = 'Skills Ecosystem — Web mock-ups';
@@ -99,25 +99,27 @@
   function app(role, screen) {
     document.title = screen.title + ' · ' + role.name + ' — Skills Ecosystem';
     var nav = role.screens.map(function (s) {
-      return '<a class="' + (s.id === screen.id ? 'on' : '') + '" href="#' + role.id + '-' + s.id + '">' + I(s.icon || 'grid') + s.nav + '</a>';
+      return '<a class="' + (s.id === screen.id ? 'on' : '') + '" title="' + s.nav + '" href="#' + role.id + '-' + s.id + '">' + I(s.icon || 'grid') + '<span class="lbl">' + s.nav + '</span></a>';
     }).join('');
     var actions = (screen.actions || []).map(function (a) {
       return '<a class="btn ' + (a.primary ? 'primary' : a.gold ? 'gold' : '') + '" href="' + (a.to ? '#' + role.id + '-' + a.to : 'javascript:void(0)') + '" data-toast="' + (a.to ? '' : a.label) + '">' + (a.icon ? I(a.icon) : '') + a.label + '</a>';
     }).join('');
-    return '<div class="app"><aside class="side">' + brand(role.context) +
+    return '<div class="app' + (railPref() ? ' rail' : '') + '" id="app"><div class="scrim" id="scrim"></div><aside class="side">' + brand(role.context) +
       '<div class="tenant"><small>' + role.tenantLabel + '</small><b>' + role.tenant + '</b><span>' + I(role.tenantIcon || 'globe') + role.domain + '</span></div>' +
       '<div class="nav-label">' + role.name + '</div><nav class="nav">' + nav + '</nav>' +
-      '<div class="side-foot"><div class="av dark">' + initials(role.persona) + '</div><div><b>' + role.persona + '</b><span>' + role.personaTitle + '</span></div></div></aside>' +
-      '<div class="main"><header class="top"><div class="crumb">' + role.name + ' <span>/</span> <b>' + screen.nav + '</b></div>' +
+      '<div class="side-foot"><div class="av dark">' + initials(role.persona) + '</div><div class="sf-text"><b>' + role.persona + '</b><span>' + role.personaTitle + '</span></div></div></aside>' +
+      '<div class="main"><header class="top"><button class="icon-btn menu-btn" id="menu" title="Menu">' + I('menu') + '</button><div class="crumb"><span class="role-prefix">' + role.name + ' /</span> <b>' + screen.nav + '</b></div>' +
       '<div class="search">' + I('search') + 'Search learners, packs, qualifications…<span class="kbd">⌘K</span></div>' +
       '<button class="icon-btn" data-toast="3 new notifications">' + I('bell') + '<span class="dotn"></span></button>' +
-      '<button class="role-switch" id="switch">' + I('users') + 'Switch role</button></header>' +
+      '<button class="role-switch" id="switch">' + I('users') + '<span class="rs-lbl">Switch role</span></button></header>' +
       '<section class="view"><div class="page-head"><div><div class="eyebrow">' + (screen.eyebrow || role.name) + '</div><h1>' + screen.title + '</h1><p>' + (screen.sub || '') + '</p></div><div class="actions">' + actions + '</div></div>' +
       '<div class="blocks">' + screen.blocks.map(block).join('') + '</div>' +
       '<div class="note">' + I('eye') + 'Mock-up with sample data for review. Final design is refined in design workshops.</div></section></div></div>' +
       '<div class="modal" id="modal"><div class="modal-box"><button class="modal-close" id="close">' + I('x') + '</button><h2 style="font-family:var(--serif);font-weight:500;margin:0 0 6px">Switch role</h2><p style="color:rgba(255,255,255,.6);margin:0 0 8px">Walk through the journey of any role.</p>' + groups() + '</div></div>';
   }
 
+  function railPref() { try { return localStorage.getItem('rail') === '1'; } catch (e) { return false; } }
+  function setRail(v) { try { localStorage.setItem('rail', v ? '1' : '0'); } catch (e) {} }
   function render() {
     var h = (location.hash || '').replace('#', '');
     var root = document.getElementById('root');
@@ -125,6 +127,14 @@
     ROLES.forEach(function (r) { r.screens.forEach(function (s) { if (r.id + '-' + s.id === h) { role = r; screen = s; } }); });
     root.innerHTML = role ? app(role, screen) : hub();
     window.scrollTo(0, 0);
+    var appEl = document.getElementById('app');
+    if (appEl) {
+      document.getElementById('menu').onclick = function () { appEl.classList.toggle('open'); };
+      document.getElementById('scrim').onclick = function () { appEl.classList.remove('open'); };
+      var cb = document.getElementById('collapse');
+      if (cb) cb.onclick = function () { var on = !appEl.classList.contains('rail'); appEl.classList.toggle('rail', on); setRail(on); };
+      appEl.querySelector('.side').addEventListener('click', function (e) { if (appEl.classList.contains('rail') && e.target.closest('.brand-mark')) { appEl.classList.remove('rail'); setRail(false); } });
+    }
     var sw = document.getElementById('switch');
     if (sw) {
       var m = document.getElementById('modal');
