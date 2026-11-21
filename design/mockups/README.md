@@ -19,14 +19,15 @@ cd design/mockups && python3 -m http.server 8080
 
 ## Design direction
 
-**Web portals — modern, sleek, premium**
-- Deep ink sidebar (`#0d1526`), warm ivory canvas (`#f7f4ee`), champagne-gold accents (`#c8a55a`).
-- Editorial serif for headings (Fraunces) and a precise sans for data (Inter).
-- One dark "hero" figure per dashboard, traffic-light readiness (green / amber / red) on every pack, and the next action always one click away.
+**Web portals — modern, sleek, professional (locked theme: Option C)**
+- Light sidebar (`#ffffff`), soft grey-blue canvas (`#f6f7fb`), indigo primary (`#4338ca`), deep indigo for dark surfaces (`#1e1b4b`).
+- Inter for all interface text at SaaS-standard sizes (page titles 22px, card titles 14px, body 13.5px); serif only in the brand mark.
+- Left sidebar at every width: full (collapsible), icon rail on laptops, slide-in drawer on phones.
+- One indigo "hero" figure per dashboard, traffic-light readiness (green / amber / red) on every pack, and the next action always one click away.
 - Each TP's own logo, colours and domain appear in the sidebar and on learner sign-in (white-label).
 
 **Mobile apps — three personalities on one design language**
-- **Aurora** (learners, graduates, entrepreneurs): midnight canvas with teal–violet–amber aurora gradients, glass cards, progress rings, streaks, badges and a centre capture button. Built to make daily learning a habit.
+- **Aurora** (learners, graduates, entrepreneurs): deep indigo canvas with teal–violet–amber aurora gradients, glass cards, progress rings, streaks, badges and a centre capture button. Built to make daily learning a habit.
 - **Site** (site supervisors): high contrast and readable in bright sun, safety-yellow, oversized buttons for gloved hands, offline banner, voice logging.
 - **Studio** (facilitators, assessors, assessment centres): calm light canvas with teal accents for fast data entry; landscape tablet for exam-day check-in.
 
