@@ -7,7 +7,7 @@ return [
      | Secret mixed into identity-number and PIN hashes. Must differ from APP_KEY
      | and stay stable: changing it makes existing ID numbers unfindable.
      */
-    'pepper' => env('IDENTITY_PEPPER', env('APP_KEY')),
+    'pepper' => env('IDENTITY_PEPPER') ?: env('APP_KEY'),
 
     'default_country' => 'ZA',
 
