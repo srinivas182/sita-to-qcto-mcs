@@ -13,7 +13,7 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: dark ? '#a5b4fc' : '#4338ca',
-        tabBarInactiveTintColor: dark ? '#a3a8c3' : '#8a90a3',
+        tabBarInactiveTintColor: dark ? '#a3a8c3' : '#6b7186',
         tabBarStyle: { backgroundColor: dark ? '#181a2e' : '#ffffff', borderTopColor: dark ? '#272a44' : '#e6e8f0', height: 64, paddingTop: 6 },
         tabBarLabelStyle: { fontFamily: 'Sora_500Medium', fontSize: 11, marginBottom: 6 },
       }}

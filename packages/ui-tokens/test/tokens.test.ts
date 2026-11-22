@@ -29,3 +29,11 @@ describe('NativeWind preset', () => {
     expect([c.success, c.warning, c.danger, c.info]).toEqual([colors.success.fg, colors.warning.fg, colors.danger.fg, colors.info.fg]);
   });
 });
+
+describe('secondary text', () => {
+  it('faint text is still readable (AA for small text) on every background', () => {
+    for (const bg of [colors.surface, colors.canvas, colors.surfaceMuted]) {
+      expect(contrastRatio(colors.textFaint, bg)).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+});

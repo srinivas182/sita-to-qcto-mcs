@@ -20,3 +20,15 @@ it('reports ready when the database and redis respond', function (): void {
 it('serves a json landing response on the root', function (): void {
     $this->getJson('/')->assertOk()->assertJsonPath('name', 'Skills Ecosystem API');
 });
+
+it('grants no cross-origin access', function (): void {
+    makeProvider('tym');
+
+    $this->withHeaders(['Origin' => 'https://evil.example', 'Access-Control-Request-Method' => 'POST'])
+        ->options('https://tym.skills.test/v1/auth/login')
+        ->assertHeaderMissing('Access-Control-Allow-Origin');
+
+    $this->withHeaders(['Origin' => 'https://evil.example'])
+        ->getJson('https://tym.skills.test/v1/branding')
+        ->assertHeaderMissing('Access-Control-Allow-Origin');
+});

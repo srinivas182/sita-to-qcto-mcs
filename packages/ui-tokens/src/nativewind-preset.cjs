@@ -11,7 +11,7 @@ const colors = {
   'line-soft': '#eff1f6',
   ink: '#14182b',
   muted: '#5f6579',
-  faint: '#8a90a3',
+  faint: '#6b7186',
   success: '#166c52',
   'success-bg': '#e6f4ee',
   warning: '#8a5a0b',
