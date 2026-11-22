@@ -256,3 +256,22 @@ billing); Paystack and PayFast subscriptions (South Africa); Thinkific/Teachable
 
 **2b-ii** adds the Peach Payments, Ozow, Yoco, Stitch and iKhokha adapters on the same
 interface, each built against its current API documentation.
+
+### 2b-ii: the other five gateways (built 22 Nov 2026)
+Each adapter follows its gateway's current documentation. Each one checks the result
+a second, independent way before an invoice is marked paid.
+
+| Gateway | How we start a payment | How we know it was paid | Renewals |
+|---|---|---|---|
+| Peach Payments | OAuth token → Hosted Checkout V2 (`/v2/checkout`) | HMAC-SHA256 webhook signing (if switched on), **plus** a status read-back from Peach | Pay each invoice |
+| Ozow | `PostPaymentRequest` with SHA512 HashCheck | Notification hash (SHA512) and site code check | One-off EFT |
+| Yoco | Checkout API (`/api/checkouts`) | Standard Webhooks signature with a 5-minute replay window | Pay each invoice |
+| Stitch | Client token → REST payment request, with redirect URLs added | Svix signature, **plus** a status read-back from Stitch | Pay each invoice |
+| iKhokha | iK Pay API payment link, signed with IK-SIGN | Signed callback and app ID check | One-off |
+
+**Points to confirm with a single sandbox payment per gateway before going live:**
+- iKhokha's signature escaping: its published samples differ.
+- Yoco's webhook payload fields.
+- Peach's success codes: we use the standard processed-successfully code pattern.
+
+Each gateway's Settings dialog says this.

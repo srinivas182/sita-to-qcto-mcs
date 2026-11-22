@@ -29,6 +29,7 @@ export interface Driver {
   label: string;
   description: string;
   capabilities: string[];
+  note: string | null;
   fields: IntegrationField[];
   integration: Integration | null;
 }

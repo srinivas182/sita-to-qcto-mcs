@@ -76,7 +76,7 @@ final class PaymentService
                 description: 'Invoice '.$invoice->number,
                 returnUrl: $returnUrl.(str_contains($returnUrl, '?') ? '&' : '?').'payment='.$payment->reference,
                 cancelUrl: $returnUrl.(str_contains($returnUrl, '?') ? '&' : '?').'payment='.$payment->reference.'&cancelled=1',
-                notifyUrl: $this->webhookUrl($driver),
+                notifyUrl: Gateways::webhookUrl($driver),
                 saveMethod: $saveCard,
                 method: $method,
                 customerName: $profile?->legal_name,
@@ -299,13 +299,7 @@ final class PaymentService
 
     private function reference(): string
     {
-        return 'PAY-'.strtoupper((string) Str::ulid());
-    }
-
-    private function webhookUrl(string $driver): string
-    {
-        $base = rtrim((string) config('billing.webhook_base', config('app.url')), '/');
-
-        return $base.'/v1/webhooks/payments/'.$driver;
+        // 16 characters: within every gateway's limit (Peach allows 8–16).
+        return 'P'.strtoupper(Str::random(15));
     }
 }

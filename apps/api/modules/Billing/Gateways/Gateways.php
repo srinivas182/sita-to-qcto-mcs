@@ -19,7 +19,18 @@ final class Gateways
     public const ADAPTERS = [
         'payment.paystack' => PaystackGateway::class,
         'payment.payfast' => PayFastGateway::class,
+        'payment.peach' => PeachGateway::class,
+        'payment.ozow' => OzowGateway::class,
+        'payment.yoco' => YocoGateway::class,
+        'payment.stitch' => StitchGateway::class,
+        'payment.ikhokha' => IKhokhaGateway::class,
     ];
+
+    /** The public URL a gateway sends its webhooks to (also part of some signatures). */
+    public static function webhookUrl(string $driver): string
+    {
+        return rtrim((string) config('billing.webhook_base', config('app.url')), '/').'/v1/webhooks/payments/'.$driver;
+    }
 
     public function __construct(
         private readonly TenantContext $context,

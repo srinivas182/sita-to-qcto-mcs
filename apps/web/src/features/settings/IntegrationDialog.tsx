@@ -170,6 +170,7 @@ export function IntegrationDialog({
       <form onSubmit={submit} className="grid gap-4">
         {error ? <Alert tone="danger">{error}</Alert> : null}
         {notice ? <Alert tone={notice.ok ? 'success' : 'danger'}>{notice.message}</Alert> : null}
+        {driver.note ? <Alert tone="info">{driver.note}</Alert> : null}
         {group.modes ? (
           <Select label="Account" value={mode} onChange={(e) => setMode(e.target.value as 'sandbox' | 'live')}>
             <option value="sandbox">Sandbox (test keys, no real money)</option>
