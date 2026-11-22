@@ -55,6 +55,8 @@ export const en = {
   'nav.overview': 'Overview',
   'nav.applications': 'Applications',
   'nav.centres': 'Centres',
+  'nav.catalogue': 'Catalogue',
+  'nav.programmes': 'Programmes',
   'nav.tenants': 'Training providers',
   'nav.cells': 'Cells',
   'nav.staff': 'Platform staff',

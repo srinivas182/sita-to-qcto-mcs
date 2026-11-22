@@ -55,6 +55,14 @@ return [
             'public_variants' => false,
             'uploadable' => false,
         ],
+        'curriculum_document' => [
+            'scope' => 'tenant',
+            'permission' => 'programmes.manage',
+            'max_kb' => 20480,
+            'mimes' => ['application/pdf'],
+            'variants' => [],
+            'public_variants' => false,
+        ],
         'application_document' => [
             'scope' => 'platform',
             'permission' => 'platform.tenants.manage',

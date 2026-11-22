@@ -195,16 +195,35 @@ Every tenant table gets `tenant_id` and forced RLS. Catalogue tables are readabl
 | Signature disputes | Strong evidence trail (PIN, device, hash, verification page); an advanced e-signature provider can be added |
 | Two weeks over the year-end break | Catalogue and people first; agreements and cohorts second; 3D runs in parallel |
 
-## 9. Decisions proposed
+## 9. Decisions (approved 22 Nov 2026)
 
-1. **Signatures:** our own ordinary e-signature, with PIN identity and a sealed evidence trail, for workplace agreements and MoUs. Add an accredited **advanced** e-signature provider later only if a SETA or law requires one.
-2. **Catalogue ownership:** a single curated catalogue owned by the platform. Providers adopt from it and cannot edit it, but can add notes and prices.
-3. **Mentor ratio:** 1:10 by default, editable per qualification and site.
-4. **Equity fields** (race, gender, disability): optional, with explicit consent, encrypted.
+1. **Pilot qualifications.**
+   - **Pilot:** Occupational Certificate: Bricklayer (SAQA 93627; NQF 4; 361 credits; CETA, with NAMB for the trade test).
+     - SAQA shows its last enrolment date as **30 Dec 2026**. TYM to confirm whether it is being extended.
+     - The modules and curriculum code are loaded from the QCTO curriculum document; nothing is guessed.
+   - **Legacy:** National Certificate: Building and Civil Construction (SAQA 65409).
+     - Last enrolment 30 Jun 2028; last achievement 30 Jun 2031.
+     - Replaced by 126058, 126057 and 126077.
+     - TYM to confirm it is accredited for it.
+   - **Seeded complete from SAQA:** GETC: Construction (49411), with all 106 unit standards and its credit rules.
+2. **Advanced e-signature: a yes/no switch per agreement template**, with a default per provider.
+   - **No (default):** our own PIN-verified signature with a sealed evidence trail.
+   - **Yes:** LAWtrust (Altron Security), the longest-accredited provider, through its signing API.
+   - Use Yes only where a SETA requires it, because it is charged per signature and the signer needs a certificate.
+3. **Catalogue: both teams.**
+   - Our team (the JV compliance desk role) loads entries from the QCTO and SAQA documents.
+   - Providers' quality managers suggest additions and corrections. The desk accepts or declines them, and the provider is emailed.
+   - TYM's quality manager can join the JV compliance desk to sign off the pilot.
+4. **Mentor ratio:** 1:10 by default, editable per qualification and per site.
+5. **Equity fields** (race, gender, disability): optional, collected only with explicit consent, and encrypted.
+6. **Simulator 1 workshop:** proposed for Thursday 3 Dec 2026, 10:00–13:00 SAST, with 8 Dec as backup.
+   - Simulator 1 would be bricklaying, to match the pilot.
+   - Output: a specification signed off by 10 Dec.
 
-## 10. Questions for you / TYM
+## 10. Open with TYM
 
-1. Which **pilot qualification** (curriculum code) for the demo, and which **legacy** one does TYM still enrol?
-2. Do any of TYM's SETAs **require an advanced electronic signature** on workplace agreements? If so, which provider do you prefer, and would you accept its per-signature cost?
-3. Who keys in the **catalogue**: our team from the QCTO curriculum documents, or TYM's quality manager?
-4. Is the **simulator 1 workshop** date set?
+- Whether the Bricklayer qualification (93627) has its enrolment extended past 30 Dec 2026.
+- TYM's accreditation for 65409.
+- The QCTO curriculum document for 93627.
+- The workshop date.
+- A LAWtrust account (only if a SETA requires advanced e-signatures).

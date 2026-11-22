@@ -1,0 +1,868 @@
+{
+ "type": "legacy_qualification",
+ "saqa_id": "49411",
+ "title": "General Education and Training Certificate: Construction",
+ "nqf_level": 1,
+ "credits": 120,
+ "quality_partner": "CETA",
+ "registration_end": "2023-06-30",
+ "last_enrolment_on": "2026-06-30",
+ "last_achievement_on": "2029-06-30",
+ "credit_rules": {
+  "fundamental": 59,
+  "core": 21,
+  "elective_min": 40
+ },
+ "source_url": "https://allqs.saqa.org.za/showQualification.php?id=49411",
+ "notes": "Source: South African Qualifications Authority (SAQA), Qual ID 49411. Reregistered; registration end 30 June 2023.",
+ "modules": [
+  {
+   "kind": "US",
+   "group": "core",
+   "code": "13995",
+   "title": "Demonstrate an understanding of contracts and their sources",
+   "nqf_level": 1,
+   "credits": 2
+  },
+  {
+   "kind": "US",
+   "group": "core",
+   "code": "14656",
+   "title": "Demonstrate an understanding of sexuality and sexually transmitted infections including HIV/AIDS",
+   "nqf_level": 1,
+   "credits": 5
+  },
+  {
+   "kind": "US",
+   "group": "core",
+   "code": "14445",
+   "title": "Frame and implement an individual action plan to improve productivity within an organisational unit",
+   "nqf_level": 1,
+   "credits": 3
+  },
+  {
+   "kind": "US",
+   "group": "core",
+   "code": "13973",
+   "title": "Identify and use protective clothing and equipment in general construction",
+   "nqf_level": 1,
+   "credits": 4
+  },
+  {
+   "kind": "US",
+   "group": "core",
+   "code": "12877",
+   "title": "Use and maintain Hand tools on a Construction Site",
+   "nqf_level": 1,
+   "credits": 4
+  },
+  {
+   "kind": "US",
+   "group": "core",
+   "code": "9978",
+   "title": "Describe the construction industry composition its work procurement systems and communication techniques",
+   "nqf_level": 2,
+   "credits": 3
+  },
+  {
+   "kind": "US",
+   "group": "fundamental",
+   "code": "12449",
+   "title": "Engage in a range of speaking and listening interactions (Revised)",
+   "nqf_level": null,
+   "credits": 6
+  },
+  {
+   "kind": "US",
+   "group": "fundamental",
+   "code": "12453",
+   "title": "Use reading skills to respond to defined texts",
+   "nqf_level": null,
+   "credits": 8
+  },
+  {
+   "kind": "US",
+   "group": "fundamental",
+   "code": "12460",
+   "title": "Write defined texts",
+   "nqf_level": null,
+   "credits": 6
+  },
+  {
+   "kind": "US",
+   "group": "fundamental",
+   "code": "7464",
+   "title": "Analyse cultural products and processes as representations of shape, space and time",
+   "nqf_level": 1,
+   "credits": 2
+  },
+  {
+   "kind": "US",
+   "group": "fundamental",
+   "code": "7451",
+   "title": "Collect, analyse, use and communicate numerical data",
+   "nqf_level": 1,
+   "credits": 2
+  },
+  {
+   "kind": "US",
+   "group": "fundamental",
+   "code": "7449",
+   "title": "Critically analyse how mathematics is used in social, political and economic relations",
+   "nqf_level": 1,
+   "credits": 2
+  },
+  {
+   "kind": "US",
+   "group": "fundamental",
+   "code": "14084",
+   "title": "Demonstrate an understanding of and use the numbering system",
+   "nqf_level": 1,
+   "credits": 1
+  },
+  {
+   "kind": "US",
+   "group": "fundamental",
+   "code": "7463",
+   "title": "Describe and represent objects and the environment in terms of shape, space, time and motion",
+   "nqf_level": 1,
+   "credits": 2
+  },
+  {
+   "kind": "US",
+   "group": "fundamental",
+   "code": "12462",
+   "title": "Engage in a range of speaking and listening interactions for a variety of purposes",
+   "nqf_level": 1,
+   "credits": 6
+  },
+  {
+   "kind": "US",
+   "group": "fundamental",
+   "code": "12471",
+   "title": "Explore and use a variety of strategies to learn (revised)",
+   "nqf_level": 1,
+   "credits": 5
+  },
+  {
+   "kind": "US",
+   "group": "fundamental",
+   "code": "12469",
+   "title": "Read and respond to a range of text types",
+   "nqf_level": 1,
+   "credits": 6
+  },
+  {
+   "kind": "US",
+   "group": "fundamental",
+   "code": "7461",
+   "title": "Use maps to access and communicate information concerning routes, location and direction",
+   "nqf_level": 1,
+   "credits": 1
+  },
+  {
+   "kind": "US",
+   "group": "fundamental",
+   "code": "7447",
+   "title": "Working with numbers in various contexts",
+   "nqf_level": 1,
+   "credits": 6
+  },
+  {
+   "kind": "US",
+   "group": "fundamental",
+   "code": "12470",
+   "title": "Write for a variety of different purposes",
+   "nqf_level": 1,
+   "credits": 6
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "14897",
+   "title": "Adhere to health and safety requirements",
+   "nqf_level": 1,
+   "credits": 3
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "12916",
+   "title": "Batch and mix concrete by volume",
+   "nqf_level": 1,
+   "credits": 5
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "119069",
+   "title": "Build masonry superstructures using hollow units",
+   "nqf_level": 1,
+   "credits": 12
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "119073",
+   "title": "Build masonry superstructures using solid units",
+   "nqf_level": 1,
+   "credits": 12
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "14443",
+   "title": "Demonstrate a critical understanding of the role and impact of technology in society",
+   "nqf_level": 1,
+   "credits": 3
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "14569",
+   "title": "Demonstrate an understanding of how to participate effectively in the workplace",
+   "nqf_level": 1,
+   "credits": 3
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "14664",
+   "title": "Demonstrate knowledge of diversity within different relationships in the South African society",
+   "nqf_level": 1,
+   "credits": 3
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "14661",
+   "title": "Demonstrate knowledge of self in order to understand one's identity and role within the immediate community and South African society",
+   "nqf_level": 1,
+   "credits": 3
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "13971",
+   "title": "Describe and interpret the composition, roleplayers, processes and role of the construction industry",
+   "nqf_level": 1,
+   "credits": 3
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "9357",
+   "title": "Develop and use keyboard skills to enter text",
+   "nqf_level": 1,
+   "credits": 4
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "13174",
+   "title": "Identify and discuss inappropriate behaviours in the workplace",
+   "nqf_level": 1,
+   "credits": 2
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "119056",
+   "title": "Identify, describe and utilise materials in construction",
+   "nqf_level": 1,
+   "credits": 4
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "119064",
+   "title": "Install and maintain basic plumbing components",
+   "nqf_level": 1,
+   "credits": 12
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "12904",
+   "title": "Install Gabion Baskets on a Construction Site",
+   "nqf_level": 1,
+   "credits": 5
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "12901",
+   "title": "Maintain vegetation and minor structures within the road reserve",
+   "nqf_level": 1,
+   "credits": 6
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "12509",
+   "title": "Manage personal finances",
+   "nqf_level": 1,
+   "credits": 8
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "116932",
+   "title": "Operate a personal computer system",
+   "nqf_level": 1,
+   "credits": 3
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "15091",
+   "title": "Plan to manage one's time",
+   "nqf_level": 1,
+   "credits": 3
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "12512",
+   "title": "Practice environmental awareness",
+   "nqf_level": 1,
+   "credits": 4
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "14014",
+   "title": "Read and interpret construction drawings and specifications",
+   "nqf_level": 1,
+   "credits": 3
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "10567",
+   "title": "Transport personnel, material and equipment using Light Delivery Vehicle",
+   "nqf_level": 1,
+   "credits": 4
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "14092",
+   "title": "Understand and apply technological knowledge and skills in systems and control",
+   "nqf_level": 1,
+   "credits": 3
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "13172",
+   "title": "Understand the employer/employee relationship",
+   "nqf_level": 1,
+   "credits": 3
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "12878",
+   "title": "Use and maintain Power Hand Tools on a construction Site",
+   "nqf_level": 1,
+   "credits": 5
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "119076",
+   "title": "Use and maintain small plant and equipment on a construction site",
+   "nqf_level": 1,
+   "credits": 4
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "9964",
+   "title": "Apply health and safety to a work area",
+   "nqf_level": 2,
+   "credits": 3
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "14554",
+   "title": "Apply hot mix asphalt",
+   "nqf_level": 2,
+   "credits": 5
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "114917",
+   "title": "Apply labour intensive construction methods to construct and maintain water and sanitation services",
+   "nqf_level": 2,
+   "credits": 8
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "114921",
+   "title": "Apply labour intensive construction systems and techniques to work activities",
+   "nqf_level": 2,
+   "credits": 12
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "119065",
+   "title": "Apply plaster and screeds to surfaces",
+   "nqf_level": 2,
+   "credits": 11
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "9986",
+   "title": "Apply quality principles on a construction site",
+   "nqf_level": 2,
+   "credits": 12
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "9988",
+   "title": "Apply surveying techniques on a construction contract",
+   "nqf_level": 2,
+   "credits": 10
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "116573",
+   "title": "Assemble, tie and fix reinforcing cages",
+   "nqf_level": 2,
+   "credits": 3
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "14884",
+   "title": "Build masonry superstructures using solid and hollow units",
+   "nqf_level": 2,
+   "credits": 12
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "119067",
+   "title": "Build masonry superstructures using solid units",
+   "nqf_level": 2,
+   "credits": 12
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "14555",
+   "title": "Conduct a bituminous seal operation",
+   "nqf_level": 2,
+   "credits": 5
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "14557",
+   "title": "Conduct routine site tests to fresh and hardened concrete",
+   "nqf_level": 2,
+   "credits": 6
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "114219",
+   "title": "Demonstrate an understanding and implement environmental initiatives on a construction activity",
+   "nqf_level": 2,
+   "credits": 4
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "113860",
+   "title": "Demonstrate an understanding of the uses and safety aspect associated with flammable energy sources",
+   "nqf_level": 2,
+   "credits": 3
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "116051",
+   "title": "Demonstrate fundamental knowledge of earthworks",
+   "nqf_level": 2,
+   "credits": 5
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "116162",
+   "title": "Demonstrate knowledge of civil construction works",
+   "nqf_level": 2,
+   "credits": 5
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "116152",
+   "title": "Demonstrate mechanical awareness and plant appreciation",
+   "nqf_level": 2,
+   "credits": 5
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "119074",
+   "title": "Erect and dismantle scaffolding",
+   "nqf_level": 2,
+   "credits": 4
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "119041",
+   "title": "Erect and strip steel formwork for straight walls, columns and bases",
+   "nqf_level": 2,
+   "credits": 8
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "119050",
+   "title": "Erect ceilings and timber frame partitions",
+   "nqf_level": 2,
+   "credits": 18
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "119042",
+   "title": "Erect, alter/reposition and dismantle access scaffolding",
+   "nqf_level": 2,
+   "credits": 13
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "119061",
+   "title": "Erect, alter/reposition and dismantle load bearing scaffolding",
+   "nqf_level": 2,
+   "credits": 13
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "9966",
+   "title": "Establish and prepare a work area",
+   "nqf_level": 2,
+   "credits": 4
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "119045",
+   "title": "Fabricate, erect and strip timber formwork for straight walls, columns and bases",
+   "nqf_level": 2,
+   "credits": 8
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "10252",
+   "title": "Identify, inspect, use, maintain and care for engineering hand tools",
+   "nqf_level": 2,
+   "credits": 6
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "14561",
+   "title": "Implement roadside safety procedures",
+   "nqf_level": 2,
+   "credits": 2
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "119059",
+   "title": "Install and maintain a below ground drainage system",
+   "nqf_level": 2,
+   "credits": 10
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "119062",
+   "title": "Install and maintain a water supply system",
+   "nqf_level": 2,
+   "credits": 10
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "12899",
+   "title": "Install and maintain road furniture",
+   "nqf_level": 2,
+   "credits": 2
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "119066",
+   "title": "Install carpentry finishing components",
+   "nqf_level": 2,
+   "credits": 15
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "119077",
+   "title": "Install control valves",
+   "nqf_level": 2,
+   "credits": 3
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "12903",
+   "title": "Install precast concrete pipes",
+   "nqf_level": 2,
+   "credits": 5
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "119079",
+   "title": "Install pressure pipes",
+   "nqf_level": 2,
+   "credits": 5
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "119068",
+   "title": "Install roof covering",
+   "nqf_level": 2,
+   "credits": 12
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "119057",
+   "title": "Install, test and maintain above ground drainage systems",
+   "nqf_level": 2,
+   "credits": 10
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "13958",
+   "title": "Maintain and repair bituminous road surfaces",
+   "nqf_level": 2,
+   "credits": 8
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "119715",
+   "title": "Maintain and repair un-surfaced road shoulders",
+   "nqf_level": 2,
+   "credits": 6
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "14336",
+   "title": "Maintain records on a constuction site",
+   "nqf_level": 2,
+   "credits": 2
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "12913",
+   "title": "Mix and apply slurry (By mixer)",
+   "nqf_level": 2,
+   "credits": 4
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "116177",
+   "title": "Operate a tractor",
+   "nqf_level": 2,
+   "credits": 6
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "8420",
+   "title": "Operate in a team",
+   "nqf_level": 2,
+   "credits": 4
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "12905",
+   "title": "Paint road symbols by spray gun",
+   "nqf_level": 2,
+   "credits": 1
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "119070",
+   "title": "Prepare and apply tiles to plastered surfaces, and apply plaster and screeds to walls and floors",
+   "nqf_level": 2,
+   "credits": 11
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "119071",
+   "title": "Prepare, manufacture and erect roof trusses",
+   "nqf_level": 2,
+   "credits": 15
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "119072",
+   "title": "Prepare, prime and paint new and previously coated surfaces",
+   "nqf_level": 2,
+   "credits": 18
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "14054",
+   "title": "Read and interpret construction drawings and specifications",
+   "nqf_level": 2,
+   "credits": 3
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "116578",
+   "title": "Read and interpret reinforcing materials documentation",
+   "nqf_level": 2,
+   "credits": 3
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "9965",
+   "title": "Render basic first aid",
+   "nqf_level": 2,
+   "credits": 3
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "14564",
+   "title": "Repair concrete and segmented concrete (block) road surface",
+   "nqf_level": 2,
+   "credits": 4
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "10255",
+   "title": "Select, use and care for power tools",
+   "nqf_level": 2,
+   "credits": 5
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "119075",
+   "title": "Understand and describe basic plumbing principles",
+   "nqf_level": 2,
+   "credits": 8
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "14565",
+   "title": "Use a concrete dumper to haul and dump material",
+   "nqf_level": 2,
+   "credits": 2
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "14566",
+   "title": "Use a sideboom to lift, lower and carry material",
+   "nqf_level": 2,
+   "credits": 5
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "14567",
+   "title": "Use a small self propelled compactor to compact material",
+   "nqf_level": 2,
+   "credits": 7
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "14568",
+   "title": "Use a tractor to tow various construction implements and attachments",
+   "nqf_level": 2,
+   "credits": 7
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "12875",
+   "title": "Use and maintain small plant and equipment on a construction site",
+   "nqf_level": 2,
+   "credits": 10
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "114916",
+   "title": "Use labour intensive construction methods to construct and maintain roads and stormwater drainage",
+   "nqf_level": 2,
+   "credits": 8
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "114930",
+   "title": "Use labour intensive construction methods to construct, repair and maintain structures",
+   "nqf_level": 2,
+   "credits": 8
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "15034",
+   "title": "Work in confined spaces on construction sites",
+   "nqf_level": 2,
+   "credits": 2
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "116569",
+   "title": "Operate and maintain a steel bending machine",
+   "nqf_level": 3,
+   "credits": 5
+  },
+  {
+   "kind": "US",
+   "group": "elective",
+   "code": "116566",
+   "title": "Operate and maintain a steel cutting machine",
+   "nqf_level": 3,
+   "credits": 5
+  }
+ ]
+}
