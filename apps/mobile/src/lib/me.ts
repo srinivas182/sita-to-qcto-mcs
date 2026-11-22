@@ -4,7 +4,7 @@ import { cache } from './db';
 
 export interface Me {
   user: { first_name: string; last_name: string; phone: string | null; email: string | null };
-  tenant: { name: string } | null;
+  tenant: { name: string; billing?: { status: string; trial_ends_at: string | null } | null } | null;
   roles: Array<{ role: string; label: string }>;
 }
 

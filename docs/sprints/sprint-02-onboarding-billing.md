@@ -1,6 +1,6 @@
 # Sprint 2 — Provider onboarding, billing and centres
 
-**Plan dates:** 7–18 Dec 2026 (Phase 1 – SaaS compliance core). **Status:** approved 22 Nov 2026 (decisions in §9); in build.
+**Plan dates:** 7–18 Dec 2026 (Phase 1 – SaaS compliance core). **Status:** done — see the close report, `sprint-02-report.md`.
 **Goal (from the sprint plan):** *TPs can sign up, pay and set up centres.*
 Sprint 1 already delivered custom domains with auto SSL, branding, and TP code/QR in
 the app. This sprint finishes the rest of that goal and the Sprint 1 carry-overs: real

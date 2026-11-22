@@ -22,9 +22,38 @@ final class MetaWhatsApp implements MessagingDriver
 {
     public function __construct(private readonly Integration $integration) {}
 
+    /**
+     * Notices (application decisions, billing reminders) go through an approved utility
+     * template whose body is a single {{1}} parameter. Without one, WhatsApp is skipped.
+     */
     public function sendText(string $to, string $text, string $reference): SendResult
     {
-        return SendResult::rejected('WhatsApp needs an approved template for messages the business starts.');
+        $template = $this->integration->value('notice_template');
+        if (! is_string($template) || $template === '') {
+            return SendResult::rejected('WhatsApp needs an approved notice template for messages the business starts.');
+        }
+
+        // Template parameters may not contain new lines, tabs or more than 4 spaces in a row.
+        $param = mb_substr(trim((string) preg_replace('/\s+/', ' ', $text)), 0, 1000);
+
+        $response = $this->http()->post('/'.$this->integration->value('phone_number_id').'/messages', [
+            'messaging_product' => 'whatsapp',
+            'recipient_type' => 'individual',
+            'to' => ltrim($to, '+'),
+            'type' => 'template',
+            'biz_opaque_callback_data' => $reference,
+            'template' => [
+                'name' => $template,
+                'language' => ['code' => (string) $this->integration->value('otp_language', 'en')],
+                'components' => [['type' => 'body', 'parameters' => [['type' => 'text', 'text' => $param]]]],
+            ],
+        ]);
+
+        $id = $response->json('messages.0.id');
+
+        return $response->successful() && is_string($id)
+            ? SendResult::accepted($id)
+            : SendResult::rejected('WhatsApp: '.($response->json('error.message') ?? $response->status()));
     }
 
     public function sendCode(string $to, string $code, string $text, string $reference): SendResult

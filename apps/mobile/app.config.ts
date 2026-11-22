@@ -35,6 +35,7 @@ const config: ExpoConfig = {
     ['expo-sqlite', { useSQLCipher: true }],
     ['expo-local-authentication', { faceIDPermission: 'Unlock the app with Face ID.' }],
     ['expo-camera', { cameraPermission: 'Scan your training provider’s QR code and capture evidence.' }],
+    ['expo-notifications', { icon: './assets/icon.png', color: '#4338ca' }],
     ['expo-build-properties', { android: { minSdkVersion: 26 }, ios: { deploymentTarget: '16.4' } }],
   ],
   web: { bundler: 'metro', output: 'single' },

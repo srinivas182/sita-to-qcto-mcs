@@ -334,7 +334,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["modules.audit.auditLog.index_49"];
+        get: operations["modules.audit.auditLog.index_52"];
         put?: never;
         post?: never;
         delete?: never;
@@ -350,7 +350,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["modules.audit.auditLog.index_68"];
+        get: operations["modules.audit.auditLog.index_71"];
         put?: never;
         post?: never;
         delete?: never;
@@ -772,9 +772,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["modules.tenancy.domain.index_33"];
+        get: operations["modules.tenancy.domain.index_36"];
         put?: never;
-        post: operations["modules.tenancy.domain.store_34"];
+        post: operations["modules.tenancy.domain.store_37"];
         delete?: never;
         options?: never;
         head?: never;
@@ -791,7 +791,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Live DNS + certificate check (the "Check now" button) */
-        post: operations["modules.tenancy.domain.verify_35"];
+        post: operations["modules.tenancy.domain.verify_38"];
         delete?: never;
         options?: never;
         head?: never;
@@ -805,7 +805,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["modules.tenancy.domain.status_36"];
+        get: operations["modules.tenancy.domain.status_39"];
         put?: never;
         post?: never;
         delete?: never;
@@ -823,7 +823,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["modules.tenancy.domain.primary_37"];
+        post: operations["modules.tenancy.domain.primary_40"];
         delete?: never;
         options?: never;
         head?: never;
@@ -840,7 +840,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["modules.tenancy.domain.destroy_38"];
+        delete: operations["modules.tenancy.domain.destroy_41"];
         options?: never;
         head?: never;
         patch?: never;
@@ -853,9 +853,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["modules.tenancy.domain.index_61"];
+        get: operations["modules.tenancy.domain.index_64"];
         put?: never;
-        post: operations["modules.tenancy.domain.store_62"];
+        post: operations["modules.tenancy.domain.store_65"];
         delete?: never;
         options?: never;
         head?: never;
@@ -872,7 +872,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Live DNS + certificate check (the "Check now" button) */
-        post: operations["modules.tenancy.domain.verify_63"];
+        post: operations["modules.tenancy.domain.verify_66"];
         delete?: never;
         options?: never;
         head?: never;
@@ -886,7 +886,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["modules.tenancy.domain.status_64"];
+        get: operations["modules.tenancy.domain.status_67"];
         put?: never;
         post?: never;
         delete?: never;
@@ -904,7 +904,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["modules.tenancy.domain.primary_65"];
+        post: operations["modules.tenancy.domain.primary_68"];
         delete?: never;
         options?: never;
         head?: never;
@@ -921,7 +921,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["modules.tenancy.domain.destroy_66"];
+        delete: operations["modules.tenancy.domain.destroy_69"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1639,6 +1639,39 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/push-tokens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["pushToken.store"];
+        delete: operations["pushToken.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/push-tokens/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Settings → "Send a test notification" */
+        post: operations["pushToken.test"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/roles": {
         parameters: {
             query?: never;
@@ -1879,7 +1912,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["modules.access.supportAccess.revoke_48"];
+        post: operations["modules.access.supportAccess.revoke_51"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1913,7 +1946,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["modules.access.supportAccess.revoke_71"];
+        post: operations["modules.access.supportAccess.revoke_74"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3482,7 +3515,7 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
-    "modules.audit.auditLog.index_49": {
+    "modules.audit.auditLog.index_52": {
         parameters: {
             query?: {
                 tenant_id?: string | null;
@@ -3529,7 +3562,7 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
-    "modules.audit.auditLog.index_68": {
+    "modules.audit.auditLog.index_71": {
         parameters: {
             query?: {
                 tenant_id?: string | null;
@@ -4801,6 +4834,11 @@ export interface operations {
                         branding: {
                             [key: string]: unknown;
                         } | string;
+                        verified: {
+                            accreditation_number: string | null;
+                            valid_until: string | null;
+                            verified_on: string | null;
+                        } | null;
                     } | {
                         name: string;
                         platform: boolean;
@@ -4874,7 +4912,7 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
-    "modules.tenancy.domain.index_33": {
+    "modules.tenancy.domain.index_36": {
         parameters: {
             query?: never;
             header?: never;
@@ -4898,7 +4936,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.store_34": {
+    "modules.tenancy.domain.store_37": {
         parameters: {
             query?: never;
             header?: never;
@@ -4930,7 +4968,7 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
-    "modules.tenancy.domain.verify_35": {
+    "modules.tenancy.domain.verify_38": {
         parameters: {
             query?: never;
             header?: never;
@@ -4956,7 +4994,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.status_36": {
+    "modules.tenancy.domain.status_39": {
         parameters: {
             query?: never;
             header?: never;
@@ -4982,7 +5020,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.primary_37": {
+    "modules.tenancy.domain.primary_40": {
         parameters: {
             query?: never;
             header?: never;
@@ -5008,7 +5046,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.destroy_38": {
+    "modules.tenancy.domain.destroy_41": {
         parameters: {
             query?: never;
             header?: never;
@@ -5030,7 +5068,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.index_61": {
+    "modules.tenancy.domain.index_64": {
         parameters: {
             query?: never;
             header?: never;
@@ -5054,7 +5092,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.store_62": {
+    "modules.tenancy.domain.store_65": {
         parameters: {
             query?: never;
             header?: never;
@@ -5086,7 +5124,7 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
-    "modules.tenancy.domain.verify_63": {
+    "modules.tenancy.domain.verify_66": {
         parameters: {
             query?: never;
             header?: never;
@@ -5112,7 +5150,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.status_64": {
+    "modules.tenancy.domain.status_67": {
         parameters: {
             query?: never;
             header?: never;
@@ -5138,7 +5176,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.primary_65": {
+    "modules.tenancy.domain.primary_68": {
         parameters: {
             query?: never;
             header?: never;
@@ -5164,7 +5202,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.destroy_66": {
+    "modules.tenancy.domain.destroy_69": {
         parameters: {
             query?: never;
             header?: never;
@@ -7006,6 +7044,116 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
+    "pushToken.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    token: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        registered: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Error overview. */
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "pushToken.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        registered: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "pushToken.test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            /** @description An error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example Turn on notifications first.
+                         */
+                        message: string;
+                    };
+                };
+            };
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Error overview. */
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
     "role.roles": {
         parameters: {
             query?: never;
@@ -7536,7 +7684,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "modules.access.supportAccess.revoke_48": {
+    "modules.access.supportAccess.revoke_51": {
         parameters: {
             query?: never;
             header?: never;
@@ -7641,7 +7789,7 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
-    "modules.access.supportAccess.revoke_71": {
+    "modules.access.supportAccess.revoke_74": {
         parameters: {
             query?: never;
             header?: never;

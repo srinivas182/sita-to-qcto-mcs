@@ -1,0 +1,21 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+group = 'expo.modules.codeautofill'
+version = '0.1.0'
+
+android {
+  namespace "expo.modules.codeautofill"
+  defaultConfig {
+    versionCode 1
+    versionName '0.1.0'
+  }
+}
+
+dependencies {
+  implementation "androidx.core:core-ktx:1.17.0"
+  // SMS Retriever: Android hands us the SMS that carries our app hash, no SMS permission.
+  implementation "com.google.android.gms:play-services-auth-api-phone:18.1.0"
+}

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { ShieldCheck } from 'lucide-react';
+import { BadgeCheck, ShieldCheck } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { brandingQuery } from '@/lib/session';
+import { brandingQuery, type Branding } from '@/lib/session';
 import { useI18n, locales, type Locale } from '@/lib/i18n';
 
 /** Branded split layout for every sign-in screen (provider logo, colour and name). */
@@ -19,6 +19,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
       >
         <div className="pointer-events-none absolute -top-40 -right-40 size-[520px] rounded-full bg-white/[.06] blur-3xl" />
         <Logo name={name} logo={brand?.branding.logo_url} light />
+        {brand?.verified ? <VerifiedBadge verified={brand.verified} light /> : null}
         <div className="mt-auto max-w-md">
           <h2 className="text-[30px] leading-tight font-semibold tracking-tight">
             {brand?.branding.tagline ?? t('app.tagline')}
@@ -40,8 +41,9 @@ export function AuthLayout({ children }: { children: ReactNode }) {
 
       <main className="flex flex-col px-5 py-8 sm:px-10">
         <div className="flex items-center justify-between lg:justify-end">
-          <div className="lg:hidden">
+          <div className="grid gap-2 lg:hidden">
             <Logo name={name} logo={brand?.branding.logo_url} />
+            {brand?.verified ? <VerifiedBadge verified={brand.verified} /> : null}
           </div>
           <select
             aria-label="Language"
@@ -59,6 +61,22 @@ export function AuthLayout({ children }: { children: ReactNode }) {
         <div className="mx-auto my-auto w-full max-w-[400px] animate-in py-10">{children}</div>
       </main>
     </div>
+  );
+}
+
+/** Learners and employers can see the provider's accreditation was checked. */
+function VerifiedBadge({ verified, light }: { verified: NonNullable<Branding['verified']>; light?: boolean }) {
+  const until = verified.valid_until
+    ? new Date(verified.valid_until).toLocaleDateString('en-ZA', { month: 'short', year: 'numeric' })
+    : null;
+  return (
+    <p
+      className={`mt-4 inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-small font-medium lg:mt-6 ${light ? 'bg-white/10 text-white ring-1 ring-white/20' : 'bg-success-bg text-success'}`}
+      title={verified.accreditation_number ? `QCTO accreditation ${verified.accreditation_number}` : undefined}
+    >
+      <BadgeCheck className="size-4" aria-hidden />
+      Verified QCTO-accredited provider{until ? ` · valid to ${until}` : ''}
+    </p>
   );
 }
 

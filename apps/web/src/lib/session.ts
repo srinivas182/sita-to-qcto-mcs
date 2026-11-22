@@ -7,6 +7,8 @@ export interface Branding {
   platform: boolean;
   status?: string;
   branding: { logo_url?: string; primary?: string; accent?: string; tagline?: string };
+  /** Approved through the accreditation check, with a centre still accredited. */
+  verified?: { accreditation_number: string | null; valid_until: string | null; verified_on: string | null } | null;
 }
 
 export const brandingQuery = queryOptions({

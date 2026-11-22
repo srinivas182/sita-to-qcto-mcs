@@ -5,7 +5,8 @@
  *
  * Rules
  * - Retries use exponential back-off with jitter (5 s → 15 min cap).
- * - Network errors, 408, 429 and 5xx are retried; 409/422 are conflicts (the server
+ * - Network errors, 402 (provider read-only or suspended: work is kept until it is
+ *   paid up, so no logbook entry is lost), 408, 429 and 5xx are retried; 409/422 are conflicts (the server
  *   wins and the item is parked for the person to review); other 4xx fail.
  * - Items are sent in creation order per stream so dependent changes stay ordered.
  */
@@ -58,7 +59,7 @@ export function backoff(attempts: number, random: () => number = Math.random): n
 
 export function classify(status: number): 'ok' | 'retry' | 'conflict' | 'fail' {
   if (status >= 200 && status < 300) return 'ok';
-  if (status === 0 || status === 408 || status === 429 || status >= 500) return 'retry';
+  if (status === 0 || status === 402 || status === 408 || status === 429 || status >= 500) return 'retry';
   if (status === 409 || status === 422) return 'conflict';
   return 'fail';
 }

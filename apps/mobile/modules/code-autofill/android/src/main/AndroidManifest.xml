@@ -1,0 +1,23 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <!-- Android 11+: we may only see (and send the handshake to) WhatsApp if we declare it. -->
+  <queries>
+    <package android:name="com.whatsapp" />
+    <package android:name="com.whatsapp.w4b" />
+  </queries>
+
+  <application>
+    <!-- WhatsApp opens this when the learner taps "Autofill" on the code message. -->
+    <activity
+      android:name="expo.modules.codeautofill.WhatsAppCodeActivity"
+      android:enabled="true"
+      android:exported="true"
+      android:excludeFromRecents="true"
+      android:noHistory="true"
+      android:launchMode="standard"
+      android:theme="@android:style/Theme.Translucent.NoTitleBar">
+      <intent-filter>
+        <action android:name="com.whatsapp.otp.OTP_RETRIEVED" />
+      </intent-filter>
+    </activity>
+  </application>
+</manifest>

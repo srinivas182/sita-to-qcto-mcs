@@ -1,6 +1,7 @@
 import Feather from '@expo/vector-icons/Feather';
 import { useQuery } from '@tanstack/react-query';
 import { RefreshControl, ScrollView, Text, View } from 'react-native';
+import { AccountStatus } from '@/components/AccountStatus';
 import { Brand, Button, Card, Screen } from '@/components/ui';
 import { useApp } from '@/lib/app';
 import { useMe } from '@/lib/me';
@@ -20,6 +21,8 @@ export default function Home() {
           <Text className="font-sans text-small text-muted dark:text-night-muted">{me.data?.roles[0]?.label ?? ''}</Text>
           <Text className="font-semibold text-display text-ink dark:text-night-ink">{t('home.greeting', { name: me.data?.user.first_name ?? '' })}</Text>
         </View>
+
+        <AccountStatus me={me.data} />
 
         <Card className="flex-row items-center gap-3">
           <View className={`h-10 w-10 items-center justify-center rounded-xl ${!online ? 'bg-warning-bg' : pending ? 'bg-info-bg' : 'bg-success-bg'}`}>

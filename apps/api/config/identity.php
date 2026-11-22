@@ -22,6 +22,12 @@ return [
         'log_codes' => (bool) env('OTP_LOG_CODES', false),
         /* Delivery order; the next channel is tried if one fails. */
         'channels' => array_filter(explode(',', (string) env('OTP_CHANNELS', 'whatsapp,sms'))),
+        /*
+         * Android SMS Retriever: the 11-character hash of the app's signing key (shown in
+         * the app under Settings → About). When set, SMS codes end with it and Android
+         * hands the code to the app with no permission prompt.
+         */
+        'android_sms_hash' => env('ANDROID_SMS_HASH'),
         /* "messaging": the providers switched on in Settings (Sprint 2c); "log": local only. */
         'drivers' => [
             'whatsapp' => env('OTP_WHATSAPP_DRIVER', 'messaging'),

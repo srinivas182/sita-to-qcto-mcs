@@ -18,6 +18,8 @@ use Modules\Files\Models\File;
 use Modules\Files\Services\FileService;
 use Modules\Files\Storage\UploadTarget;
 use Modules\Identity\Models\User;
+use Modules\Identity\Support\PhoneNumber;
+use Modules\Messaging\Services\MessageService;
 use Modules\Onboarding\Models\Application;
 use Modules\Onboarding\Models\ApplicationFile;
 use Modules\Onboarding\Notifications\ApplicationDecided;
@@ -331,6 +333,7 @@ final class ApplicationService
         $application->forceFill(['status' => 'info_requested', 'decision_reason' => $message, 'reviewed_by' => $reviewer->id])->save();
         $this->audit->record('application.info_requested', $application, meta: ['message' => $message]);
         Notification::route('mail', $application->email)->notify(new ApplicationNeedsInfo($application, $message));
+        $this->toPhone($application, "{$application->reference}: we need a little more before we can approve your application. Details are in your email.");
 
         return $application;
     }
@@ -341,6 +344,7 @@ final class ApplicationService
         $application->forceFill(['status' => 'declined', 'decision_reason' => $reason, 'reviewed_by' => $reviewer->id, 'decided_at' => now()])->save();
         $this->audit->record('application.declined', $application, meta: ['reason' => $reason]);
         Notification::route('mail', $application->email)->notify(new ApplicationDecided($application, false));
+        $this->toPhone($application, "{$application->reference}: your application was not approved. The reason is in your email.");
 
         return $application;
     }
@@ -423,6 +427,7 @@ final class ApplicationService
 
         $this->audit->record('application.approved', $application, meta: ['tenant' => $tenant->code]);
         Notification::route('mail', $application->email)->notify(new ApplicationDecided($application, true, $tenant));
+        $this->toPhone($application, "{$application->reference}: {$application->legal_name} is approved. Check your email for your invitation to {$tenant->code}.".config('platform.base_domain').'.');
 
         return $tenant;
     }
@@ -479,6 +484,21 @@ final class ApplicationService
                 'created_at' => $application->created_at->toIso8601String(),
             ] : []),
         ];
+    }
+
+    /** A short copy of a decision by WhatsApp or SMS, when the applicant gave a mobile number. */
+    private function toPhone(Application $application, string $text): void
+    {
+        $to = $application->phone !== null ? PhoneNumber::normalise($application->phone) : null;
+        if ($to === null) {
+            return;
+        }
+
+        try {
+            $this->platform(fn () => app(MessageService::class)->notify($to, $text, 'application'));
+        } catch (\Throwable $e) {
+            report($e); // email already went; a phone copy must never block a decision
+        }
     }
 
     private function notifyReviewers(Application $application): void

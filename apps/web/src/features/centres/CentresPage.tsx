@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { MapPin, Plus } from 'lucide-react';
+import { LocateFixed, MapPin, Plus } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import {
   Alert,
@@ -33,6 +33,8 @@ interface Centre {
   city: string | null;
   province: string | null;
   postal_code: string | null;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 const expiry: Record<Centre['expiry_state'], [Tone, (d: number | null) => string]> = {
@@ -153,13 +155,36 @@ function CentreDialog({ centre, onClose }: { centre: Centre | null; onClose: () 
     city: centre?.city ?? '',
     province: centre?.province ?? '',
     postal_code: centre?.postal_code ?? '',
+    latitude: centre?.latitude?.toString() ?? '',
+    longitude: centre?.longitude?.toString() ?? '',
   });
+  const [locating, setLocating] = useState(false);
+  const [locError, setLocError] = useState<string | null>(null);
+  const here = () => {
+    setLocError(null);
+    if (!('geolocation' in navigator)) return setLocError('This browser cannot share its location.');
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (p) => {
+        setForm((f) => ({ ...f, latitude: p.coords.latitude.toFixed(6), longitude: p.coords.longitude.toFixed(6) }));
+        setLocating(false);
+      },
+      () => {
+        setLocError('Location was not shared. Enter it, or allow location for this site.');
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 15000 },
+    );
+  };
+  const pinned = form.latitude !== '' && form.longitude !== '';
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const save = useMutation({
     mutationFn: () => {
       const body = {
         ...Object.fromEntries(Object.entries(form).map(([k, v]) => [k, v === '' ? null : v])),
         name: form.name,
+        latitude: form.latitude === '' ? null : Number(form.latitude),
+        longitude: form.longitude === '' ? null : Number(form.longitude),
         scope: form.scope.split(/[\s,]+/).filter(Boolean),
       };
       return centre ? call('PATCH', `/centres/${centre.id}`, body) : call('POST', '/centres', body);
@@ -235,6 +260,40 @@ function CentreDialog({ centre, onClose }: { centre: Centre | null; onClose: () 
           </Select>
           {f('postal_code', 'Postal code', { inputMode: 'numeric' })}
         </div>
+        <fieldset className="grid gap-2">
+          <legend className="text-small font-medium text-ink">Map pin (used to check attendance on site)</legend>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {f('latitude', 'Latitude', { inputMode: 'decimal', placeholder: '-26.2485' })}
+            {f('longitude', 'Longitude', { inputMode: 'decimal', placeholder: '27.8540' })}
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              icon={<LocateFixed className="size-4" />}
+              loading={locating}
+              onClick={here}
+            >
+              Use where I am now
+            </Button>
+            {pinned ? (
+              <a
+                className="text-small font-medium text-primary-700 hover:underline"
+                target="_blank"
+                rel="noreferrer"
+                href={`https://www.openstreetmap.org/?mlat=${form.latitude}&mlon=${form.longitude}#map=17/${form.latitude}/${form.longitude}`}
+              >
+                Check the pin on a map
+              </a>
+            ) : null}
+          </div>
+          {locError ? (
+            <p className="text-small text-danger" role="alert">
+              {locError}
+            </p>
+          ) : null}
+        </fieldset>
         <div className="flex justify-end gap-2 pt-2">
           <Button type="button" variant="secondary" onClick={onClose}>
             Cancel
