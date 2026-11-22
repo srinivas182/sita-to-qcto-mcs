@@ -39,6 +39,10 @@ const statusTone: Record<string, Tone> = {
   expired: 'neutral',
   draining: 'warning',
   full: 'warning',
+  submitted: 'info',
+  info_requested: 'warning',
+  declined: 'danger',
+  draft: 'neutral',
 };
 
 export function StatusBadge({ status }: { status: string }) {

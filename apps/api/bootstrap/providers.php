@@ -9,6 +9,7 @@ use Modules\Billing\BillingServiceProvider;
 use Modules\Files\FilesServiceProvider;
 use Modules\Identity\IdentityServiceProvider;
 use Modules\Messaging\MessagingServiceProvider;
+use Modules\Onboarding\OnboardingServiceProvider;
 use Modules\Platform\PlatformServiceProvider;
 use Modules\Settings\SettingsServiceProvider;
 use Modules\Tenancy\TenancyServiceProvider;
@@ -24,4 +25,5 @@ return [
     FilesServiceProvider::class,
     BillingServiceProvider::class,
     MessagingServiceProvider::class,
+    OnboardingServiceProvider::class,
 ];

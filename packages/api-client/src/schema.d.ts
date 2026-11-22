@@ -4,6 +4,329 @@
  */
 
 export interface paths {
+    "/applications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["application.start"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/applications/resume": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Lost the resume token: get a code by email. Always answers the same way */
+        post: operations["application.resume"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/applications/resume/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["application.resumeVerify"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/applications/code-available": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Live check of a web address while typing */
+        get: operations["application.codeAvailable"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/applications/{application}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["application.show"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["application.update"];
+        trace?: never;
+    };
+    "/applications/{application}/email-code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["application.resendCode"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/applications/{application}/verify-email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["application.verifyEmail"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/applications/{application}/consent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["application.consent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/applications/{application}/files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["application.attach"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/applications/{application}/files/{file}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["application.upload"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/applications/{application}/files/{file}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["application.complete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/applications/{application}/files/{file}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["application.detach"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/applications/{application}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["application.submit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/applications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["applicationAdmin.index"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/applications/{application}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["applicationAdmin.show"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/applications/{application}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["applicationAdmin.review"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/applications/{application}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["applicationAdmin.approve"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/applications/{application}/request-info": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["applicationAdmin.requestInfo"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/applications/{application}/decline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["applicationAdmin.decline"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/applications/{application}/files/{file}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** View an uploaded document (only clean, checked files) */
+        get: operations["applicationAdmin.file"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/audit-logs": {
         parameters: {
             query?: never;
@@ -11,7 +334,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["modules.audit.auditLog.index_46"];
+        get: operations["modules.audit.auditLog.index_49"];
         put?: never;
         post?: never;
         delete?: never;
@@ -27,7 +350,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["modules.audit.auditLog.index_65"];
+        get: operations["modules.audit.auditLog.index_68"];
         put?: never;
         post?: never;
         delete?: never;
@@ -310,6 +633,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/centres": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["centre.index"];
+        put?: never;
+        post: operations["centre.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/centres/{centre}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["centre.update"];
+        trace?: never;
+    };
     "/admin/settings/company": {
         parameters: {
             query?: never;
@@ -417,9 +772,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["modules.tenancy.domain.index_30"];
+        get: operations["modules.tenancy.domain.index_33"];
         put?: never;
-        post: operations["modules.tenancy.domain.store_31"];
+        post: operations["modules.tenancy.domain.store_34"];
         delete?: never;
         options?: never;
         head?: never;
@@ -436,7 +791,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Live DNS + certificate check (the "Check now" button) */
-        post: operations["modules.tenancy.domain.verify_32"];
+        post: operations["modules.tenancy.domain.verify_35"];
         delete?: never;
         options?: never;
         head?: never;
@@ -450,7 +805,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["modules.tenancy.domain.status_33"];
+        get: operations["modules.tenancy.domain.status_36"];
         put?: never;
         post?: never;
         delete?: never;
@@ -468,7 +823,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["modules.tenancy.domain.primary_34"];
+        post: operations["modules.tenancy.domain.primary_37"];
         delete?: never;
         options?: never;
         head?: never;
@@ -485,7 +840,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["modules.tenancy.domain.destroy_35"];
+        delete: operations["modules.tenancy.domain.destroy_38"];
         options?: never;
         head?: never;
         patch?: never;
@@ -498,9 +853,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["modules.tenancy.domain.index_58"];
+        get: operations["modules.tenancy.domain.index_61"];
         put?: never;
-        post: operations["modules.tenancy.domain.store_59"];
+        post: operations["modules.tenancy.domain.store_62"];
         delete?: never;
         options?: never;
         head?: never;
@@ -517,7 +872,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Live DNS + certificate check (the "Check now" button) */
-        post: operations["modules.tenancy.domain.verify_60"];
+        post: operations["modules.tenancy.domain.verify_63"];
         delete?: never;
         options?: never;
         head?: never;
@@ -531,7 +886,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["modules.tenancy.domain.status_61"];
+        get: operations["modules.tenancy.domain.status_64"];
         put?: never;
         post?: never;
         delete?: never;
@@ -549,7 +904,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["modules.tenancy.domain.primary_62"];
+        post: operations["modules.tenancy.domain.primary_65"];
         delete?: never;
         options?: never;
         head?: never;
@@ -566,7 +921,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["modules.tenancy.domain.destroy_63"];
+        delete: operations["modules.tenancy.domain.destroy_66"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1524,7 +1879,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["modules.access.supportAccess.revoke_45"];
+        post: operations["modules.access.supportAccess.revoke_48"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1558,7 +1913,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["modules.access.supportAccess.revoke_68"];
+        post: operations["modules.access.supportAccess.revoke_71"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1918,7 +2273,1216 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    "modules.audit.auditLog.index_46": {
+    "application.start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    company_fax?: string;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        id: string;
+                        token: string;
+                        data: {
+                            id: string;
+                            reference: string;
+                            status: string;
+                            email_verified: boolean;
+                            first_name: string;
+                            last_name: string;
+                            email: string;
+                            phone: string | null;
+                            legal_name: string;
+                            trading_name: string | null;
+                            registration_number: string | null;
+                            vat_number: string | null;
+                            website: string | null;
+                            sdp_number: string | null;
+                            centre_name: string | null;
+                            address_line1: string | null;
+                            city: string | null;
+                            province: string | null;
+                            postal_code: string | null;
+                            preferred_code: string | null;
+                            package_id: string | null;
+                            interval: string;
+                            accreditation_expires_on: string | null;
+                            scope: string[];
+                            consented: boolean;
+                            message: string | null;
+                            submitted_at: string | null;
+                            files: string;
+                            checks: string;
+                            base_domain: string;
+                        };
+                    } | {
+                        id: string;
+                        token: string;
+                    };
+                };
+            };
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Error overview. */
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "application.resume": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    reference: string;
+                    /** Format: email */
+                    email: string;
+                };
+            };
+        };
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        sent: boolean;
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Error overview. */
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "application.resumeVerify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    reference: string;
+                    /** Format: email */
+                    email: string;
+                    code: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        id: string;
+                        token: string;
+                        data: {
+                            id: string;
+                            reference: string;
+                            status: string;
+                            email_verified: boolean;
+                            first_name: string;
+                            last_name: string;
+                            email: string;
+                            phone: string | null;
+                            legal_name: string;
+                            trading_name: string | null;
+                            registration_number: string | null;
+                            vat_number: string | null;
+                            website: string | null;
+                            sdp_number: string | null;
+                            centre_name: string | null;
+                            address_line1: string | null;
+                            city: string | null;
+                            province: string | null;
+                            postal_code: string | null;
+                            preferred_code: string | null;
+                            package_id: string | null;
+                            interval: string;
+                            accreditation_expires_on: string | null;
+                            scope: string[];
+                            consented: boolean;
+                            message: string | null;
+                            submitted_at: string | null;
+                            files: string;
+                            checks: string;
+                            base_domain: string;
+                        };
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Error overview. */
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "application.codeAvailable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        code: string;
+                        available: boolean;
+                        message: string | null;
+                        host: string;
+                    };
+                };
+            };
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Error overview. */
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "application.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            reference: string;
+                            status: string;
+                            email_verified: boolean;
+                            first_name: string;
+                            last_name: string;
+                            email: string;
+                            phone: string | null;
+                            legal_name: string;
+                            trading_name: string | null;
+                            registration_number: string | null;
+                            vat_number: string | null;
+                            website: string | null;
+                            sdp_number: string | null;
+                            centre_name: string | null;
+                            address_line1: string | null;
+                            city: string | null;
+                            province: string | null;
+                            postal_code: string | null;
+                            preferred_code: string | null;
+                            package_id: string | null;
+                            interval: string;
+                            accreditation_expires_on: string | null;
+                            scope: string[];
+                            consented: boolean;
+                            message: string | null;
+                            submitted_at: string | null;
+                            files: string;
+                            checks: string;
+                            base_domain: string;
+                        };
+                    };
+                };
+            };
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Error overview. */
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "application.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            reference: string;
+                            status: string;
+                            email_verified: boolean;
+                            first_name: string;
+                            last_name: string;
+                            email: string;
+                            phone: string | null;
+                            legal_name: string;
+                            trading_name: string | null;
+                            registration_number: string | null;
+                            vat_number: string | null;
+                            website: string | null;
+                            sdp_number: string | null;
+                            centre_name: string | null;
+                            address_line1: string | null;
+                            city: string | null;
+                            province: string | null;
+                            postal_code: string | null;
+                            preferred_code: string | null;
+                            package_id: string | null;
+                            interval: string;
+                            accreditation_expires_on: string | null;
+                            scope: string[];
+                            consented: boolean;
+                            message: string | null;
+                            submitted_at: string | null;
+                            files: string;
+                            checks: string;
+                            base_domain: string;
+                        };
+                    };
+                };
+            };
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Error overview. */
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "application.resendCode": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        sent: boolean;
+                    };
+                };
+            };
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Error overview. */
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "application.verifyEmail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    code: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            reference: string;
+                            status: string;
+                            email_verified: boolean;
+                            first_name: string;
+                            last_name: string;
+                            email: string;
+                            phone: string | null;
+                            legal_name: string;
+                            trading_name: string | null;
+                            registration_number: string | null;
+                            vat_number: string | null;
+                            website: string | null;
+                            sdp_number: string | null;
+                            centre_name: string | null;
+                            address_line1: string | null;
+                            city: string | null;
+                            province: string | null;
+                            postal_code: string | null;
+                            preferred_code: string | null;
+                            package_id: string | null;
+                            interval: string;
+                            accreditation_expires_on: string | null;
+                            scope: string[];
+                            consented: boolean;
+                            message: string | null;
+                            submitted_at: string | null;
+                            files: string;
+                            checks: string;
+                            base_domain: string;
+                        };
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Error overview. */
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "application.consent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    /** @enum {unknown} */
+                    accept?: "yes" | "on" | "1" | 1 | "true" | true;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            reference: string;
+                            status: string;
+                            email_verified: boolean;
+                            first_name: string;
+                            last_name: string;
+                            email: string;
+                            phone: string | null;
+                            legal_name: string;
+                            trading_name: string | null;
+                            registration_number: string | null;
+                            vat_number: string | null;
+                            website: string | null;
+                            sdp_number: string | null;
+                            centre_name: string | null;
+                            address_line1: string | null;
+                            city: string | null;
+                            province: string | null;
+                            postal_code: string | null;
+                            preferred_code: string | null;
+                            package_id: string | null;
+                            interval: string;
+                            accreditation_expires_on: string | null;
+                            scope: string[];
+                            consented: boolean;
+                            message: string | null;
+                            submitted_at: string | null;
+                            files: string;
+                            checks: string;
+                            base_domain: string;
+                        };
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Error overview. */
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "application.attach": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    kind: "accreditation_letter" | "cipc_certificate" | "other";
+                    name: string;
+                    mime: string;
+                    size: number;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        file: {
+                            id: string;
+                            status: string;
+                        };
+                        upload: string | {
+                            /** @constant */
+                            method: "PUT";
+                            url: string;
+                            headers: string;
+                            /** @constant */
+                            via: "api";
+                        };
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Error overview. */
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "application.upload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application: string;
+                file: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        uploaded: boolean;
+                    };
+                };
+            };
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Error overview. */
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "application.complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application: string;
+                file: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            reference: string;
+                            status: string;
+                            email_verified: boolean;
+                            first_name: string;
+                            last_name: string;
+                            email: string;
+                            phone: string | null;
+                            legal_name: string;
+                            trading_name: string | null;
+                            registration_number: string | null;
+                            vat_number: string | null;
+                            website: string | null;
+                            sdp_number: string | null;
+                            centre_name: string | null;
+                            address_line1: string | null;
+                            city: string | null;
+                            province: string | null;
+                            postal_code: string | null;
+                            preferred_code: string | null;
+                            package_id: string | null;
+                            interval: string;
+                            accreditation_expires_on: string | null;
+                            scope: string[];
+                            consented: boolean;
+                            message: string | null;
+                            submitted_at: string | null;
+                            files: string;
+                            checks: string;
+                            base_domain: string;
+                        };
+                    };
+                };
+            };
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Error overview. */
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "application.detach": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application: string;
+                file: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            reference: string;
+                            status: string;
+                            email_verified: boolean;
+                            first_name: string;
+                            last_name: string;
+                            email: string;
+                            phone: string | null;
+                            legal_name: string;
+                            trading_name: string | null;
+                            registration_number: string | null;
+                            vat_number: string | null;
+                            website: string | null;
+                            sdp_number: string | null;
+                            centre_name: string | null;
+                            address_line1: string | null;
+                            city: string | null;
+                            province: string | null;
+                            postal_code: string | null;
+                            preferred_code: string | null;
+                            package_id: string | null;
+                            interval: string;
+                            accreditation_expires_on: string | null;
+                            scope: string[];
+                            consented: boolean;
+                            message: string | null;
+                            submitted_at: string | null;
+                            files: string;
+                            checks: string;
+                            base_domain: string;
+                        };
+                    };
+                };
+            };
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Error overview. */
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "application.submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            reference: string;
+                            status: string;
+                            email_verified: boolean;
+                            first_name: string;
+                            last_name: string;
+                            email: string;
+                            phone: string | null;
+                            legal_name: string;
+                            trading_name: string | null;
+                            registration_number: string | null;
+                            vat_number: string | null;
+                            website: string | null;
+                            sdp_number: string | null;
+                            centre_name: string | null;
+                            address_line1: string | null;
+                            city: string | null;
+                            province: string | null;
+                            postal_code: string | null;
+                            preferred_code: string | null;
+                            package_id: string | null;
+                            interval: string;
+                            accreditation_expires_on: string | null;
+                            scope: string[];
+                            consented: boolean;
+                            message: string | null;
+                            submitted_at: string | null;
+                            files: string;
+                            checks: string;
+                            base_domain: string;
+                        };
+                    };
+                };
+            };
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Error overview. */
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "applicationAdmin.index": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            reference: string;
+                            status: string;
+                            legal_name: string;
+                            contact: string;
+                            email: string;
+                            sdp_number: string | null;
+                            province: string | null;
+                            submitted_at: string | null;
+                            created_at: string;
+                        }[];
+                        counts: unknown[];
+                        meta: {
+                            total: number;
+                            page: number;
+                            last_page: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "applicationAdmin.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            reference: string;
+                            status: string;
+                            email_verified: boolean;
+                            first_name: string;
+                            last_name: string;
+                            email: string;
+                            phone: string | null;
+                            legal_name: string;
+                            trading_name: string | null;
+                            registration_number: string | null;
+                            vat_number: string | null;
+                            website: string | null;
+                            sdp_number: string | null;
+                            centre_name: string | null;
+                            address_line1: string | null;
+                            city: string | null;
+                            province: string | null;
+                            postal_code: string | null;
+                            preferred_code: string | null;
+                            package_id: string | null;
+                            interval: string;
+                            accreditation_expires_on: string | null;
+                            scope: string[];
+                            consented: boolean;
+                            message: string | null;
+                            submitted_at: string | null;
+                            files: string;
+                            checks: string;
+                            base_domain: string;
+                            checklist: unknown[];
+                            review_notes: string | null;
+                            decided_at: string | null;
+                            tenant_id: string | null;
+                            ip: string | null;
+                            created_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "applicationAdmin.review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    checklist?: boolean[];
+                    notes?: string | null;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            reference: string;
+                            status: string;
+                            email_verified: boolean;
+                            first_name: string;
+                            last_name: string;
+                            email: string;
+                            phone: string | null;
+                            legal_name: string;
+                            trading_name: string | null;
+                            registration_number: string | null;
+                            vat_number: string | null;
+                            website: string | null;
+                            sdp_number: string | null;
+                            centre_name: string | null;
+                            address_line1: string | null;
+                            city: string | null;
+                            province: string | null;
+                            postal_code: string | null;
+                            preferred_code: string | null;
+                            package_id: string | null;
+                            interval: string;
+                            accreditation_expires_on: string | null;
+                            scope: string[];
+                            consented: boolean;
+                            message: string | null;
+                            submitted_at: string | null;
+                            files: string;
+                            checks: string;
+                            base_domain: string;
+                            checklist: unknown[];
+                            review_notes: string | null;
+                            decided_at: string | null;
+                            tenant_id: string | null;
+                            ip: string | null;
+                            created_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "applicationAdmin.approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        tenant: {
+                            id: string;
+                            code: string;
+                            name: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "applicationAdmin.requestInfo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    message: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            reference: string;
+                            status: string;
+                            email_verified: boolean;
+                            first_name: string;
+                            last_name: string;
+                            email: string;
+                            phone: string | null;
+                            legal_name: string;
+                            trading_name: string | null;
+                            registration_number: string | null;
+                            vat_number: string | null;
+                            website: string | null;
+                            sdp_number: string | null;
+                            centre_name: string | null;
+                            address_line1: string | null;
+                            city: string | null;
+                            province: string | null;
+                            postal_code: string | null;
+                            preferred_code: string | null;
+                            package_id: string | null;
+                            interval: string;
+                            accreditation_expires_on: string | null;
+                            scope: string[];
+                            consented: boolean;
+                            message: string | null;
+                            submitted_at: string | null;
+                            files: string;
+                            checks: string;
+                            base_domain: string;
+                            checklist: unknown[];
+                            review_notes: string | null;
+                            decided_at: string | null;
+                            tenant_id: string | null;
+                            ip: string | null;
+                            created_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "applicationAdmin.decline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    reason: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            reference: string;
+                            status: string;
+                            email_verified: boolean;
+                            first_name: string;
+                            last_name: string;
+                            email: string;
+                            phone: string | null;
+                            legal_name: string;
+                            trading_name: string | null;
+                            registration_number: string | null;
+                            vat_number: string | null;
+                            website: string | null;
+                            sdp_number: string | null;
+                            centre_name: string | null;
+                            address_line1: string | null;
+                            city: string | null;
+                            province: string | null;
+                            postal_code: string | null;
+                            preferred_code: string | null;
+                            package_id: string | null;
+                            interval: string;
+                            accreditation_expires_on: string | null;
+                            scope: string[];
+                            consented: boolean;
+                            message: string | null;
+                            submitted_at: string | null;
+                            files: string;
+                            checks: string;
+                            base_domain: string;
+                            checklist: unknown[];
+                            review_notes: string | null;
+                            decided_at: string | null;
+                            tenant_id: string | null;
+                            ip: string | null;
+                            created_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "applicationAdmin.file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application: string;
+                file: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    "Content-Disposition"?: unknown[] | string;
+                    "X-Content-Type-Options"?: "nosniff";
+                    "Content-Security-Policy"?: "default-src 'none'; style-src 'unsafe-inline'";
+                    "Cache-Control"?: "private, no-store";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            302: {
+                headers: {
+                    Location: string;
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "modules.audit.auditLog.index_49": {
         parameters: {
             query?: {
                 tenant_id?: string | null;
@@ -1965,7 +3529,7 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
-    "modules.audit.auditLog.index_65": {
+    "modules.audit.auditLog.index_68": {
         parameters: {
             query?: {
                 tenant_id?: string | null;
@@ -2962,6 +4526,129 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
+    "centre.index": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            name: string;
+                            status: string;
+                            accreditation_type: string;
+                            accreditation_number: string | null;
+                            accreditation_expires_on: string | null;
+                            days_to_expiry: number | null;
+                            /** @enum {string} */
+                            expiry_state: "unknown" | "expired" | "critical" | "soon" | "ok";
+                            scope: string[];
+                            address_line1: string | null;
+                            city: string | null;
+                            province: string | null;
+                            postal_code: string | null;
+                            latitude: number | null;
+                            longitude: number | null;
+                        }[];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "centre.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            name: string;
+                            status: string;
+                            accreditation_type: string;
+                            accreditation_number: string | null;
+                            accreditation_expires_on: string | null;
+                            days_to_expiry: number | null;
+                            /** @enum {string} */
+                            expiry_state: "unknown" | "expired" | "critical" | "soon" | "ok";
+                            scope: string[];
+                            address_line1: string | null;
+                            city: string | null;
+                            province: string | null;
+                            postal_code: string | null;
+                            latitude: number | null;
+                            longitude: number | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "centre.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                centre: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            name: string;
+                            status: string;
+                            accreditation_type: string;
+                            accreditation_number: string | null;
+                            accreditation_expires_on: string | null;
+                            days_to_expiry: number | null;
+                            /** @enum {string} */
+                            expiry_state: "unknown" | "expired" | "critical" | "soon" | "ok";
+                            scope: string[];
+                            address_line1: string | null;
+                            city: string | null;
+                            province: string | null;
+                            postal_code: string | null;
+                            latitude: number | null;
+                            longitude: number | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
     "company.show": {
         parameters: {
             query?: never;
@@ -3187,7 +4874,7 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
-    "modules.tenancy.domain.index_30": {
+    "modules.tenancy.domain.index_33": {
         parameters: {
             query?: never;
             header?: never;
@@ -3211,7 +4898,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.store_31": {
+    "modules.tenancy.domain.store_34": {
         parameters: {
             query?: never;
             header?: never;
@@ -3243,7 +4930,7 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
-    "modules.tenancy.domain.verify_32": {
+    "modules.tenancy.domain.verify_35": {
         parameters: {
             query?: never;
             header?: never;
@@ -3269,7 +4956,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.status_33": {
+    "modules.tenancy.domain.status_36": {
         parameters: {
             query?: never;
             header?: never;
@@ -3295,7 +4982,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.primary_34": {
+    "modules.tenancy.domain.primary_37": {
         parameters: {
             query?: never;
             header?: never;
@@ -3321,7 +5008,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.destroy_35": {
+    "modules.tenancy.domain.destroy_38": {
         parameters: {
             query?: never;
             header?: never;
@@ -3343,7 +5030,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.index_58": {
+    "modules.tenancy.domain.index_61": {
         parameters: {
             query?: never;
             header?: never;
@@ -3367,7 +5054,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.store_59": {
+    "modules.tenancy.domain.store_62": {
         parameters: {
             query?: never;
             header?: never;
@@ -3399,7 +5086,7 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
-    "modules.tenancy.domain.verify_60": {
+    "modules.tenancy.domain.verify_63": {
         parameters: {
             query?: never;
             header?: never;
@@ -3425,7 +5112,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.status_61": {
+    "modules.tenancy.domain.status_64": {
         parameters: {
             query?: never;
             header?: never;
@@ -3451,7 +5138,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.primary_62": {
+    "modules.tenancy.domain.primary_65": {
         parameters: {
             query?: never;
             header?: never;
@@ -3477,7 +5164,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.destroy_63": {
+    "modules.tenancy.domain.destroy_66": {
         parameters: {
             query?: never;
             header?: never;
@@ -5375,10 +7062,12 @@ export interface operations {
                             /** @enum {string} */
                             status: "active" | "suspended" | "left";
                             centre_id: string | null;
+                            centre: unknown;
                             joined_at: string | null;
                             roles: string | {
                                 role: string;
                                 centre_id: string;
+                                centre: unknown;
                             }[];
                         }[];
                         meta: {
@@ -5847,7 +7536,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "modules.access.supportAccess.revoke_45": {
+    "modules.access.supportAccess.revoke_48": {
         parameters: {
             query?: never;
             header?: never;
@@ -5952,7 +7641,7 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
-    "modules.access.supportAccess.revoke_68": {
+    "modules.access.supportAccess.revoke_71": {
         parameters: {
             query?: never;
             header?: never;
