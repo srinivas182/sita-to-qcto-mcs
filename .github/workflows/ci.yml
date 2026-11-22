@@ -221,6 +221,10 @@ jobs:
           SHOTS: ${{ runner.temp }}/shots
           CHROME: /usr/bin/google-chrome
         run: python3 apps/web/e2e/smoke.py
+      - name: Accessibility audit (axe, WCAG 2.2 AA)
+        env:
+          CHROME: /usr/bin/google-chrome
+        run: python3 apps/web/e2e/a11y.py
       - if: failure()
         uses: actions/upload-artifact@v4
         with:

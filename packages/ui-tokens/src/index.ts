@@ -11,7 +11,7 @@ export const colors = {
   lineSoft: '#eff1f6',
   text: '#14182b',
   textMuted: '#5f6579',
-  textFaint: '#8a90a3',
+  textFaint: '#6b7186',
   success: { fg: '#166c52', bg: '#e6f4ee' },
   warning: { fg: '#8a5a0b', bg: '#fbf1dc' },
   danger: { fg: '#b5433e', bg: '#f9e7e5' },

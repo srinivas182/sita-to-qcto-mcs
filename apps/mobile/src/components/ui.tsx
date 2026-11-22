@@ -66,7 +66,7 @@ export function Field({ label, error, big, onFocus, onBlur, ...rest }: TextInput
           onBlur?.(e);
         }}
         style={{ outlineStyle: 'none' } as object}
-        placeholderTextColor="#8a90a3"
+        placeholderTextColor="#6b7186"
         className={`rounded-xl border bg-surface px-4 text-ink dark:bg-night-surface dark:text-night-ink ${big ? 'h-14 text-center font-semibold text-[22px] tracking-[8px]' : 'h-12 font-sans text-[15px]'} ${error ? 'border-danger' : focused ? 'border-2 border-primary-600' : 'border-line dark:border-night-line'}`}
         {...rest}
       />
