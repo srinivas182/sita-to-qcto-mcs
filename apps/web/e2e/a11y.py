@@ -49,6 +49,11 @@ with sync_playwright() as p:
     page.get_by_role('button', name='Change plan').click(); page.get_by_role('dialog').wait_for(); audit(page, '/billing plan dialog')
     page.keyboard.press('Escape')
 
+    # Programmes from the catalogue: the list, the catalogue browser and the add dialog.
+    page.click('nav a[href="/programmes"]'); page.get_by_text('General Education and Training Certificate: Construction').first.wait_for(); audit(page, '/programmes')
+    page.get_by_role('button', name='Add from catalogue').click(); page.get_by_role('dialog').wait_for(); page.get_by_text('Offered').first.wait_for(); audit(page, '/programmes catalogue')
+    page.keyboard.press('Escape')
+
     # Centres with the expiry warning, and the edit dialog.
     page.click('nav a[href="/centres"]'); page.get_by_text('Durban Site', exact=True).first.wait_for(); audit(page, '/centres')
     page.get_by_text('Durban Site', exact=True).first.click(); page.get_by_role('dialog').wait_for(); audit(page, '/centres dialog')
@@ -68,6 +73,10 @@ with sync_playwright() as p:
     sign_in(admin, 'admin.platform.test', 'admin@demo.test')
     admin.click('nav a[href="/applications"]'); admin.get_by_text('Ikhwezi Skills Academy').first.wait_for(); audit(admin, '/applications')
     admin.get_by_text('Ikhwezi Skills Academy').first.click(); admin.get_by_text('Reviewer checklist').wait_for(); audit(admin, '/applications detail')
+    admin.click('nav a[href="/catalogue"]'); admin.get_by_text('Occupational Certificate: Bricklayer').first.wait_for(); audit(admin, '/catalogue')
+    admin.get_by_text('General Education and Training Certificate: Construction').first.click(); admin.get_by_text('Everything adds up.').wait_for(); audit(admin, '/catalogue entry')
+    admin.get_by_role('button', name='Replace modules').click(); admin.get_by_role('dialog').wait_for(); audit(admin, '/catalogue paste dialog')
+    admin.keyboard.press('Escape')
     admin.click('nav a[href="/settings"]'); admin.get_by_role('heading', name='Company details').wait_for(); audit(admin, '/settings company')
     admin.get_by_role('tab', name='Payments').click(); admin.get_by_text('Paystack').first.wait_for(); audit(admin, '/settings payments')
     admin.get_by_role('button', name='Set up').first.click(); admin.get_by_role('dialog').wait_for(); audit(admin, '/settings gateway dialog')

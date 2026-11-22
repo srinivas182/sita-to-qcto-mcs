@@ -116,6 +116,24 @@ const application = createRoute({
   path: '/applications/$id',
   component: lazyRouteComponent(() => import('@/features/admin/ApplicationDetailPage'), 'ApplicationDetailPage'),
 });
+const catalogue = createRoute({
+  getParentRoute: () => app,
+  path: '/catalogue',
+  component: lazyRouteComponent(() => import('@/features/catalogue/CatalogueAdminPage'), 'CatalogueAdminPage'),
+});
+const catalogueEntry = createRoute({
+  getParentRoute: () => app,
+  path: '/catalogue/$id',
+  component: lazyRouteComponent(
+    () => import('@/features/catalogue/QualificationEditorPage'),
+    'QualificationEditorPage',
+  ),
+});
+const programmes = createRoute({
+  getParentRoute: () => app,
+  path: '/programmes',
+  component: lazyRouteComponent(() => import('@/features/programmes/ProgrammesPage'), 'ProgrammesPage'),
+});
 const centres = createRoute({
   getParentRoute: () => app,
   path: '/centres',
@@ -181,6 +199,9 @@ const routeTree = root.addChildren([
     home,
     applications,
     application,
+    catalogue,
+    catalogueEntry,
+    programmes,
     centres,
     tenants,
     tenant,

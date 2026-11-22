@@ -144,6 +144,7 @@ export function CentresPage() {
 
 function CentreDialog({ centre, onClose }: { centre: Centre | null; onClose: () => void }) {
   const qc = useQueryClient();
+  const can = useCan();
   const [form, setForm] = useState({
     name: centre?.name ?? '',
     status: centre?.status ?? 'active',
@@ -178,8 +179,28 @@ function CentreDialog({ centre, onClose }: { centre: Centre | null; onClose: () 
   };
   const pinned = form.latitude !== '' && form.longitude !== '';
   const [errors, setErrors] = useState<Record<string, string[]>>({});
+  // Accreditation scope against the catalogue: only programmes the provider offers.
+  const programmes = useQuery({
+    queryKey: ['programmes'],
+    queryFn: () =>
+      call<{ data: { qualification: { id: string; title: string; saqa_id: string | null } }[] }>(
+        'GET',
+        '/programmes',
+      ).then((r) => r.data),
+    enabled: can('programmes.view'),
+  });
+  const scope = useQuery({
+    queryKey: ['centre-scope', centre?.id],
+    enabled: !!centre,
+    queryFn: () =>
+      call<{ data: { qualification_id: string }[] }>('GET', `/centres/${centre!.id}/qualifications`).then(
+        (r) => r.data,
+      ),
+  });
+  const [linked, setLinked] = useState<string[] | null>(null);
+  const chosen = linked ?? scope.data?.map((s) => s.qualification_id) ?? [];
   const save = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       const body = {
         ...Object.fromEntries(Object.entries(form).map(([k, v]) => [k, v === '' ? null : v])),
         name: form.name,
@@ -187,7 +208,15 @@ function CentreDialog({ centre, onClose }: { centre: Centre | null; onClose: () 
         longitude: form.longitude === '' ? null : Number(form.longitude),
         scope: form.scope.split(/[\s,]+/).filter(Boolean),
       };
-      return centre ? call('PATCH', `/centres/${centre.id}`, body) : call('POST', '/centres', body);
+      const saved = await (centre
+        ? call<{ data: Centre }>('PATCH', `/centres/${centre.id}`, body)
+        : call<{ data: Centre }>('POST', '/centres', body));
+      if (linked !== null && can('programmes.manage')) {
+        await call('PUT', `/centres/${saved.data.id}/qualifications`, {
+          items: linked.map((qualification_id) => ({ qualification_id })),
+        });
+      }
+      return saved;
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['centres'] });
@@ -241,7 +270,35 @@ function CentreDialog({ centre, onClose }: { centre: Centre | null; onClose: () 
         </div>
         {f('accreditation_number', 'QCTO accreditation number', { placeholder: '07-QCTO/SDP180825105627' })}
         {f('accreditation_expires_on', 'Valid until', { type: 'date' })}
-        {f('scope', 'Qualifications in scope (SAQA IDs)', {
+        {programmes.data?.length ? (
+          <fieldset className="grid gap-2">
+            <legend className="text-small font-medium text-ink">Programmes this centre is accredited for</legend>
+            {programmes.data.map((p) => (
+              <label key={p.qualification.id} className="flex items-start gap-2 text-small">
+                <input
+                  type="checkbox"
+                  className="mt-0.5"
+                  disabled={!can('programmes.manage')}
+                  checked={chosen.includes(p.qualification.id)}
+                  onChange={(e) =>
+                    setLinked(
+                      e.target.checked
+                        ? [...chosen, p.qualification.id]
+                        : chosen.filter((x) => x !== p.qualification.id),
+                    )
+                  }
+                />
+                <span>
+                  {p.qualification.title}{' '}
+                  {p.qualification.saqa_id ? (
+                    <span className="text-muted">(SAQA {p.qualification.saqa_id})</span>
+                  ) : null}
+                </span>
+              </label>
+            ))}
+          </fieldset>
+        ) : null}
+        {f('scope', 'SAQA IDs on the accreditation letter', {
           hint: 'Separate with commas.',
           error: Object.entries(errors).find(([k]) => k.startsWith('scope'))?.[1][0],
         })}

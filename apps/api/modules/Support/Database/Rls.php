@@ -65,6 +65,25 @@ final class Rls
         self::protectWith($table, "{$column} IS NULL OR ".self::predicate($column), self::predicate($column));
     }
 
+    /**
+     * A platform-owned catalogue: every context may read the rows `$readable` allows
+     * (e.g. only published ones); only the platform may insert, change or delete.
+     * Two policies, because a single FOR ALL policy would let readers delete.
+     */
+    public static function protectCatalogue(string $table, string $readable = 'true'): void
+    {
+        if (DB::connection()->getDriverName() !== 'pgsql') {
+            return;
+        }
+
+        $platform = "current_setting('app.context', true) = 'platform'";
+
+        DB::statement("ALTER TABLE {$table} ENABLE ROW LEVEL SECURITY");
+        DB::statement("ALTER TABLE {$table} FORCE ROW LEVEL SECURITY");
+        DB::statement("CREATE POLICY catalogue_read ON {$table} FOR SELECT USING ({$platform} OR ({$readable}))");
+        DB::statement("CREATE POLICY catalogue_write ON {$table} FOR ALL USING ({$platform}) WITH CHECK ({$platform})");
+    }
+
     /** Reverse of protect(), for down() migrations. */
     public static function unprotect(string $table): void
     {
@@ -73,6 +92,8 @@ final class Rls
         }
 
         DB::statement("DROP POLICY IF EXISTS tenant_isolation ON {$table}");
+        DB::statement("DROP POLICY IF EXISTS catalogue_read ON {$table}");
+        DB::statement("DROP POLICY IF EXISTS catalogue_write ON {$table}");
         DB::statement("ALTER TABLE {$table} NO FORCE ROW LEVEL SECURITY");
         DB::statement("ALTER TABLE {$table} DISABLE ROW LEVEL SECURITY");
     }

@@ -16,6 +16,8 @@ use Modules\Identity\Models\UserTenant;
 use Modules\Identity\Support\IdType;
 use Modules\Identity\Support\MembershipStatus;
 use Modules\Onboarding\Models\Application;
+use Modules\Qualifications\Models\Programme;
+use Modules\Qualifications\Models\Qualification;
 use Modules\Settings\Models\PlatformSetting;
 use Modules\Tenancy\Context\TenantContext;
 use Modules\Tenancy\Models\Centre;
@@ -129,6 +131,17 @@ final class DemoSeeder extends Seeder
                 'address_line1' => '8 Market St', 'city' => 'Polokwane', 'province' => 'Limpopo', 'postal_code' => '0700',
                 'preferred_code' => 'ikhwezi', 'interval' => 'month', 'consented_at' => now()->subHours(5), 'consent_version' => '2026-11',
             ]);
+        });
+
+        $this->call(CatalogueSeeder::class);
+        // The demo provider still offers the legacy GETC: Construction (closed for new
+        // enrolments; enrolled learners may finish until 2029).
+        $tym = $context->runAsPlatform(fn () => Tenant::query()->where('code', 'tym')->firstOrFail());
+        $context->runAs($tym, function (): void {
+            $getc = Qualification::query()->where('saqa_id', '49411')->first();
+            if ($getc !== null) {
+                Programme::query()->firstOrCreate(['qualification_id' => $getc->id], ['modes' => ['contact', 'workplace']]);
+            }
         });
 
         $this->command?->info('Demo ready. Password: '.self::PASSWORD.' · TOTP secret: '.self::TOTP_SECRET);

@@ -2,6 +2,8 @@ import {
   Building2,
   CreditCard,
   Gauge,
+  BookOpen,
+  GraduationCap,
   Inbox,
   MapPin,
   LifeBuoy,
@@ -35,6 +37,7 @@ const platform: NavItem[] = [
     group: 'main',
     permission: 'platform.tenants.manage',
   },
+  { to: '/catalogue', label: 'nav.catalogue', icon: BookOpen, group: 'main', permission: 'platform.catalogue.manage' },
   { to: '/tenants', label: 'nav.tenants', icon: Building2, group: 'main', permission: 'platform.tenants.view' },
   { to: '/cells', label: 'nav.cells', icon: Server, group: 'main', permission: 'platform.cells.view' },
   { to: '/billing', label: 'nav.billing', icon: CreditCard, group: 'main', permission: 'platform.billing.manage' },
@@ -53,6 +56,7 @@ const platform: NavItem[] = [
 
 const provider: NavItem[] = [
   { to: '/', label: 'nav.overview', icon: Gauge, group: 'main' },
+  { to: '/programmes', label: 'nav.programmes', icon: GraduationCap, group: 'main', permission: 'programmes.view' },
   { to: '/centres', label: 'nav.centres', icon: MapPin, group: 'main', permission: 'centres.view' },
   { to: '/users', label: 'nav.users', icon: Users, group: 'main', permission: 'tenant.users.view' },
   { to: '/brand', label: 'nav.brand', icon: Palette, group: 'manage', permission: 'tenant.settings.manage' },
