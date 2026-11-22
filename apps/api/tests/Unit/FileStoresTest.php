@@ -12,12 +12,13 @@ use Tests\TestCase;
 uses(TestCase::class);
 
 it('signs direct uploads to S3 for one object, type and size', function (): void {
+    $this->freezeTime(); // the signed expiry is measured in whole seconds from now
     $store = new S3Store(['key' => 'AKIAEXAMPLE', 'secret' => 'secret', 'region' => 'af-south-1', 'bucket' => 'skills-files', 'prefix' => 'prod/']);
     $target = $store->uploadTarget('t1/tenant_logo/2026/12/abc', 'image/png', 1234, now()->addMinutes(15));
 
     expect($target?->method)->toBe('PUT')
         ->and($target?->url)->toStartWith('https://skills-files.s3.af-south-1.amazonaws.com/prod/t1/tenant_logo/2026/12/abc?')
-        ->toContain('X-Amz-Signature=')->toMatch('/X-Amz-Expires=(899|900)&/')
+        ->toContain('X-Amz-Signature=')->toContain('X-Amz-Expires=900&')
         ->and($target?->headers['Content-Type'])->toBe('image/png');
 
     $download = $store->downloadUrl('x/y', 'Report ü.pdf', 'application/pdf', now()->addMinutes(10));

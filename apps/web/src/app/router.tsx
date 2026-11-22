@@ -134,6 +134,16 @@ const programmes = createRoute({
   path: '/programmes',
   component: lazyRouteComponent(() => import('@/features/programmes/ProgrammesPage'), 'ProgrammesPage'),
 });
+const employers = createRoute({
+  getParentRoute: () => app,
+  path: '/employers',
+  component: lazyRouteComponent(() => import('@/features/employers/EmployersPage'), 'EmployersPage'),
+});
+const employer = createRoute({
+  getParentRoute: () => app,
+  path: '/employers/$id',
+  component: lazyRouteComponent(() => import('@/features/employers/EmployerPage'), 'EmployerPage'),
+});
 const roles = createRoute({
   getParentRoute: () => app,
   path: '/roles',
@@ -217,6 +227,8 @@ const routeTree = root.addChildren([
     catalogue,
     catalogueEntry,
     programmes,
+    employers,
+    employer,
     roles,
     credentials,
     profile,

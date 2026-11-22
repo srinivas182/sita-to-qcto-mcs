@@ -64,6 +64,14 @@ return [
             'variants' => [],
             'public_variants' => false,
         ],
+        'workplace_approval' => [
+            'scope' => 'tenant',
+            'permission' => 'employers.manage',
+            'max_kb' => 10240,
+            'mimes' => ['application/pdf', 'image/jpeg', 'image/png'],
+            'variants' => [],
+            'public_variants' => false,
+        ],
         'curriculum_document' => [
             'scope' => 'tenant',
             'permission' => 'programmes.manage',

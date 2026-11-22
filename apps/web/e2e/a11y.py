@@ -63,6 +63,14 @@ with sync_playwright() as p:
     page.keyboard.press('Escape')
     page.click('nav a[href="/profile"]'); page.get_by_text('Equity information (optional)').wait_for(); audit(page, '/profile')
 
+    # Employers: the list with the approval warning, one employer, and its workplace and mentor dialogs.
+    page.click('nav a[href="/employers"]'); page.get_by_text('Mabaso Builders (Pty) Ltd').first.wait_for(); audit(page, '/employers')
+    page.get_by_role('link', name='Mabaso Builders (Pty) Ltd').click(); page.get_by_text('Zodwa Khumalo').first.wait_for(); audit(page, '/employers/:id')
+    page.get_by_role('button', name='Change Soweto yard').first.click(); page.get_by_role('dialog').wait_for(); page.get_by_label('Learners per mentor').wait_for(); audit(page, '/employers workplace dialog')
+    page.keyboard.press('Escape')
+    page.get_by_role('button', name='Add mentor').first.click(); page.get_by_role('dialog').wait_for(); audit(page, '/employers mentor dialog')
+    page.keyboard.press('Escape')
+
     # Centres with the expiry warning, and the edit dialog.
     page.click('nav a[href="/centres"]'); page.get_by_text('Durban Site', exact=True).first.wait_for(); audit(page, '/centres')
     page.get_by_text('Durban Site', exact=True).first.click(); page.get_by_role('dialog').wait_for(); audit(page, '/centres dialog')

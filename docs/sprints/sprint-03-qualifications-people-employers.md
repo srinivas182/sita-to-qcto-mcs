@@ -1,7 +1,7 @@
 # Sprint 3 — Qualifications, people and employers
 
 **Plan dates:** 21 Dec 2026 – 1 Jan 2027 (Phase 1 – SaaS compliance core).
-**Status:** draft for approval. Questions are in §10.
+**Status:** approved 22 Nov 2026 (decisions in §9). In build: 3a catalogue, 3b people and 3c employers done; 3d agreements and 3e cohorts next. Open questions for TYM are in §10.
 
 **Goal (from the sprint plan):** *Qualifications, people and employers set up.*
 
