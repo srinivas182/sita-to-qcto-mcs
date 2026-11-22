@@ -138,3 +138,73 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm -r --if-present run test
+      - name: Build web and enforce the bundle budget (initial JS < 160 KB gzip)
+        run: pnpm --filter @skills/web build && pnpm --filter @skills/web run size
+
+  e2e:
+    # Browser smoke test of the real web app against the real API (sign-in with MFA,
+    # provider console, Super Admin console, phone layout). Uses the runner's Chrome.
+    needs: changes
+    if: (needs.changes.outputs.api == 'true' || needs.changes.outputs.js == 'true') && github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_pgsql, redis, intl, sodium, zip
+          coverage: none
+      - uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ hashFiles('apps/api/composer.lock') }}
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: composer install --no-interaction --prefer-dist --no-progress
+        working-directory: apps/api
+      - run: pnpm install --frozen-lockfile && pnpm --filter @skills/web build
+      - name: Database (non-superuser app role)
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -U postgres -c "CREATE ROLE app LOGIN PASSWORD 'app' NOSUPERUSER CREATEDB;"
+          psql -h 127.0.0.1 -U postgres -c "CREATE DATABASE skills OWNER app;"
+      - name: Start API and web
+        working-directory: apps/api
+        run: |
+          cp .env.example .env && php artisan key:generate
+          php artisan migrate --force && php artisan db:seed --class=DemoSeeder --force
+          PHP_CLI_SERVER_WORKERS=4 nohup php artisan serve --host=127.0.0.1 --port=8000 > /tmp/api.log 2>&1 &
+          (cd ../web && nohup pnpm exec vite preview --host 127.0.0.1 --port 4173 > /tmp/web.log 2>&1 &)
+          for i in $(seq 1 30); do curl -sf -H 'Host: tym.platform.test' http://127.0.0.1:4173/v1/branding && break; sleep 1; done
+      - run: pip install --quiet playwright==1.55.0
+      - name: Browser smoke test
+        env:
+          SHOTS: ${{ runner.temp }}/shots
+          CHROME: /usr/bin/google-chrome
+        run: python3 apps/web/e2e/smoke.py
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-failure
+          path: |
+            ${{ runner.temp }}/shots
+            /tmp/api.log
+            /tmp/web.log
+          retention-days: 7

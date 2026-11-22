@@ -34,6 +34,7 @@ final class MeResource extends JsonResource
         $context = app(TenantContext::class);
         $tenant = $context->tenant();
 
+        /** @var list<array{role: string, label: string, scope: string, centre_id: string|null}> $assignments */
         $assignments = $access->tenantAssignments($user)->map(fn ($a): array => [
             'role' => $a->role,
             'label' => config("access.roles.{$a->role}.label"),
@@ -41,14 +42,20 @@ final class MeResource extends JsonResource
             'centre_id' => $a->centre_id,
         ])->values()->all();
 
+        /** @var list<string> $permissions */
         $permissions = array_values(array_filter(
             array_keys((array) config('access.permissions', [])),
             fn (string $p): bool => $access->can($user, $p),
         ));
 
+        /** @var bool $totp */
         $totp = app(TotpService::class)->hasConfirmed($user);
+        /** @var int $passkeys */
         $passkeys = $user->passkeys()->count();
+        /** @var bool $required */
         $required = $access->requiresMfa($user);
+        /** @var list<string> $platformRoles */
+        $platformRoles = $access->platformRoles($user);
         $grant = $access->activeGrant();
 
         return [
@@ -66,14 +73,20 @@ final class MeResource extends JsonResource
                 'code' => $tenant->code,
                 'name' => $tenant->trading_name,
                 'status' => $tenant->status->value,
+                /** @var array<string, string> */
                 'branding' => $tenant->branding ?? (object) [],
             ],
+            /** @var list<array{role: string, label: string, scope: string, centre_id: string|null}> */
             'roles' => $assignments,
-            'platform_roles' => $access->platformRoles($user),
+            /** @var list<string> */
+            'platform_roles' => $platformRoles,
+            /** @var list<string> */
             'permissions' => $permissions,
             'security' => [
+                /** @var bool */
                 'totp' => $totp,
                 'passkeys' => $passkeys,
+                /** @var bool */
                 'mfa_required' => $required,
                 'mfa_setup_required' => $required && ! $totp && $passkeys === 0,
             ],
