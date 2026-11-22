@@ -1,5 +1,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { UserPlus, Users } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
+import { FileUp, KeyRound, UserPlus, Users } from 'lucide-react';
+import { ImportDialog } from '@/features/people/ImportDialog';
 import { useDeferredValue, useState, type FormEvent } from 'react';
 import {
   Alert,
@@ -25,7 +27,7 @@ interface Member {
   email: string | null;
   phone: string | null;
   status: string;
-  roles: Array<{ role: string; centre_id: string | null }>;
+  roles: Array<{ role: string; centre_id: string | null; centre?: string | null }>;
 }
 interface Role {
   key: string;
@@ -40,6 +42,7 @@ export function UsersPage() {
   const [search, setSearch] = useState('');
   const q = useDeferredValue(search);
   const [inviting, setInviting] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [editing, setEditing] = useState<Member | null>(null);
   const roles = useQuery({
     queryKey: ['roles'],
@@ -64,11 +67,26 @@ export function UsersPage() {
         title="Users & roles"
         description="Invite your team and learners. Roles can be limited to one centre — a facilitator in Soweto sees only Soweto."
         actions={
-          can('tenant.users.invite') ? (
-            <Button icon={<UserPlus className="size-4" />} onClick={() => setInviting(true)}>
-              Invite
-            </Button>
-          ) : null
+          <>
+            {can('tenant.users.view') ? (
+              <Link
+                to="/roles"
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-small font-medium text-primary-700 hover:bg-primary-50"
+              >
+                <KeyRound className="size-4" aria-hidden /> Your own roles
+              </Link>
+            ) : null}
+            {can('people.manage') && can('tenant.users.invite') ? (
+              <Button variant="secondary" icon={<FileUp className="size-4" />} onClick={() => setImporting(true)}>
+                Import
+              </Button>
+            ) : null}
+            {can('tenant.users.invite') ? (
+              <Button icon={<UserPlus className="size-4" />} onClick={() => setInviting(true)}>
+                Invite
+              </Button>
+            ) : null}
+          </>
         }
       />
       <Card>
@@ -114,7 +132,7 @@ export function UsersPage() {
                     {m.roles.map((r) => (
                       <Badge key={r.role + (r.centre_id ?? '')} tone="primary">
                         {labels.get(r.role) ?? r.role}
-                        {r.centre_id ? ' · one centre' : ''}
+                        {r.centre_id ? ` · ${r.centre ?? 'one centre'}` : ''}
                       </Badge>
                     ))}
                   </div>
@@ -125,6 +143,7 @@ export function UsersPage() {
           />
         )}
       </Card>
+      {importing ? <ImportDialog onClose={() => setImporting(false)} /> : null}
       <InviteDialog open={inviting} onOpenChange={setInviting} roles={(roles.data ?? []).filter((r) => r.assignable)} />
       {editing ? (
         <RolesDialog

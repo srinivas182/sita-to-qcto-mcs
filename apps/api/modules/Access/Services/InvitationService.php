@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Modules\Access\Services;
 
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -14,8 +15,11 @@ use Modules\Access\Notifications\InvitationNotification;
 use Modules\Identity\Models\User;
 use Modules\Identity\Models\UserTenant;
 use Modules\Identity\Otp\OtpDispatcher;
+use Modules\Identity\Support\IdentityHasher;
+use Modules\Identity\Support\IdType;
 use Modules\Identity\Support\MembershipStatus;
 use Modules\Identity\Support\PhoneNumber;
+use Modules\Identity\Support\SaIdNumber;
 use Modules\Tenancy\Context\TenantContext;
 
 /**
@@ -33,7 +37,7 @@ final class InvitationService
     ) {}
 
     /**
-     * @param  array{email?: string|null, phone?: string|null, first_name?: string|null, last_name?: string|null, role: string, centre_id?: string|null}  $data
+     * @param  array{email?: string|null, phone?: string|null, first_name?: string|null, last_name?: string|null, role: string, centre_id?: string|null, id_type?: string|null, id_number?: string|null}  $data
      * @return array{invitation: Invitation, token: string, url: string}
      */
     public function invite(User $by, array $data): array
@@ -70,6 +74,8 @@ final class InvitationService
             'token_hash' => hash('sha256', $token),
             'invited_by' => $by->id,
             'expires_at' => now()->addDays((int) config('identity.invitations.ttl_days', 7)),
+            'id_type' => isset($data['id_number']) ? ($data['id_type'] ?? IdType::SaId->value) : null,
+            'id_number' => $data['id_number'] ?? null,
         ]);
 
         $host = $tenant->domains()->where('is_primary', true)->value('hostname');
@@ -136,10 +142,36 @@ final class InvitationService
 
             $this->access->forget($user);
             $this->access->assign($user, $invitation->role, $invitation->centre_id);
+            $this->applyIdentity($user, $invitation);
 
             $invitation->forceFill(['accepted_at' => now(), 'accepted_by' => $user->id])->save();
 
             return $user;
+        });
+    }
+
+    /** An ID number given with the invitation (e.g. bulk import) is kept if the person has none and nobody else holds it. */
+    private function applyIdentity(User $user, Invitation $invitation): void
+    {
+        if ($invitation->id_number === null || $user->id_number !== null) {
+            return;
+        }
+        $type = IdType::tryFrom((string) $invitation->id_type) ?? IdType::SaId;
+        $sa = $type === IdType::SaId ? SaIdNumber::tryParse($invitation->id_number) : null;
+        if ($type === IdType::SaId && $sa === null) {
+            return;
+        }
+
+        $this->context->runAsPlatform(function () use ($user, $type, $invitation, $sa): void {
+            $hash = IdentityHasher::identityNumber($type, strtoupper((string) preg_replace('/[^A-Za-z0-9]/', '', (string) $invitation->id_number)), null);
+            if (User::query()->where('id_number_hash', $hash)->whereKeyNot($user->id)->exists()) {
+                return; // someone else holds it: support resolves duplicates, never silently
+            }
+            $user->setIdentityNumber($type, (string) $invitation->id_number);
+            if ($sa !== null) {
+                $user->dob = Carbon::instance($sa->dateOfBirth);
+            }
+            $user->save();
         });
     }
 

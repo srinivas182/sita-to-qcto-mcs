@@ -32,7 +32,10 @@ final class FileController
         if (($purpose['scope'] ?? null) !== 'tenant' || ($purpose['uploadable'] ?? true) === false) {
             throw new FileError('Unknown file purpose.', 'unknown_purpose');
         }
-        Gate::authorize((string) $purpose['permission']);
+        // 'self': any member may upload their own document (e.g. a registration letter).
+        if ($purpose['permission'] !== 'self') {
+            Gate::authorize((string) $purpose['permission']);
+        }
 
         /** @var array{purpose: string, name: string, mime: string, size: int} $data */
         ['file' => $file, 'upload' => $upload] = $this->files()->create($data, $request->user()?->getAuthIdentifier());
@@ -120,7 +123,16 @@ final class FileController
     private function find(string $id): File
     {
         $file = File::query()->findOrFail($id);
-        Gate::authorize((string) ($file->purposeConfig()['permission'] ?? 'tenant.settings.manage'));
+        $config = $file->purposeConfig();
+        if (($config['permission'] ?? null) === 'self') {
+            // Your own document, or someone who may see it (e.g. credentials.view).
+            if ($file->owner_id !== request()->user()?->getAuthIdentifier()) {
+                Gate::authorize((string) ($config['viewers'] ?? 'tenant.settings.manage'));
+            }
+
+            return $file;
+        }
+        Gate::authorize((string) ($config['permission'] ?? 'tenant.settings.manage'));
 
         return $file;
     }

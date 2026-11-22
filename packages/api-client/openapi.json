@@ -3984,7 +3984,7 @@
         },
         "/audit-logs": {
             "get": {
-                "operationId": "modules.audit.auditLog.index_52",
+                "operationId": "modules.audit.auditLog.index_56",
                 "tags": [
                     "AuditLog"
                 ],
@@ -4191,7 +4191,7 @@
         },
         "/admin/audit-logs": {
             "get": {
-                "operationId": "modules.audit.auditLog.index_71",
+                "operationId": "modules.audit.auditLog.index_75",
                 "tags": [
                     "AuditLog"
                 ],
@@ -8374,9 +8374,299 @@
                 }
             }
         },
+        "/roles/custom": {
+            "get": {
+                "operationId": "customRole.index",
+                "tags": [
+                    "CustomRole"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "key": {
+                                                        "type": "string"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "description": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "scope": {
+                                                        "type": "string"
+                                                    },
+                                                    "permissions": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "mfa": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "based_on": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "people": {
+                                                        "type": "integer"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "key",
+                                                    "name",
+                                                    "description",
+                                                    "scope",
+                                                    "permissions",
+                                                    "mfa",
+                                                    "based_on",
+                                                    "people"
+                                                ]
+                                            }
+                                        },
+                                        "permissions": {
+                                            "type": "array",
+                                            "description": "What a role may be built from, with plain descriptions, and the standard roles to start from.",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "key": {
+                                                        "type": "string"
+                                                    },
+                                                    "label": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "key",
+                                                    "label"
+                                                ]
+                                            }
+                                        },
+                                        "templates": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "key": {
+                                                        "type": "string"
+                                                    },
+                                                    "label": {
+                                                        "type": "string"
+                                                    },
+                                                    "scope": {
+                                                        "type": "string"
+                                                    },
+                                                    "permissions": {
+                                                        "type": "array",
+                                                        "items": {}
+                                                    }
+                                                },
+                                                "required": [
+                                                    "key",
+                                                    "label",
+                                                    "scope",
+                                                    "permissions"
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "permissions",
+                                        "templates"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "customRole.store",
+                "tags": [
+                    "CustomRole"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "key": {
+                                                    "type": "string"
+                                                },
+                                                "mfa": {
+                                                    "type": "boolean"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "key",
+                                                "mfa"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/roles/custom/{role}": {
+            "patch": {
+                "operationId": "customRole.update",
+                "tags": [
+                    "CustomRole"
+                ],
+                "parameters": [
+                    {
+                        "name": "role",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "key": {
+                                                    "type": "string"
+                                                },
+                                                "mfa": {
+                                                    "type": "boolean"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "key",
+                                                "mfa"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "customRole.destroy",
+                "tags": [
+                    "CustomRole"
+                ],
+                "parameters": [
+                    {
+                        "name": "role",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "deleted": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "required": [
+                                        "deleted"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/tenants/{tenant}/domains": {
             "get": {
-                "operationId": "modules.tenancy.domain.index_36",
+                "operationId": "modules.tenancy.domain.index_40",
                 "tags": [
                     "Domain"
                 ],
@@ -8418,7 +8708,7 @@
                 }
             },
             "post": {
-                "operationId": "modules.tenancy.domain.store_37",
+                "operationId": "modules.tenancy.domain.store_41",
                 "tags": [
                     "Domain"
                 ],
@@ -8481,7 +8771,7 @@
         },
         "/tenants/{tenant}/domains/{domain}/verify": {
             "post": {
-                "operationId": "modules.tenancy.domain.verify_38",
+                "operationId": "modules.tenancy.domain.verify_42",
                 "summary": "Live DNS + certificate check (the \"Check now\" button)",
                 "tags": [
                     "Domain"
@@ -8535,7 +8825,7 @@
         },
         "/tenants/{tenant}/domains/{domain}/status": {
             "get": {
-                "operationId": "modules.tenancy.domain.status_39",
+                "operationId": "modules.tenancy.domain.status_43",
                 "tags": [
                     "Domain"
                 ],
@@ -8584,7 +8874,7 @@
         },
         "/tenants/{tenant}/domains/{domain}/primary": {
             "post": {
-                "operationId": "modules.tenancy.domain.primary_40",
+                "operationId": "modules.tenancy.domain.primary_44",
                 "tags": [
                     "Domain"
                 ],
@@ -8633,7 +8923,7 @@
         },
         "/tenants/{tenant}/domains/{domain}": {
             "delete": {
-                "operationId": "modules.tenancy.domain.destroy_41",
+                "operationId": "modules.tenancy.domain.destroy_45",
                 "tags": [
                     "Domain"
                 ],
@@ -8667,7 +8957,7 @@
         },
         "/admin/tenants/{tenant}/domains": {
             "get": {
-                "operationId": "modules.tenancy.domain.index_64",
+                "operationId": "modules.tenancy.domain.index_68",
                 "tags": [
                     "Domain"
                 ],
@@ -8709,7 +8999,7 @@
                 }
             },
             "post": {
-                "operationId": "modules.tenancy.domain.store_65",
+                "operationId": "modules.tenancy.domain.store_69",
                 "tags": [
                     "Domain"
                 ],
@@ -8772,7 +9062,7 @@
         },
         "/admin/tenants/{tenant}/domains/{domain}/verify": {
             "post": {
-                "operationId": "modules.tenancy.domain.verify_66",
+                "operationId": "modules.tenancy.domain.verify_70",
                 "summary": "Live DNS + certificate check (the \"Check now\" button)",
                 "tags": [
                     "Domain"
@@ -8826,7 +9116,7 @@
         },
         "/admin/tenants/{tenant}/domains/{domain}/status": {
             "get": {
-                "operationId": "modules.tenancy.domain.status_67",
+                "operationId": "modules.tenancy.domain.status_71",
                 "tags": [
                     "Domain"
                 ],
@@ -8875,7 +9165,7 @@
         },
         "/admin/tenants/{tenant}/domains/{domain}/primary": {
             "post": {
-                "operationId": "modules.tenancy.domain.primary_68",
+                "operationId": "modules.tenancy.domain.primary_72",
                 "tags": [
                     "Domain"
                 ],
@@ -8924,7 +9214,7 @@
         },
         "/admin/tenants/{tenant}/domains/{domain}": {
             "delete": {
-                "operationId": "modules.tenancy.domain.destroy_69",
+                "operationId": "modules.tenancy.domain.destroy_73",
                 "tags": [
                     "Domain"
                 ],
@@ -13375,6 +13665,1678 @@
                 }
             }
         },
+        "/me/profile": {
+            "get": {
+                "operationId": "people.myProfile",
+                "tags": [
+                    "People"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "first_name": {
+                                                    "type": "string"
+                                                },
+                                                "last_name": {
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "phone": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "id_type": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "enum": [
+                                                        "sa_id",
+                                                        "passport",
+                                                        null
+                                                    ]
+                                                },
+                                                "id_number": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "id_country": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "dob": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "address_line1": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "address_line2": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "city": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "province": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "postal_code": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "home_language": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "emergency_name": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "emergency_phone": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "emergency_relationship": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "equity_consented": {
+                                                    "type": "boolean"
+                                                },
+                                                "equity": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "gender": {
+                                                                    "type": [
+                                                                        "string",
+                                                                        "null"
+                                                                    ]
+                                                                },
+                                                                "race": {
+                                                                    "type": [
+                                                                        "string",
+                                                                        "null"
+                                                                    ]
+                                                                },
+                                                                "disability": {
+                                                                    "type": [
+                                                                        "boolean",
+                                                                        "null"
+                                                                    ]
+                                                                },
+                                                                "disability_details": {
+                                                                    "type": [
+                                                                        "string",
+                                                                        "null"
+                                                                    ]
+                                                                }
+                                                            }
+                                                        },
+                                                        {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            },
+                                                            "minItems": 0,
+                                                            "maxItems": 0
+                                                        },
+                                                        {
+                                                            "type": "null"
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "first_name",
+                                                "last_name",
+                                                "email",
+                                                "phone",
+                                                "id_type",
+                                                "id_number",
+                                                "id_country",
+                                                "dob",
+                                                "address_line1",
+                                                "address_line2",
+                                                "city",
+                                                "province",
+                                                "postal_code",
+                                                "home_language",
+                                                "emergency_name",
+                                                "emergency_phone",
+                                                "emergency_relationship",
+                                                "equity_consented",
+                                                "equity"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "people.updateMyProfile",
+                "tags": [
+                    "People"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {}
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/me/credentials": {
+            "get": {
+                "operationId": "people.myCredentials",
+                "tags": [
+                    "People"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        },
+                                        "roles": {
+                                            "type": "object",
+                                            "properties": {
+                                                "facilitator": {
+                                                    "type": "string",
+                                                    "const": "Facilitator"
+                                                },
+                                                "assessor": {
+                                                    "type": "string",
+                                                    "const": "Assessor"
+                                                },
+                                                "moderator": {
+                                                    "type": "string",
+                                                    "const": "Moderator"
+                                                },
+                                                "rpl_advisor": {
+                                                    "type": "string",
+                                                    "const": "RPL advisor"
+                                                },
+                                                "mentor": {
+                                                    "type": "string",
+                                                    "const": "Workplace mentor"
+                                                },
+                                                "subject_expert": {
+                                                    "type": "string",
+                                                    "const": "Subject matter expert"
+                                                }
+                                            },
+                                            "required": [
+                                                "facilitator",
+                                                "assessor",
+                                                "moderator",
+                                                "rpl_advisor",
+                                                "mentor",
+                                                "subject_expert"
+                                            ]
+                                        },
+                                        "bodies": {
+                                            "type": "array",
+                                            "prefixItems": [
+                                                {
+                                                    "type": "string",
+                                                    "const": "QCTO"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "const": "CETA"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "const": "MERSETA"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "const": "ETDP SETA"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "const": "SERVICES SETA"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "const": "EWSETA"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "const": "MICT SETA"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "const": "NAMB"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "const": "SACE"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "const": "ECSA"
+                                                }
+                                            ],
+                                            "minItems": 10,
+                                            "maxItems": 10
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "roles",
+                                        "bodies"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "people.addMyCredential",
+                "summary": "Self-service: staff add their own registrations; someone else verifies them",
+                "tags": [
+                    "People"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "user_id": {
+                                                    "type": "string"
+                                                },
+                                                "role": {
+                                                    "type": "string"
+                                                },
+                                                "role_label": {
+                                                    "type": "string"
+                                                },
+                                                "body": {
+                                                    "type": "string"
+                                                },
+                                                "registration_number": {
+                                                    "type": "string"
+                                                },
+                                                "qualifications": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "title": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "title"
+                                                        ]
+                                                    }
+                                                },
+                                                "starts_on": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "expires_on": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "file_id": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "status": {
+                                                    "type": "string"
+                                                },
+                                                "state": {
+                                                    "type": "string"
+                                                },
+                                                "verified_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "notes": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "user_id",
+                                                "role",
+                                                "role_label",
+                                                "body",
+                                                "registration_number",
+                                                "qualifications",
+                                                "starts_on",
+                                                "expires_on",
+                                                "file_id",
+                                                "status",
+                                                "state",
+                                                "verified_at",
+                                                "notes"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/people/credentials": {
+            "get": {
+                "operationId": "people.register",
+                "summary": "The register: everyone's registrations, filterable, with what needs attention first",
+                "tags": [
+                    "People"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "array",
+                                                "items": {}
+                                            }
+                                        },
+                                        "counts": {
+                                            "type": "string"
+                                        },
+                                        "roles": {
+                                            "type": "object",
+                                            "properties": {
+                                                "facilitator": {
+                                                    "type": "string",
+                                                    "const": "Facilitator"
+                                                },
+                                                "assessor": {
+                                                    "type": "string",
+                                                    "const": "Assessor"
+                                                },
+                                                "moderator": {
+                                                    "type": "string",
+                                                    "const": "Moderator"
+                                                },
+                                                "rpl_advisor": {
+                                                    "type": "string",
+                                                    "const": "RPL advisor"
+                                                },
+                                                "mentor": {
+                                                    "type": "string",
+                                                    "const": "Workplace mentor"
+                                                },
+                                                "subject_expert": {
+                                                    "type": "string",
+                                                    "const": "Subject matter expert"
+                                                }
+                                            },
+                                            "required": [
+                                                "facilitator",
+                                                "assessor",
+                                                "moderator",
+                                                "rpl_advisor",
+                                                "mentor",
+                                                "subject_expert"
+                                            ]
+                                        },
+                                        "bodies": {
+                                            "type": "array",
+                                            "prefixItems": [
+                                                {
+                                                    "type": "string",
+                                                    "const": "QCTO"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "const": "CETA"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "const": "MERSETA"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "const": "ETDP SETA"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "const": "SERVICES SETA"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "const": "EWSETA"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "const": "MICT SETA"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "const": "NAMB"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "const": "SACE"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "const": "ECSA"
+                                                }
+                                            ],
+                                            "minItems": 10,
+                                            "maxItems": 10
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "counts",
+                                        "roles",
+                                        "bodies"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/people/import": {
+            "post": {
+                "operationId": "people.import",
+                "tags": [
+                    "People"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "csv": {
+                                        "type": "string",
+                                        "maxLength": 500000
+                                    },
+                                    "send": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "required": [
+                                    "csv"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/people/{person}/profile": {
+            "get": {
+                "operationId": "people.profile",
+                "tags": [
+                    "People"
+                ],
+                "parameters": [
+                    {
+                        "name": "person",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "first_name": {
+                                                    "type": "string"
+                                                },
+                                                "last_name": {
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "phone": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "id_type": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "enum": [
+                                                        "sa_id",
+                                                        "passport",
+                                                        null
+                                                    ]
+                                                },
+                                                "id_number": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "id_country": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "dob": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "address_line1": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "address_line2": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "city": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "province": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "postal_code": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "home_language": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "emergency_name": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "emergency_phone": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "emergency_relationship": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "equity_consented": {
+                                                    "type": "boolean"
+                                                },
+                                                "equity": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "gender": {
+                                                                    "type": [
+                                                                        "string",
+                                                                        "null"
+                                                                    ]
+                                                                },
+                                                                "race": {
+                                                                    "type": [
+                                                                        "string",
+                                                                        "null"
+                                                                    ]
+                                                                },
+                                                                "disability": {
+                                                                    "type": [
+                                                                        "boolean",
+                                                                        "null"
+                                                                    ]
+                                                                },
+                                                                "disability_details": {
+                                                                    "type": [
+                                                                        "string",
+                                                                        "null"
+                                                                    ]
+                                                                }
+                                                            }
+                                                        },
+                                                        {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            },
+                                                            "minItems": 0,
+                                                            "maxItems": 0
+                                                        },
+                                                        {
+                                                            "type": "null"
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "first_name",
+                                                "last_name",
+                                                "email",
+                                                "phone",
+                                                "id_type",
+                                                "id_number",
+                                                "id_country",
+                                                "dob",
+                                                "address_line1",
+                                                "address_line2",
+                                                "city",
+                                                "province",
+                                                "postal_code",
+                                                "home_language",
+                                                "emergency_name",
+                                                "emergency_phone",
+                                                "emergency_relationship",
+                                                "equity_consented",
+                                                "equity"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "people.updateProfile",
+                "tags": [
+                    "People"
+                ],
+                "parameters": [
+                    {
+                        "name": "person",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {}
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/people/{person}/credentials": {
+            "get": {
+                "operationId": "people.credentials",
+                "tags": [
+                    "People"
+                ],
+                "parameters": [
+                    {
+                        "name": "person",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "people.addCredential",
+                "tags": [
+                    "People"
+                ],
+                "parameters": [
+                    {
+                        "name": "person",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "user_id": {
+                                                    "type": "string"
+                                                },
+                                                "role": {
+                                                    "type": "string"
+                                                },
+                                                "role_label": {
+                                                    "type": "string"
+                                                },
+                                                "body": {
+                                                    "type": "string"
+                                                },
+                                                "registration_number": {
+                                                    "type": "string"
+                                                },
+                                                "qualifications": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "title": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "title"
+                                                        ]
+                                                    }
+                                                },
+                                                "starts_on": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "expires_on": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "file_id": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "status": {
+                                                    "type": "string"
+                                                },
+                                                "state": {
+                                                    "type": "string"
+                                                },
+                                                "verified_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "notes": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "user_id",
+                                                "role",
+                                                "role_label",
+                                                "body",
+                                                "registration_number",
+                                                "qualifications",
+                                                "starts_on",
+                                                "expires_on",
+                                                "file_id",
+                                                "status",
+                                                "state",
+                                                "verified_at",
+                                                "notes"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/people/{person}/eligibility": {
+            "get": {
+                "operationId": "people.eligibility",
+                "summary": "May this person facilitate / assess / moderate this qualification (on a date)?",
+                "tags": [
+                    "People"
+                ],
+                "parameters": [
+                    {
+                        "name": "person",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "role",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "facilitator",
+                                "assessor",
+                                "moderator",
+                                "rpl_advisor",
+                                "mentor",
+                                "subject_expert"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "qualification_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "on",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date-time"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "anyOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "ok": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "reason": {
+                                                            "type": "string"
+                                                        },
+                                                        "credential_id": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "ok",
+                                                        "reason",
+                                                        "credential_id"
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "ok": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "reason": {
+                                                            "type": "string",
+                                                            "const": "A moderator must also hold a valid assessor registration for this qualification."
+                                                        },
+                                                        "credential_id": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "ok",
+                                                        "reason",
+                                                        "credential_id"
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "ok": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "reason": {
+                                                            "type": "string"
+                                                        },
+                                                        "credential_id": {
+                                                            "type": "null"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "ok",
+                                                        "reason",
+                                                        "credential_id"
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/credentials/{credential}": {
+            "patch": {
+                "operationId": "people.updateCredential",
+                "tags": [
+                    "People"
+                ],
+                "parameters": [
+                    {
+                        "name": "credential",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "user_id": {
+                                                    "type": "string"
+                                                },
+                                                "role": {
+                                                    "type": "string"
+                                                },
+                                                "role_label": {
+                                                    "type": "string"
+                                                },
+                                                "body": {
+                                                    "type": "string"
+                                                },
+                                                "registration_number": {
+                                                    "type": "string"
+                                                },
+                                                "qualifications": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "title": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "title"
+                                                        ]
+                                                    }
+                                                },
+                                                "starts_on": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "expires_on": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "file_id": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "status": {
+                                                    "type": "string"
+                                                },
+                                                "state": {
+                                                    "type": "string"
+                                                },
+                                                "verified_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "notes": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "user_id",
+                                                "role",
+                                                "role_label",
+                                                "body",
+                                                "registration_number",
+                                                "qualifications",
+                                                "starts_on",
+                                                "expires_on",
+                                                "file_id",
+                                                "status",
+                                                "state",
+                                                "verified_at",
+                                                "notes"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/credentials/{credential}/verify": {
+            "post": {
+                "operationId": "people.verifyCredential",
+                "tags": [
+                    "People"
+                ],
+                "parameters": [
+                    {
+                        "name": "credential",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "user_id": {
+                                                    "type": "string"
+                                                },
+                                                "role": {
+                                                    "type": "string"
+                                                },
+                                                "role_label": {
+                                                    "type": "string"
+                                                },
+                                                "body": {
+                                                    "type": "string"
+                                                },
+                                                "registration_number": {
+                                                    "type": "string"
+                                                },
+                                                "qualifications": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "title": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "title"
+                                                        ]
+                                                    }
+                                                },
+                                                "starts_on": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "expires_on": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "file_id": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "status": {
+                                                    "type": "string"
+                                                },
+                                                "state": {
+                                                    "type": "string"
+                                                },
+                                                "verified_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "notes": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "user_id",
+                                                "role",
+                                                "role_label",
+                                                "body",
+                                                "registration_number",
+                                                "qualifications",
+                                                "starts_on",
+                                                "expires_on",
+                                                "file_id",
+                                                "status",
+                                                "state",
+                                                "verified_at",
+                                                "notes"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/credentials/{credential}/reject": {
+            "post": {
+                "operationId": "people.rejectCredential",
+                "tags": [
+                    "People"
+                ],
+                "parameters": [
+                    {
+                        "name": "credential",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "reason": {
+                                        "type": "string",
+                                        "minLength": 5,
+                                        "maxLength": 500
+                                    }
+                                },
+                                "required": [
+                                    "reason"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "user_id": {
+                                                    "type": "string"
+                                                },
+                                                "role": {
+                                                    "type": "string"
+                                                },
+                                                "role_label": {
+                                                    "type": "string"
+                                                },
+                                                "body": {
+                                                    "type": "string"
+                                                },
+                                                "registration_number": {
+                                                    "type": "string"
+                                                },
+                                                "qualifications": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "title": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "title"
+                                                        ]
+                                                    }
+                                                },
+                                                "starts_on": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "expires_on": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "file_id": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "status": {
+                                                    "type": "string"
+                                                },
+                                                "state": {
+                                                    "type": "string"
+                                                },
+                                                "verified_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "notes": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "user_id",
+                                                "role",
+                                                "role_label",
+                                                "body",
+                                                "registration_number",
+                                                "qualifications",
+                                                "starts_on",
+                                                "expires_on",
+                                                "file_id",
+                                                "status",
+                                                "state",
+                                                "verified_at",
+                                                "notes"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/catalogue": {
             "get": {
                 "operationId": "programme.catalogue",
@@ -15002,6 +16964,9 @@
                                                             "type": "string"
                                                         }
                                                     },
+                                                    "custom": {
+                                                        "type": "boolean"
+                                                    },
                                                     "assignable": {
                                                         "type": "boolean"
                                                     }
@@ -15012,6 +16977,7 @@
                                                     "scope",
                                                     "mfa",
                                                     "permissions",
+                                                    "custom",
                                                     "assignable"
                                                 ]
                                             }
@@ -16214,7 +18180,7 @@
         },
         "/support-access/{grant}/revoke": {
             "post": {
-                "operationId": "modules.access.supportAccess.revoke_51",
+                "operationId": "modules.access.supportAccess.revoke_55",
                 "tags": [
                     "SupportAccess"
                 ],
@@ -16490,7 +18456,7 @@
         },
         "/admin/support-access/{grant}/revoke": {
             "post": {
-                "operationId": "modules.access.supportAccess.revoke_74",
+                "operationId": "modules.access.supportAccess.revoke_78",
                 "tags": [
                     "SupportAccess"
                 ],

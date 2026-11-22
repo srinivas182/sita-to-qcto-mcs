@@ -13,3 +13,4 @@
 | [ADR-009](ADR-009-access-catalogue.md) | Roles in a versioned catalogue; assignments as RLS-protected data | Accepted (proposed in 1c; review) |
 - [ADR-013 Provider onboarding](ADR-013-onboarding.md)
 - [ADR-014 Shared qualification catalogue](ADR-014-qualification-catalogue.md)
+- [ADR-015 Staff credentials, provider roles and personal data](ADR-015-people-credentials-roles.md)

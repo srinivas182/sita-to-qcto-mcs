@@ -20,6 +20,8 @@ use Modules\Tenancy\Concerns\BelongsToTenant;
  * @property string $role
  * @property string|null $centre_id
  * @property string $token_hash
+ * @property string|null $id_type
+ * @property string|null $id_number encrypted; applied to the person on acceptance
  * @property string $invited_by
  * @property Carbon $expires_at
  * @property Carbon|null $accepted_at
@@ -36,14 +38,14 @@ class Invitation extends Model
 
     protected $fillable = [
         'tenant_id', 'email', 'phone_e164', 'first_name', 'last_name', 'role', 'centre_id',
-        'token_hash', 'invited_by', 'expires_at', 'accepted_at', 'accepted_by', 'revoked_at',
+        'token_hash', 'invited_by', 'expires_at', 'accepted_at', 'accepted_by', 'revoked_at', 'id_type', 'id_number',
     ];
 
     protected $hidden = ['token_hash'];
 
     protected function casts(): array
     {
-        return ['expires_at' => 'datetime', 'accepted_at' => 'datetime', 'revoked_at' => 'datetime'];
+        return ['expires_at' => 'datetime', 'accepted_at' => 'datetime', 'revoked_at' => 'datetime', 'id_number' => 'encrypted'];
     }
 
     public function isOpen(): bool

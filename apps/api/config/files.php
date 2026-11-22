@@ -55,6 +55,15 @@ return [
             'public_variants' => false,
             'uploadable' => false,
         ],
+        'credential_document' => [
+            'scope' => 'tenant',
+            'permission' => 'self',
+            'viewers' => 'credentials.view',
+            'max_kb' => 10240,
+            'mimes' => ['application/pdf', 'image/jpeg', 'image/png'],
+            'variants' => [],
+            'public_variants' => false,
+        ],
         'curriculum_document' => [
             'scope' => 'tenant',
             'permission' => 'programmes.manage',

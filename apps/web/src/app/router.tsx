@@ -134,6 +134,21 @@ const programmes = createRoute({
   path: '/programmes',
   component: lazyRouteComponent(() => import('@/features/programmes/ProgrammesPage'), 'ProgrammesPage'),
 });
+const roles = createRoute({
+  getParentRoute: () => app,
+  path: '/roles',
+  component: lazyRouteComponent(() => import('@/features/people/RolesPage'), 'RolesPage'),
+});
+const credentials = createRoute({
+  getParentRoute: () => app,
+  path: '/people/credentials',
+  component: lazyRouteComponent(() => import('@/features/people/CredentialsPage'), 'CredentialsPage'),
+});
+const profile = createRoute({
+  getParentRoute: () => app,
+  path: '/profile',
+  component: lazyRouteComponent(() => import('@/features/people/ProfilePage'), 'ProfilePage'),
+});
 const centres = createRoute({
   getParentRoute: () => app,
   path: '/centres',
@@ -202,6 +217,9 @@ const routeTree = root.addChildren([
     catalogue,
     catalogueEntry,
     programmes,
+    roles,
+    credentials,
+    profile,
     centres,
     tenants,
     tenant,

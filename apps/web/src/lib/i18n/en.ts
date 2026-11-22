@@ -57,6 +57,8 @@ export const en = {
   'nav.centres': 'Centres',
   'nav.catalogue': 'Catalogue',
   'nav.programmes': 'Programmes',
+  'nav.credentials': 'Registrations',
+  'nav.profile': 'My profile',
   'nav.tenants': 'Training providers',
   'nav.cells': 'Cells',
   'nav.staff': 'Platform staff',

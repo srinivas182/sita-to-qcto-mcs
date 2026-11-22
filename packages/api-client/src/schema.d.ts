@@ -334,7 +334,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["modules.audit.auditLog.index_52"];
+        get: operations["modules.audit.auditLog.index_56"];
         put?: never;
         post?: never;
         delete?: never;
@@ -350,7 +350,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["modules.audit.auditLog.index_71"];
+        get: operations["modules.audit.auditLog.index_75"];
         put?: never;
         post?: never;
         delete?: never;
@@ -765,6 +765,38 @@ export interface paths {
         patch: operations["currentTenant.updateBranding"];
         trace?: never;
     };
+    "/roles/custom": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["customRole.index"];
+        put?: never;
+        post: operations["customRole.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/roles/custom/{role}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["customRole.destroy"];
+        options?: never;
+        head?: never;
+        patch: operations["customRole.update"];
+        trace?: never;
+    };
     "/tenants/{tenant}/domains": {
         parameters: {
             query?: never;
@@ -772,9 +804,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["modules.tenancy.domain.index_36"];
+        get: operations["modules.tenancy.domain.index_40"];
         put?: never;
-        post: operations["modules.tenancy.domain.store_37"];
+        post: operations["modules.tenancy.domain.store_41"];
         delete?: never;
         options?: never;
         head?: never;
@@ -791,7 +823,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Live DNS + certificate check (the "Check now" button) */
-        post: operations["modules.tenancy.domain.verify_38"];
+        post: operations["modules.tenancy.domain.verify_42"];
         delete?: never;
         options?: never;
         head?: never;
@@ -805,7 +837,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["modules.tenancy.domain.status_39"];
+        get: operations["modules.tenancy.domain.status_43"];
         put?: never;
         post?: never;
         delete?: never;
@@ -823,7 +855,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["modules.tenancy.domain.primary_40"];
+        post: operations["modules.tenancy.domain.primary_44"];
         delete?: never;
         options?: never;
         head?: never;
@@ -840,7 +872,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["modules.tenancy.domain.destroy_41"];
+        delete: operations["modules.tenancy.domain.destroy_45"];
         options?: never;
         head?: never;
         patch?: never;
@@ -853,9 +885,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["modules.tenancy.domain.index_64"];
+        get: operations["modules.tenancy.domain.index_68"];
         put?: never;
-        post: operations["modules.tenancy.domain.store_65"];
+        post: operations["modules.tenancy.domain.store_69"];
         delete?: never;
         options?: never;
         head?: never;
@@ -872,7 +904,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Live DNS + certificate check (the "Check now" button) */
-        post: operations["modules.tenancy.domain.verify_66"];
+        post: operations["modules.tenancy.domain.verify_70"];
         delete?: never;
         options?: never;
         head?: never;
@@ -886,7 +918,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["modules.tenancy.domain.status_67"];
+        get: operations["modules.tenancy.domain.status_71"];
         put?: never;
         post?: never;
         delete?: never;
@@ -904,7 +936,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["modules.tenancy.domain.primary_68"];
+        post: operations["modules.tenancy.domain.primary_72"];
         delete?: never;
         options?: never;
         head?: never;
@@ -921,7 +953,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["modules.tenancy.domain.destroy_69"];
+        delete: operations["modules.tenancy.domain.destroy_73"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1623,6 +1655,169 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["people.myProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["people.updateMyProfile"];
+        trace?: never;
+    };
+    "/me/credentials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["people.myCredentials"];
+        put?: never;
+        /** Self-service: staff add their own registrations; someone else verifies them */
+        post: operations["people.addMyCredential"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/people/credentials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The register: everyone's registrations, filterable, with what needs attention first */
+        get: operations["people.register"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/people/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["people.import"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/people/{person}/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["people.profile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["people.updateProfile"];
+        trace?: never;
+    };
+    "/people/{person}/credentials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["people.credentials"];
+        put?: never;
+        post: operations["people.addCredential"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/people/{person}/eligibility": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** May this person facilitate / assess / moderate this qualification (on a date)? */
+        get: operations["people.eligibility"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/credentials/{credential}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["people.updateCredential"];
+        trace?: never;
+    };
+    "/credentials/{credential}/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["people.verifyCredential"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/credentials/{credential}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["people.rejectCredential"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/catalogue": {
         parameters: {
             query?: never;
@@ -2123,7 +2318,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["modules.access.supportAccess.revoke_51"];
+        post: operations["modules.access.supportAccess.revoke_55"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2157,7 +2352,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["modules.access.supportAccess.revoke_74"];
+        post: operations["modules.access.supportAccess.revoke_78"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3726,7 +3921,7 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
-    "modules.audit.auditLog.index_52": {
+    "modules.audit.auditLog.index_56": {
         parameters: {
             query?: {
                 tenant_id?: string | null;
@@ -3773,7 +3968,7 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
-    "modules.audit.auditLog.index_71": {
+    "modules.audit.auditLog.index_75": {
         parameters: {
             query?: {
                 tenant_id?: string | null;
@@ -5123,7 +5318,134 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
-    "modules.tenancy.domain.index_36": {
+    "customRole.index": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            key: string;
+                            name: string;
+                            description: string | null;
+                            scope: string;
+                            permissions: string[];
+                            mfa: boolean;
+                            based_on: string | null;
+                            people: number;
+                        }[];
+                        /** @description What a role may be built from, with plain descriptions, and the standard roles to start from. */
+                        permissions: {
+                            key: string;
+                            label: string;
+                        }[];
+                        templates: {
+                            key: string;
+                            label: string;
+                            scope: string;
+                            permissions: unknown[];
+                        }[];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "customRole.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            key: string;
+                            mfa: boolean;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "customRole.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                role: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        deleted: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "customRole.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                role: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            key: string;
+                            mfa: boolean;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "modules.tenancy.domain.index_40": {
         parameters: {
             query?: never;
             header?: never;
@@ -5147,7 +5469,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.store_37": {
+    "modules.tenancy.domain.store_41": {
         parameters: {
             query?: never;
             header?: never;
@@ -5179,7 +5501,7 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
-    "modules.tenancy.domain.verify_38": {
+    "modules.tenancy.domain.verify_42": {
         parameters: {
             query?: never;
             header?: never;
@@ -5205,7 +5527,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.status_39": {
+    "modules.tenancy.domain.status_43": {
         parameters: {
             query?: never;
             header?: never;
@@ -5231,7 +5553,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.primary_40": {
+    "modules.tenancy.domain.primary_44": {
         parameters: {
             query?: never;
             header?: never;
@@ -5257,7 +5579,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.destroy_41": {
+    "modules.tenancy.domain.destroy_45": {
         parameters: {
             query?: never;
             header?: never;
@@ -5279,7 +5601,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.index_64": {
+    "modules.tenancy.domain.index_68": {
         parameters: {
             query?: never;
             header?: never;
@@ -5303,7 +5625,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.store_65": {
+    "modules.tenancy.domain.store_69": {
         parameters: {
             query?: never;
             header?: never;
@@ -5335,7 +5657,7 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
-    "modules.tenancy.domain.verify_66": {
+    "modules.tenancy.domain.verify_70": {
         parameters: {
             query?: never;
             header?: never;
@@ -5361,7 +5683,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.status_67": {
+    "modules.tenancy.domain.status_71": {
         parameters: {
             query?: never;
             header?: never;
@@ -5387,7 +5709,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.primary_68": {
+    "modules.tenancy.domain.primary_72": {
         parameters: {
             query?: never;
             header?: never;
@@ -5413,7 +5735,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "modules.tenancy.domain.destroy_69": {
+    "modules.tenancy.domain.destroy_73": {
         parameters: {
             query?: never;
             header?: never;
@@ -7221,6 +7543,579 @@ export interface operations {
             };
         };
     };
+    "people.myProfile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            first_name: string;
+                            last_name: string;
+                            email: string | null;
+                            phone: string | null;
+                            /** @enum {string|null} */
+                            id_type: "sa_id" | "passport" | null;
+                            id_number: string | null;
+                            id_country: string | null;
+                            dob: string | null;
+                            address_line1: string | null;
+                            address_line2: string | null;
+                            city: string | null;
+                            province: string | null;
+                            postal_code: string | null;
+                            home_language: string | null;
+                            emergency_name: string | null;
+                            emergency_phone: string | null;
+                            emergency_relationship: string | null;
+                            equity_consented: boolean;
+                            equity: {
+                                gender?: string | null;
+                                race?: string | null;
+                                disability?: boolean | null;
+                                disability_details?: string | null;
+                            } | string[] | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "people.updateMyProfile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown[];
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "people.myCredentials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: unknown[];
+                        roles: {
+                            /** @constant */
+                            facilitator: "Facilitator";
+                            /** @constant */
+                            assessor: "Assessor";
+                            /** @constant */
+                            moderator: "Moderator";
+                            /** @constant */
+                            rpl_advisor: "RPL advisor";
+                            /** @constant */
+                            mentor: "Workplace mentor";
+                            /** @constant */
+                            subject_expert: "Subject matter expert";
+                        };
+                        bodies: [
+                            "QCTO",
+                            "CETA",
+                            "MERSETA",
+                            "ETDP SETA",
+                            "SERVICES SETA",
+                            "EWSETA",
+                            "MICT SETA",
+                            "NAMB",
+                            "SACE",
+                            "ECSA"
+                        ];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "people.addMyCredential": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            user_id: string;
+                            role: string;
+                            role_label: string;
+                            body: string;
+                            registration_number: string;
+                            qualifications: {
+                                id: string;
+                                title: string;
+                            }[];
+                            starts_on: string | null;
+                            expires_on: string | null;
+                            file_id: string | null;
+                            status: string;
+                            state: string;
+                            verified_at: string | null;
+                            notes: string | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "people.register": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: unknown[][];
+                        counts: string;
+                        roles: {
+                            /** @constant */
+                            facilitator: "Facilitator";
+                            /** @constant */
+                            assessor: "Assessor";
+                            /** @constant */
+                            moderator: "Moderator";
+                            /** @constant */
+                            rpl_advisor: "RPL advisor";
+                            /** @constant */
+                            mentor: "Workplace mentor";
+                            /** @constant */
+                            subject_expert: "Subject matter expert";
+                        };
+                        bodies: [
+                            "QCTO",
+                            "CETA",
+                            "MERSETA",
+                            "ETDP SETA",
+                            "SERVICES SETA",
+                            "EWSETA",
+                            "MICT SETA",
+                            "NAMB",
+                            "SACE",
+                            "ECSA"
+                        ];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "people.import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    csv: string;
+                    send?: boolean;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Error overview. */
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "people.profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                person: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            first_name: string;
+                            last_name: string;
+                            email: string | null;
+                            phone: string | null;
+                            /** @enum {string|null} */
+                            id_type: "sa_id" | "passport" | null;
+                            id_number: string | null;
+                            id_country: string | null;
+                            dob: string | null;
+                            address_line1: string | null;
+                            address_line2: string | null;
+                            city: string | null;
+                            province: string | null;
+                            postal_code: string | null;
+                            home_language: string | null;
+                            emergency_name: string | null;
+                            emergency_phone: string | null;
+                            emergency_relationship: string | null;
+                            equity_consented: boolean;
+                            equity: {
+                                gender?: string | null;
+                                race?: string | null;
+                                disability?: boolean | null;
+                                disability_details?: string | null;
+                            } | string[] | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "people.updateProfile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                person: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown[];
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "people.credentials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                person: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: unknown[];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "people.addCredential": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                person: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            user_id: string;
+                            role: string;
+                            role_label: string;
+                            body: string;
+                            registration_number: string;
+                            qualifications: {
+                                id: string;
+                                title: string;
+                            }[];
+                            starts_on: string | null;
+                            expires_on: string | null;
+                            file_id: string | null;
+                            status: string;
+                            state: string;
+                            verified_at: string | null;
+                            notes: string | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "people.eligibility": {
+        parameters: {
+            query: {
+                role: "facilitator" | "assessor" | "moderator" | "rpl_advisor" | "mentor" | "subject_expert";
+                qualification_id: string;
+                on?: string | null;
+            };
+            header?: never;
+            path: {
+                person: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            ok: boolean;
+                            reason: string;
+                            credential_id: string;
+                        } | {
+                            ok: boolean;
+                            /** @constant */
+                            reason: "A moderator must also hold a valid assessor registration for this qualification.";
+                            credential_id: string;
+                        } | {
+                            ok: boolean;
+                            reason: string;
+                            credential_id: null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "people.updateCredential": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                credential: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            user_id: string;
+                            role: string;
+                            role_label: string;
+                            body: string;
+                            registration_number: string;
+                            qualifications: {
+                                id: string;
+                                title: string;
+                            }[];
+                            starts_on: string | null;
+                            expires_on: string | null;
+                            file_id: string | null;
+                            status: string;
+                            state: string;
+                            verified_at: string | null;
+                            notes: string | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "people.verifyCredential": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                credential: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            user_id: string;
+                            role: string;
+                            role_label: string;
+                            body: string;
+                            registration_number: string;
+                            qualifications: {
+                                id: string;
+                                title: string;
+                            }[];
+                            starts_on: string | null;
+                            expires_on: string | null;
+                            file_id: string | null;
+                            status: string;
+                            state: string;
+                            verified_at: string | null;
+                            notes: string | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "people.rejectCredential": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                credential: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    reason: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            user_id: string;
+                            role: string;
+                            role_label: string;
+                            body: string;
+                            registration_number: string;
+                            qualifications: {
+                                id: string;
+                                title: string;
+                            }[];
+                            starts_on: string | null;
+                            expires_on: string | null;
+                            file_id: string | null;
+                            status: string;
+                            state: string;
+                            verified_at: string | null;
+                            notes: string | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
     "programme.catalogue": {
         parameters: {
             query?: never;
@@ -7965,6 +8860,7 @@ export interface operations {
                             scope: string;
                             mfa: boolean;
                             permissions: string[];
+                            custom: boolean;
                             assignable: boolean;
                         }[];
                     };
@@ -8474,7 +9370,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "modules.access.supportAccess.revoke_51": {
+    "modules.access.supportAccess.revoke_55": {
         parameters: {
             query?: never;
             header?: never;
@@ -8579,7 +9475,7 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
-    "modules.access.supportAccess.revoke_74": {
+    "modules.access.supportAccess.revoke_78": {
         parameters: {
             query?: never;
             header?: never;
