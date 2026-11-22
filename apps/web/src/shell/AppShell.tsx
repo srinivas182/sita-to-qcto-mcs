@@ -15,6 +15,7 @@ import { useState } from 'react';
 import { Badge, cx } from '@/components/ui';
 import { useT } from '@/lib/i18n';
 import { initials, useMe, useSignOut } from '@/lib/session';
+import { BillingBanner } from './BillingBanner';
 import { CommandPalette } from './CommandPalette';
 import { navFor, type NavItem } from './nav';
 
@@ -117,6 +118,7 @@ export function AppShell() {
             </Link>
           </div>
         ) : null}
+        <BillingBanner me={me} canManage={me.permissions.includes('tenant.billing.manage')} />
         {me.support_access ? (
           <div className="mx-4 mt-4 flex items-center gap-3 rounded-lg bg-info-bg px-4 py-3 text-small text-info sm:mx-6">
             <ShieldCheck className="size-4" /> Support access to {me.tenant?.name} — read-only, ends{' '}

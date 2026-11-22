@@ -6,6 +6,8 @@ namespace Modules\Identity\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Modules\Access\Catalogue;
 use Modules\Access\Services\AccessService;
 use Modules\Identity\Mfa\TotpService;
@@ -75,6 +77,8 @@ final class MeResource extends JsonResource
                 'status' => $tenant->status->value,
                 /** @var array<string, string> */
                 'branding' => $tenant->branding ?? (object) [],
+                // Plan status for the console banner (null: no plan).
+                'billing' => $this->billing(),
             ],
             /** @var list<array{role: string, label: string, scope: string, centre_id: string|null}> */
             'roles' => $assignments,
@@ -92,6 +96,18 @@ final class MeResource extends JsonResource
             ],
             'support_access' => $grant === null ? null : ['grant_id' => $grant->id, 'ends_at' => $grant->ends_at?->toIso8601String()],
             'session' => ['mode' => $request->hasSession() ? 'session' : 'token'],
+        ];
+    }
+
+    /** @return array{status: string, trial_ends_at: string|null}|null */
+    private function billing(): ?array
+    {
+        // Read through the provider's RLS context; Billing owns the table.
+        $row = DB::table('subscriptions')->select(['status', 'trial_ends_at'])->first();
+
+        return $row === null ? null : [
+            'status' => (string) $row->status,
+            'trial_ends_at' => $row->trial_ends_at !== null ? Carbon::parse((string) $row->trial_ends_at)->toIso8601String() : null,
         ];
     }
 }

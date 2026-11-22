@@ -2,6 +2,7 @@ import { useNavigate, useSearch } from '@tanstack/react-router';
 import {
   Building2,
   CreditCard,
+  Gavel,
   HardDrive,
   Mail,
   MessageCircle,
@@ -10,11 +11,18 @@ import {
 } from 'lucide-react';
 import { useRef, type KeyboardEvent } from 'react';
 import { PageHeader, cx } from '@/components/ui';
+import { BillingRulesTab } from './BillingRulesTab';
 import { CompanyTab } from './CompanyTab';
 import { IntegrationsTab } from './IntegrationsTab';
 
 const tabs: { key: string; label: string; icon: LucideIcon; description: string }[] = [
   { key: 'company', label: 'Company', icon: Building2, description: 'Printed on every tax invoice.' },
+  {
+    key: 'billing',
+    label: 'Billing rules',
+    icon: Gavel,
+    description: 'Trials, due dates, card retries and when overdue accounts are limited.',
+  },
   {
     key: 'payment',
     label: 'Payments',
@@ -99,7 +107,13 @@ export function SettingsPage() {
         </div>
         <section role="tabpanel" id={`panel-${active.key}`} aria-labelledby={`tab-${active.key}`} className="min-w-0">
           <p className="mb-4 text-small text-muted">{active.description}</p>
-          {active.key === 'company' ? <CompanyTab /> : <IntegrationsTab type={active.key} />}
+          {active.key === 'company' ? (
+            <CompanyTab />
+          ) : active.key === 'billing' ? (
+            <BillingRulesTab />
+          ) : (
+            <IntegrationsTab type={active.key} />
+          )}
         </section>
       </div>
     </>

@@ -114,6 +114,15 @@ const settings = createRoute({
   }),
   component: lazyRouteComponent(() => import('@/features/settings/SettingsPage'), 'SettingsPage'),
 });
+const billing = createRoute({
+  getParentRoute: () => app,
+  path: '/billing',
+  validateSearch: (search: Record<string, unknown>): { payment?: string; cancelled?: string } => ({
+    payment: typeof search.payment === 'string' ? search.payment : undefined,
+    cancelled: typeof search.cancelled === 'string' ? search.cancelled : undefined,
+  }),
+  component: lazyRouteComponent(() => import('./BillingRoute'), 'BillingRoute'),
+});
 const security = createRoute({
   getParentRoute: () => app,
   path: '/security',
@@ -125,7 +134,7 @@ const routeTree = root.addChildren([
   forgot,
   reset,
   invite,
-  app.addChildren([home, tenants, tenant, cells, staff, support, audit, users, brand, settings, security]),
+  app.addChildren([home, tenants, tenant, cells, staff, support, audit, users, brand, settings, billing, security]),
 ]);
 
 export function makeRouter(queryClient: QueryClient) {

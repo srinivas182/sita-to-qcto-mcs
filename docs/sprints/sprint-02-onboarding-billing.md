@@ -224,3 +224,35 @@ this.
 | 2c | Messaging: WhatsApp Cloud API and the SMS adapters, delivery receipts, message log and costs; real OTP; Android one-tap autofill |
 | 2d | Onboarding: public sign-up and pricing, application review, centres with accreditation scope and expiry alerts |
 | close | Load and accessibility checks, report, Sprint 3 spec |
+
+---
+
+## 11. Part 2b: Billing. What leaders do, their weak spots, and what we add
+
+Leaders reviewed: Stripe Billing, Chargebee, Paddle and Recurly (global subscription
+billing); Paystack and PayFast subscriptions (South Africa); Thinkific/Teachable
+(LMS self-billing).
+
+| Area | What leaders do (we adopt) | Weak spots for SA training providers | Our addition |
+|---|---|---|---|
+| Plans | Flat + per-seat + usage tiers; trials; annual discount; proration on upgrade (Stripe, Chargebee) | Usage must be converted to units by hand; seats ≠ active learners | Price per **active learner** counted from real enrolments each month. A **live "next invoice" estimate** on the billing page, so there are no surprises |
+| Payment methods | Card on file and wallets; Chargebee supports 20+ gateways | Stripe isn't available to SA merchants; card-only flows leave out EFT, which TPs use most | Card (tokenised) **and** Instant EFT **and** pay-by-EFT on invoice with a unique reference. **Any enabled gateway** can pay any invoice; if one gateway is down, the TP picks another |
+| Invoices | Auto-numbered, emailed PDFs | Not SARS tax invoices: no supplier/recipient VAT numbers, VAT not shown in rands, USD | **SARS-compliant full tax invoices** every time: "Tax Invoice", supplier and recipient name, address and VAT number, sequential number, date, description, VAT in rands. They can't be edited after issue; corrections are **credit notes** |
+| Failed payments | Smart retries and dunning emails (Stripe recovers ~38%; Chargebee dunning) | Email-only reminders; hard cut-off ends access abruptly | Retries on days 1, 3 and 7, plus reminders (email now, WhatsApp/SMS in 2c). **Grace → read-only → suspended** (7 and 21 days, set by the Super Admin). Read-only keeps every learner record, logbook and PoE visible and safe; nothing is deleted |
+| Self-service | Customer portal: change plan, update card, download invoices (Stripe, Chargebee) | Often a separate hosted site that doesn't match the brand | Billing lives **inside the provider's own branded console**: plan, usage, invoices, payment method, change plan, cancel at period end |
+| Control for the owner | Dashboards for MRR and churn | Little view of collections per gateway | Super Admin billing view: subscriptions by status, overdue amounts, invoices, payments per gateway, and a manual **"mark EFT received"** with audit |
+| Tax and audit | Paddle acts as merchant of record | Merchant of record isn't needed in SA, and the fees are high | JV invoices directly; immutable invoices; every billing action audited; payment events idempotent (each gateway event processed once) |
+
+**2b builds:**
+- Packages, subscriptions, active-learner metering and the next-invoice estimate.
+- Sequential tax invoices with PDFs; credit notes.
+- The gateway adapter interface, with **Paystack** (cards, tokenised renewals,
+  HMAC-SHA512 webhooks) and **PayFast** (hosted checkout with tokenisation, ITN
+  validation, ad hoc charges).
+- Pay-by-EFT invoices; the renewal, retry and dunning state machine.
+- Read-only and suspended enforcement.
+- The provider billing page and the Super Admin billing screens.
+- Example packages seeded and marked **"Example pricing — can be changed"**.
+
+**2b-ii** adds the Peach Payments, Ozow, Yoco, Stitch and iKhokha adapters on the same
+interface, each built against its current API documentation.

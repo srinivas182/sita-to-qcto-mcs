@@ -25,6 +25,7 @@ return [
         'platform.audit.view' => 'Read the audit trail of every provider',
         'platform.support.request' => 'Ask a provider for support access',
         'platform.settings.manage' => 'Company details, payment, messaging and storage settings',
+        'platform.billing.manage' => 'Packages, subscriptions, invoices and payments of all providers',
         'regulator.view' => 'Read compliance evidence across providers',
         'verify.records' => 'Verify certificates and statements of results',
         'marketplace.jobs.manage' => 'Post jobs and review candidates',
@@ -33,6 +34,7 @@ return [
 
         // Training provider
         'tenant.settings.manage' => 'Brand, domains and provider settings',
+        'tenant.billing.manage' => 'Plan, payment method and invoices',
         'tenant.users.view' => 'See people in the provider',
         'tenant.users.invite' => 'Invite people to the provider',
         'tenant.roles.assign' => 'Assign and remove roles',
@@ -53,7 +55,7 @@ return [
     'roles' => [
         'super-admin' => ['label' => 'Super Admin', 'scope' => 'platform', 'mfa' => true, 'permissions' => [
             'platform.tenants.view', 'platform.tenants.manage', 'platform.cells.view', 'platform.users.manage',
-            'platform.audit.view', 'platform.support.request', 'platform.settings.manage',
+            'platform.audit.view', 'platform.support.request', 'platform.settings.manage', 'platform.billing.manage',
         ]],
         'jv-compliance' => ['label' => 'JV compliance desk', 'scope' => 'platform', 'mfa' => true, 'permissions' => [
             'platform.tenants.view', 'platform.audit.view', 'regulator.view',
@@ -72,6 +74,7 @@ return [
         'tp-owner' => ['label' => 'Training provider owner', 'scope' => 'tenant', 'mfa' => true, 'permissions' => [
             'tenant.settings.manage', 'tenant.users.view', 'tenant.users.invite', 'tenant.roles.assign',
             'tenant.audit.view', 'tenant.support.approve', 'centres.view', 'centres.manage', 'learners.view',
+            'tenant.billing.manage',
         ]],
         'host-employer' => ['label' => 'Host employer', 'scope' => 'tenant', 'mfa' => false, 'permissions' => [
             'workplace.placements.manage', 'learners.view',
