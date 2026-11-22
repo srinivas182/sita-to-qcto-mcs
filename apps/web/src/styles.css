@@ -1,0 +1,19 @@
+@import "tailwindcss";
+@import "@skills/ui-tokens/theme.css";
+
+/* Locked theme C: light sidebar, indigo primary, calm canvas. */
+@layer base {
+  html { font-family: "Inter Variable", var(--font-sans); font-size: 14px; -webkit-text-size-adjust: 100%; }
+  body { background: var(--color-canvas); color: var(--color-ink); font-size: var(--text-body); line-height: 1.5; }
+  :focus-visible { outline: 2px solid var(--color-primary-600); outline-offset: 2px; }
+  ::selection { background: var(--color-primary-100); }
+  button { cursor: pointer; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+}
+
+@utility card { background: var(--color-surface); border: 1px solid var(--color-line); border-radius: var(--radius-xl); box-shadow: 0 1px 2px rgb(20 24 43 / 0.04), 0 6px 20px rgb(20 24 43 / 0.04); }
+@utility eyebrow { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600; color: var(--color-primary-700); }
+
+@keyframes fade-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+.animate-in { animation: fade-in 160ms ease-out both; }

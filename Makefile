@@ -14,12 +14,22 @@ setup: ## Install dependencies and prepare the API
 	cd $(API) && composer install && cp -n .env.example .env && php artisan key:generate && php artisan migrate
 	pnpm install
 
-dev: ## Run the API (and web/mobile once added)
-	cd $(API) && php artisan serve
+demo: ## Fresh local database with demo data (password: demo passphrase 2026)
+	cd $(API) && php artisan migrate:fresh && php artisan db:seed --class=DemoSeeder
+
+dev: ## Run the API (:8000) and the web app (:5173). Open http://tym.platform.test:5173 (map *.platform.test to 127.0.0.1)
+	cd $(API) && php artisan serve --port=8000 & pnpm --filter @skills/web dev
+
+api-client: ## Regenerate the OpenAPI document and the typed client
+	cd $(API) && php artisan scramble:export
+	pnpm --filter @skills/api-client generate
+
+smoke: ## Browser smoke test against running API + built web (vite preview :4173)
+	python3 apps/web/e2e/smoke.py
 
 check: ## Local checks before pushing (style, static analysis, types)
 	cd $(API) && vendor/bin/pint --test && vendor/bin/phpstan analyse --no-progress --memory-limit=1G
-	pnpm -r --if-present run typecheck
+	pnpm -r --if-present run lint && pnpm -r --if-present run typecheck
 
 test: ## Run all tests
 	cd $(API) && php artisan test
