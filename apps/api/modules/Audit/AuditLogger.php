@@ -20,6 +20,9 @@ final class AuditLogger
 {
     private bool $enabled = true;
 
+    /** @var array<string, mixed> meta added to every entry of this request */
+    private array $shared = [];
+
     public function __construct(
         private readonly TenantContext $context,
         private readonly AuthFactory $auth,
@@ -56,14 +59,27 @@ final class AuditLogger
             'meta' => array_filter([
                 'request_id' => $request?->headers->get('X-Request-Id'),
                 'platform' => $this->context->isPlatform() ?: null,
+                ...$this->shared,
                 ...$meta,
             ], static fn (mixed $v): bool => $v !== null) ?: null,
             'ip' => $request?->ip(),
             'user_agent' => $request !== null ? Str::limit((string) $request->userAgent(), 500, '') : null,
         ]);
-        $entry->save();
+        // Platform-level entries (no tenant) are written by trusted platform code even
+        // when the request itself has no context, e.g. a Super Admin signing in.
+        if ($entry->tenant_id === null && ! $this->context->isPlatform()) {
+            $this->context->runAsPlatform(fn () => $entry->save());
+        } else {
+            $entry->save();
+        }
 
         return $entry;
+    }
+
+    /** @param  array<string, mixed>  $meta */
+    public function share(array $meta): void
+    {
+        $this->shared = [...$this->shared, ...$meta];
     }
 
     /**

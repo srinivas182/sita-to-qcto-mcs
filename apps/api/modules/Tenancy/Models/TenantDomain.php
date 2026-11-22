@@ -29,6 +29,8 @@ use Modules\Tenancy\Enums\SslStatus;
  * @property Carbon|null $last_checked_at
  * @property Carbon|null $verified_at
  * @property bool $is_primary
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class TenantDomain extends Model
 {

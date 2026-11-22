@@ -20,6 +20,8 @@ use Modules\Tenancy\Database\Factories\CentreFactory;
  * @property string|null $accreditation_number
  * @property Carbon|null $accreditation_expires_on
  * @property string $status
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class Centre extends Model
 {

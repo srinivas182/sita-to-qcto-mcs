@@ -39,6 +39,32 @@ final class Rls
         DB::statement("CREATE POLICY tenant_isolation ON {$table} USING ({$predicate}) WITH CHECK ({$predicate})");
     }
 
+    /**
+     * Protect a table whose rows are visible through a custom condition (e.g. users,
+     * visible to a tenant only when they are its members).
+     */
+    public static function protectWith(string $table, string $using, ?string $check = null): void
+    {
+        if (DB::connection()->getDriverName() !== 'pgsql') {
+            return;
+        }
+
+        $check ??= $using;
+
+        DB::statement("ALTER TABLE {$table} ENABLE ROW LEVEL SECURITY");
+        DB::statement("ALTER TABLE {$table} FORCE ROW LEVEL SECURITY");
+        DB::statement("CREATE POLICY tenant_isolation ON {$table} USING ({$using}) WITH CHECK ({$check})");
+    }
+
+    /**
+     * Rows with a NULL tenant are shared catalogue entries (e.g. system roles): every
+     * context may read them, only the platform may write them.
+     */
+    public static function protectWithGlobalRows(string $table, string $column = 'tenant_id'): void
+    {
+        self::protectWith($table, "{$column} IS NULL OR ".self::predicate($column), self::predicate($column));
+    }
+
     /** Reverse of protect(), for down() migrations. */
     public static function unprotect(string $table): void
     {
