@@ -24,6 +24,9 @@ api-client: ## Regenerate the OpenAPI document and the typed client
 	cd $(API) && php artisan scramble:export
 	pnpm --filter @skills/api-client generate
 
+mobile: ## Start the Expo dev server for the phone app (Expo Go / dev client)
+	pnpm --filter @skills/mobile start
+
 smoke: ## Browser smoke test against running API + built web (vite preview :4173)
 	python3 apps/web/e2e/smoke.py
 

@@ -11,6 +11,7 @@ use Modules\Access\Exceptions\AccessError;
 use Modules\Identity\Exceptions\AuthError;
 use Modules\Identity\Http\Middleware\SecurityHeaders;
 use Modules\Identity\Http\Middleware\StatefulSameOrigin;
+use Modules\Platform\Http\Middleware\Idempotency;
 use Modules\Tenancy\Exceptions\DomainError;
 use Modules\Tenancy\Exceptions\TenantError;
 use Modules\Tenancy\Http\Middleware\ResolveTenant;
@@ -27,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // (or the X-Tenant header on platform hosts), then gets a cookie session if
         // it comes from the same-origin web app. Health checks are outside this group.
         $middleware->prependToGroup('api', [ResolveTenant::class, StatefulSameOrigin::class]);
+        $middleware->appendToGroup('api', Idempotency::class);
 
         // Proxies: Cloudflare → load balancer. Trust forwarded headers from them.
         $middleware->trustProxies(at: '*');

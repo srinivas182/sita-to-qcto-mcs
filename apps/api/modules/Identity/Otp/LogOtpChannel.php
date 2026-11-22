@@ -30,6 +30,8 @@ final class LogOtpChannel implements OtpChannel
         Log::channel(config('logging.default'))->info('otp.sent', [
             'channel' => $this->channel,
             'to' => str_starts_with($destination, '+') ? PhoneNumber::mask($destination) : '[email]',
+            // Local development only: show the message (with the PIN) so sign-in can be tried.
+            ...(app()->isLocal() && config('identity.otp.log_codes') ? ['message' => $message] : []),
         ]);
 
         return true;

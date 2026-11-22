@@ -18,6 +18,8 @@ return [
         'per_identifier_per_hour' => 5,
         'per_ip_per_hour' => 30,
         'resend_after' => 30,
+        /* Local only: write PINs to the log so the log driver can be used to sign in. */
+        'log_codes' => (bool) env('OTP_LOG_CODES', false),
         /* Delivery order; the next channel is tried if one fails. */
         'channels' => array_filter(explode(',', (string) env('OTP_CHANNELS', 'whatsapp,sms'))),
         'drivers' => [

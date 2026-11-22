@@ -15,3 +15,17 @@ describe('design tokens meet WCAG 2.2 AA', () => {
     }
   });
 });
+
+describe('NativeWind preset', () => {
+  it('mirrors the shared colour tokens', async () => {
+    const { createRequire } = await import('node:module');
+    const preset = createRequire(import.meta.url)('../src/nativewind-preset.cjs') as {
+      theme: { extend: { colors: Record<string, unknown> } };
+    };
+    const c = preset.theme.extend.colors;
+
+    expect(c.primary).toEqual(colors.primary);
+    expect([c.canvas, c.surface, c.line, c.ink, c.muted]).toEqual([colors.canvas, colors.surface, colors.line, colors.text, colors.textMuted]);
+    expect([c.success, c.warning, c.danger, c.info]).toEqual([colors.success.fg, colors.warning.fg, colors.danger.fg, colors.info.fg]);
+  });
+});
