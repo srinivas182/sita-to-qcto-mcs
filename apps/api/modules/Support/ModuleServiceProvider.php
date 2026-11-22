@@ -23,8 +23,8 @@ abstract class ModuleServiceProvider extends ServiceProvider
     {
         $base = $this->modulePath();
 
-        if (is_dir($base.'/database/migrations')) {
-            $this->loadMigrationsFrom($base.'/database/migrations');
+        if (is_dir($base.'/Database/Migrations')) {
+            $this->loadMigrationsFrom($base.'/Database/Migrations');
         }
 
         if (is_file($base.'/routes/api.php')) {
