@@ -5,3 +5,6 @@ vendor/
 !.env.example
 .DS_Store
 *.log
+.turbo/
+dist/
+coverage/
