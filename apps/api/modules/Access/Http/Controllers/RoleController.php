@@ -15,6 +15,7 @@ use Modules\Access\Services\Directory;
 use Modules\Identity\Models\User;
 use Modules\Identity\Models\UserTenant;
 use Modules\Identity\Support\PhoneNumber;
+use Modules\Tenancy\Models\Centre;
 
 final class RoleController
 {
@@ -48,6 +49,7 @@ final class RoleController
 
         $page = $this->directory()->members($data['search'] ?? null, $data['role'] ?? null, $this->access()->centresFor($actor, 'tenant.users.view'), (int) ($data['per_page'] ?? 25));
         $roles = RoleAssignment::query()->whereIn('user_id', $page->getCollection()->pluck('user_id'))->get()->groupBy('user_id');
+        $centres = Centre::query()->pluck('name', 'id');
 
         return response()->json([
             'data' => $page->getCollection()->map(fn (UserTenant $m): array => [
@@ -57,8 +59,9 @@ final class RoleController
                 'phone' => $m->user?->phone_e164 !== null ? PhoneNumber::mask($m->user->phone_e164) : null,
                 'status' => $m->status->value,
                 'centre_id' => $m->centre_id,
+                'centre' => $m->centre_id !== null ? $centres->get($m->centre_id) : null,
                 'joined_at' => $m->joined_at?->toIso8601String(),
-                'roles' => ($roles[$m->user_id] ?? collect())->map(fn ($a): array => ['role' => $a->role, 'centre_id' => $a->centre_id])->values(),
+                'roles' => ($roles[$m->user_id] ?? collect())->map(fn ($a): array => ['role' => $a->role, 'centre_id' => $a->centre_id, 'centre' => $a->centre_id !== null ? $centres->get($a->centre_id) : null])->values(),
             ])->values(),
             'meta' => ['total' => $page->total(), 'page' => $page->currentPage(), 'per_page' => $page->perPage(), 'last_page' => $page->lastPage()],
         ]);

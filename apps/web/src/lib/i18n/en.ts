@@ -53,6 +53,8 @@ export const en = {
   'invite.accept': 'Accept and continue',
   'invite.invalid': 'This invitation is invalid, used or expired. Ask for a new one.',
   'nav.overview': 'Overview',
+  'nav.applications': 'Applications',
+  'nav.centres': 'Centres',
   'nav.tenants': 'Training providers',
   'nav.cells': 'Cells',
   'nav.staff': 'Platform staff',

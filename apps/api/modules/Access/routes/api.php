@@ -11,6 +11,7 @@ use Modules\Audit\Http\Controllers\AuditLogController;
 use Modules\Identity\Http\Middleware\EnsureAccess;
 use Modules\Identity\Http\Middleware\RequireMfaEnrolment;
 use Modules\Tenancy\Http\Controllers\Admin\TenantAdminController;
+use Modules\Tenancy\Http\Controllers\CentreController;
 use Modules\Tenancy\Http\Controllers\CurrentTenantController;
 use Modules\Tenancy\Http\Controllers\DomainController;
 
@@ -26,6 +27,10 @@ $secured = ['auth:sanctum', EnsureAccess::class, RequireMfaEnrolment::class];
 // Inside a training provider.
 Route::middleware($secured)->group(function (): void {
     Route::get('tenant', [CurrentTenantController::class, 'show']);
+
+    Route::get('centres', [CentreController::class, 'index']);
+    Route::post('centres', [CentreController::class, 'store']);
+    Route::patch('centres/{centre}', [CentreController::class, 'update'])->whereUlid('centre');
     Route::patch('tenant/branding', [CurrentTenantController::class, 'updateBranding']);
 
     Route::get('tenants/{tenant}/domains', [DomainController::class, 'index']);

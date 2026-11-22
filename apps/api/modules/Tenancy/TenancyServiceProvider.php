@@ -14,7 +14,9 @@ use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Schedule;
 use Modules\Support\ModuleServiceProvider;
+use Modules\Tenancy\Console\AccreditationAlerts;
 use Modules\Tenancy\Context\TenantContext;
 use Modules\Tenancy\Domains\CustomHostnames\CloudflareCustomHostnameProvider;
 use Modules\Tenancy\Domains\CustomHostnames\CustomHostnameProvider;
@@ -70,6 +72,11 @@ final class TenancyServiceProvider extends ModuleServiceProvider
         $this->propagateContextToDatabase();
         $this->propagateContextToQueues();
         $this->invalidateResolutionCache();
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([AccreditationAlerts::class]);
+        }
+        Schedule::command('centres:accreditation-alerts')->dailyAt('06:10')->onOneServer();
     }
 
     /** Re-apply the context whenever a database connection is (re)established. */

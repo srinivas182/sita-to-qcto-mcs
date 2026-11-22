@@ -47,6 +47,26 @@ const invite = createRoute({
   component: lazyRouteComponent(() => import('@/features/auth/AcceptInvitationPage'), 'AcceptInvitationPage'),
 });
 
+// The platform's own public site: pricing and applying to join.
+const pricing = createRoute({
+  getParentRoute: () => root,
+  path: '/pricing',
+  component: lazyRouteComponent(() => import('@/features/apply/PricingPage'), 'PricingPage'),
+});
+const apply = createRoute({
+  getParentRoute: () => root,
+  path: '/apply',
+  component: lazyRouteComponent(() => import('@/features/apply/ApplyPage'), 'ApplyPage'),
+});
+const applyResume = createRoute({
+  getParentRoute: () => root,
+  path: '/apply/resume',
+  validateSearch: (search: Record<string, unknown>): { ref?: string } => ({
+    ref: typeof search.ref === 'string' ? search.ref : undefined,
+  }),
+  component: lazyRouteComponent(() => import('./ApplyResumeRoute'), 'ApplyResumeRoute'),
+});
+
 // Signed-in area. Everything below is code-split per screen.
 const app = createRoute({
   getParentRoute: () => root,
@@ -85,6 +105,21 @@ const staff = createRoute({
   getParentRoute: () => app,
   path: '/staff',
   component: lazyRouteComponent(() => import('@/features/admin/StaffPage'), 'StaffPage'),
+});
+const applications = createRoute({
+  getParentRoute: () => app,
+  path: '/applications',
+  component: lazyRouteComponent(() => import('@/features/admin/ApplicationsPage'), 'ApplicationsPage'),
+});
+const application = createRoute({
+  getParentRoute: () => app,
+  path: '/applications/$id',
+  component: lazyRouteComponent(() => import('@/features/admin/ApplicationDetailPage'), 'ApplicationDetailPage'),
+});
+const centres = createRoute({
+  getParentRoute: () => app,
+  path: '/centres',
+  component: lazyRouteComponent(() => import('@/features/centres/CentresPage'), 'CentresPage'),
 });
 const support = createRoute({
   getParentRoute: () => app,
@@ -139,8 +174,14 @@ const routeTree = root.addChildren([
   forgot,
   reset,
   invite,
+  pricing,
+  apply,
+  applyResume,
   app.addChildren([
     home,
+    applications,
+    application,
+    centres,
     tenants,
     tenant,
     cells,

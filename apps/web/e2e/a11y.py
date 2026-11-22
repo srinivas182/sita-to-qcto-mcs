@@ -29,7 +29,7 @@ def sign_in(page, host, email):
 # Each authenticator code works once per account (replay protection): start in a fresh window.
 time.sleep(31 - time.time() % 30)
 with sync_playwright() as p:
-    b = p.chromium.launch(executable_path=os.environ.get('CHROME', '/usr/bin/google-chrome'), args=['--host-resolver-rules=MAP *.platform.test 127.0.0.1','--no-sandbox'])
+    b = p.chromium.launch(executable_path=os.environ.get('CHROME', '/usr/bin/google-chrome'), args=['--host-resolver-rules=MAP *.platform.test 127.0.0.1, MAP platform.test 127.0.0.1','--no-sandbox'])
     page = b.new_page(viewport={'width':1280,'height':900})
     page.goto(f'http://tym.platform.test:{PORT}/sign-in'); page.get_by_label('Email').wait_for(); audit(page, 'sign-in')
     page.get_by_label('Email').fill('sekal@demo.test'); page.get_by_label('Password').fill('demo passphrase 2026')
@@ -49,9 +49,25 @@ with sync_playwright() as p:
     page.get_by_role('button', name='Change plan').click(); page.get_by_role('dialog').wait_for(); audit(page, '/billing plan dialog')
     page.keyboard.press('Escape')
 
+    # Centres with the expiry warning, and the edit dialog.
+    page.click('nav a[href="/centres"]'); page.get_by_text('Durban Site', exact=True).first.wait_for(); audit(page, '/centres')
+    page.get_by_text('Durban Site', exact=True).first.click(); page.get_by_role('dialog').wait_for(); audit(page, '/centres dialog')
+    page.keyboard.press('Escape')
+
+    # The public site: pricing, applying (start, email code) and resuming.
+    pub = b.new_page(viewport={'width':1280,'height':900})
+    pub.goto(f'http://platform.test:{PORT}/pricing'); pub.get_by_text('Starter').first.wait_for(); audit(pub, '/pricing')
+    pub.goto(f'http://platform.test:{PORT}/apply'); pub.get_by_label('Work email').wait_for(); audit(pub, '/apply start')
+    pub.get_by_label('First name').fill('Nomsa'); pub.get_by_label('Last name').fill('Khumalo')
+    pub.get_by_label('Work email').fill('nomsa@khumalo-skills.demo'); pub.get_by_label('Registered company name').fill('Khumalo Skills (Pty) Ltd')
+    pub.get_by_role('button', name='Start application').click(); pub.get_by_text('Check your email').wait_for(); audit(pub, '/apply email code')
+    pub.goto(f'http://platform.test:{PORT}/apply/resume'); pub.get_by_label('Reference').wait_for(); audit(pub, '/apply/resume')
+
     # Super Admin settings (a different account, so the same code window is fine).
     admin = b.new_page(viewport={'width':1280,'height':900})
     sign_in(admin, 'admin.platform.test', 'admin@demo.test')
+    admin.click('nav a[href="/applications"]'); admin.get_by_text('Ikhwezi Skills Academy').first.wait_for(); audit(admin, '/applications')
+    admin.get_by_text('Ikhwezi Skills Academy').first.click(); admin.get_by_text('Reviewer checklist').wait_for(); audit(admin, '/applications detail')
     admin.click('nav a[href="/settings"]'); admin.get_by_role('heading', name='Company details').wait_for(); audit(admin, '/settings company')
     admin.get_by_role('tab', name='Payments').click(); admin.get_by_text('Paystack').first.wait_for(); audit(admin, '/settings payments')
     admin.get_by_role('button', name='Set up').first.click(); admin.get_by_role('dialog').wait_for(); audit(admin, '/settings gateway dialog')

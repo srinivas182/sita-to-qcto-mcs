@@ -15,6 +15,7 @@ use Modules\Identity\Models\User;
 use Modules\Identity\Models\UserTenant;
 use Modules\Identity\Support\IdType;
 use Modules\Identity\Support\MembershipStatus;
+use Modules\Onboarding\Models\Application;
 use Modules\Settings\Models\PlatformSetting;
 use Modules\Tenancy\Context\TenantContext;
 use Modules\Tenancy\Models\Centre;
@@ -68,8 +69,15 @@ final class DemoSeeder extends Seeder
             $learner->save();
 
             $context->runAs($tym, function () use ($owner, $manager, $learner, $access): void {
-                $soweto = Centre::query()->firstOrCreate(['name' => 'Soweto Campus'], ['accreditation_number' => 'QCTO-SDP-100245', 'accreditation_expires_on' => now()->addYears(3)]);
-                Centre::query()->firstOrCreate(['name' => 'Durban Site'], ['accreditation_number' => 'QCTO-SDP-100246', 'accreditation_expires_on' => now()->addYears(2)]);
+                $soweto = Centre::query()->firstOrCreate(['name' => 'Soweto Campus'], [
+                    'accreditation_number' => '07-QCTO/SDP180825105627', 'accreditation_expires_on' => now()->addYears(3),
+                    'scope' => ['101869', '91785'], 'city' => 'Soweto', 'province' => 'Gauteng',
+                ]);
+                // Ending soon, to show the expiry warning.
+                Centre::query()->firstOrCreate(['name' => 'Durban Site'], [
+                    'accreditation_number' => '07-QCTO/SDP180825105628', 'accreditation_expires_on' => now()->addDays(45),
+                    'scope' => ['101869'], 'city' => 'Durban', 'province' => 'KwaZulu-Natal',
+                ]);
 
                 foreach ([[$owner, 'tp-owner', null], [$manager, 'centre-manager', $soweto->id], [$learner, 'learner', $soweto->id]] as [$user, $role, $centre]) {
                     UserTenant::query()->firstOrCreate(['user_id' => $user->id], ['status' => MembershipStatus::Active, 'joined_at' => now(), 'centre_id' => $centre]);
@@ -100,6 +108,17 @@ final class DemoSeeder extends Seeder
                 'country' => 'ZA', 'email' => 'accounts@demo.test', 'invoice_prefix' => 'DEMO', 'currency' => 'ZAR', 'vat_rate' => 15,
                 'bank_details' => "Demo Bank\nAccount 000 000 000\nBranch 000000",
             ]]);
+
+            // A provider waiting for review in the applications queue.
+            Application::query()->firstOrCreate(['reference' => 'APP-DEMO0001'], [
+                'status' => 'submitted', 'token_hash' => hash('sha256', 'demo-application'), 'submitted_at' => now()->subHours(5),
+                'first_name' => 'Lerato', 'last_name' => 'Mokoena', 'email' => 'lerato@ikhwezi-skills.demo', 'email_verified_at' => now()->subDay(),
+                'phone' => '+27831112222', 'legal_name' => 'Ikhwezi Skills Academy (Pty) Ltd', 'trading_name' => 'Ikhwezi Skills',
+                'registration_number' => '2017/401122/07', 'website' => 'https://ikhwezi-skills.demo', 'sdp_number' => '07-QCTO/SDP230101100001',
+                'accreditation_expires_on' => now()->addYears(4), 'scope' => ['101869'], 'centre_name' => 'Polokwane Centre',
+                'address_line1' => '8 Market St', 'city' => 'Polokwane', 'province' => 'Limpopo', 'postal_code' => '0700',
+                'preferred_code' => 'ikhwezi', 'interval' => 'month', 'consented_at' => now()->subHours(5), 'consent_version' => '2026-11',
+            ]);
         });
 
         $this->command?->info('Demo ready. Password: '.self::PASSWORD.' · TOTP secret: '.self::TOTP_SECRET);

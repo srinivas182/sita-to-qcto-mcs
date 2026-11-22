@@ -11,7 +11,7 @@ export interface UploadedFile {
   variants: Record<string, { width: number; height: number }>;
 }
 
-interface Target {
+export interface Target {
   method: 'PUT';
   url: string;
   headers: Record<string, string>;
@@ -24,7 +24,12 @@ function readCookie(name: string): string | null {
 }
 
 /** PUT with progress. XHR, because fetch has no upload progress events. */
-function put(target: Target, file: File, onProgress?: (fraction: number) => void): Promise<void> {
+export function put(
+  target: Target,
+  file: File,
+  onProgress?: (fraction: number) => void,
+  extraHeaders: Record<string, string> = {},
+): Promise<void> {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open(target.method, target.url);
@@ -35,6 +40,7 @@ function put(target: Target, file: File, onProgress?: (fraction: number) => void
       xhr.setRequestHeader('Accept', 'application/json');
       const xsrf = readCookie('XSRF-TOKEN');
       if (xsrf) xhr.setRequestHeader('X-XSRF-TOKEN', xsrf);
+      for (const [k, v] of Object.entries(extraHeaders)) xhr.setRequestHeader(k, v);
     }
     xhr.upload.onprogress = (e) => e.lengthComputable && onProgress?.(e.loaded / e.total);
     xhr.onload = () => (xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error(uploadError(xhr))));

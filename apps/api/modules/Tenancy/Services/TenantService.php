@@ -122,7 +122,8 @@ final class TenantService
         return $tenant;
     }
 
-    private function validCode(string $code): string
+    /** Normalise a provider code, or throw TenantError when it is not allowed. */
+    public function validCode(string $code): string
     {
         $code = strtolower(trim($code));
 

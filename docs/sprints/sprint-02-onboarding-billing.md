@@ -291,3 +291,23 @@ and Meta's WhatsApp Cloud API.
 | Receipts and costs | Dashboards per account | Costs aren't split per customer, so a platform can't recharge them | **Message log with status and cost per provider and per training provider**, for re-billing and dispute handling |
 | Security | Signed webhooks (Twilio, Meta) | Many SA providers' callbacks are unsigned | Every callback is verified: Meta HMAC-SHA256, Twilio HMAC-SHA1, and a secret per-integration key in the callback URL for the providers that don't sign |
 | Email | SMTP/SES set up in code | Changing provider needs a deployment | **Email provider chosen in Settings** (SMTP or Amazon SES) with its own sender address; the platform mailer follows it |
+
+---
+
+## 13. Part 2d: Onboarding and centres. What leaders do, their weak spots, and what we add
+
+Leaders reviewed: Shopify and Thinkific/Teachable (self-serve sign-up), Stripe Connect
+seller onboarding (KYB), and the SETA/NSDMS provider registration that SA training
+providers already know.
+
+| Area | What leaders do (we adopt) | Weak spots for SA training providers | Our addition |
+|---|---|---|---|
+| Sign-up | Start in minutes; a guided checklist; save and resume | Anyone can open an account; nothing checks that a "college" is real | **Accreditation-verified application**: QCTO SDP number, CIPC number, accreditation letter and expiry; email verified before submission; save and resume from any device |
+| Verification | KYB checks the registration number against the registry and that the business is active; a person handles what needs judgement (Stripe) | Slow manual queues; repeated document requests | **Instant format checks** (QCTO numbers like `07-QCTO/SDP…`, CIPC `YYYY/NNNNNN/NN`, VAT 10 digits starting with 4); expiry within the 5-year validity; duplicate detection; subdomain availability. These run *before* submission, so applicants fix them themselves. The Super Admin reviews a **pre-filled checklist** with the documents beside it, and asks once for what's missing (one "request info" round, with the reason sent by email) |
+| Activation | Approval opens the account | Set-up after approval is a second project | **One-click approval**: the provider, its subdomain, its first centre (with accreditation), its plan trial and its billing details are created, and the owner is invited, all in one step |
+| Sites | LMS "branches" | Branches carry no accreditation, so nothing warns when it lapses | **Centres as accredited delivery sites**: accreditation number, scope (qualification codes), expiry and address; **alerts at 90, 60 and 30 days** and on expiry, to the owner and in the audit trail |
+| Pricing page | Public plans, monthly/yearly toggle | Prices in USD, with no VAT clarity | Rand prices, "excl. VAT" stated, example pricing clearly labelled, and an Apply button straight from each plan |
+
+**Not automated yet:** a live CIPC lookup. CIPC's own API needs an application and
+approval; third-party KYB APIs offer it per query. It can be added later as a
+`verification` integration in Settings without changing the flow.

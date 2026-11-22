@@ -33,8 +33,9 @@ export async function call<T>(
   path: string,
   body?: unknown,
   query?: Record<string, string | number | undefined>,
+  headers?: Record<string, string>,
 ): Promise<T> {
-  const init = { body, params: { query } } as never;
+  const init = { body, params: { query }, headers } as never;
   const fn = api[method] as unknown as (p: string, i: unknown) => Promise<{ data?: unknown }>;
   const { data } = await fn(path, init);
   return data as T;
