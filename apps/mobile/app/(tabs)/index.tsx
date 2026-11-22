@@ -1,0 +1,54 @@
+import Feather from '@expo/vector-icons/Feather';
+import { useQuery } from '@tanstack/react-query';
+import { RefreshControl, ScrollView, Text, View } from 'react-native';
+import { Brand, Button, Card, Screen } from '@/components/ui';
+import { useApp } from '@/lib/app';
+import { useMe } from '@/lib/me';
+import { outbox } from '@/lib/outbox';
+
+export default function Home() {
+  const { t, tenant, online, pending, syncNow } = useApp();
+  const me = useMe();
+  const parked = useQuery({ queryKey: ['outbox', 'parked', pending], queryFn: () => outbox.conflicts() });
+
+  return (
+    <Screen scroll>
+      <ScrollView contentContainerClassName="gap-4 pb-8 pt-4" refreshControl={<RefreshControl refreshing={me.isRefetching} onRefresh={() => void Promise.all([me.refetch(), syncNow()])} />}>
+        {tenant ? <Brand name={tenant.name} primary={tenant.branding.primary} /> : null}
+
+        <View className="mt-2">
+          <Text className="font-sans text-small text-muted dark:text-night-muted">{me.data?.roles[0]?.label ?? ''}</Text>
+          <Text className="font-semibold text-display text-ink dark:text-night-ink">{t('home.greeting', { name: me.data?.user.first_name ?? '' })}</Text>
+        </View>
+
+        <Card className="flex-row items-center gap-3">
+          <View className={`h-10 w-10 items-center justify-center rounded-xl ${!online ? 'bg-warning-bg' : pending ? 'bg-info-bg' : 'bg-success-bg'}`}>
+            <Feather name={!online ? 'wifi-off' : pending ? 'refresh-cw' : 'check'} size={18} color={!online ? '#8a5a0b' : pending ? '#2d68a8' : '#166c52'} />
+          </View>
+          <Text className="flex-1 font-medium text-body text-ink dark:text-night-ink">
+            {!online ? t('home.offline') : pending ? t('home.pending', { n: pending }) : t('home.synced')}
+          </Text>
+        </Card>
+
+        {parked.data?.length ? (
+          <Card className="gap-3">
+            {parked.data.map((item) => (
+              <View key={item.id} className="gap-2">
+                <Text className="font-medium text-body text-ink dark:text-night-ink">{item.lastError}</Text>
+                <View className="flex-row gap-2">
+                  <Button title={t('common.retry')} variant="secondary" onPress={() => void outbox.retry(item.id).then(syncNow)} />
+                  <Button title={t('common.cancel')} variant="ghost" onPress={() => void outbox.discard(item.id).then(() => parked.refetch())} />
+                </View>
+              </View>
+            ))}
+          </Card>
+        ) : null}
+
+        <Card className="gap-2">
+          <Text className="font-semibold text-section text-ink dark:text-night-ink">{t('tabs.learn')}</Text>
+          <Text className="font-sans text-body text-muted dark:text-night-muted">{t('learn.soon')}</Text>
+        </Card>
+      </ScrollView>
+    </Screen>
+  );
+}

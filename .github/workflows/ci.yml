@@ -141,6 +141,28 @@ jobs:
       - name: Build web and enforce the bundle budget (initial JS < 160 KB gzip)
         run: pnpm --filter @skills/web build && pnpm --filter @skills/web run size
 
+  mobile:
+    # Type-check, unit tests (outbox, device-signed refresh, app PIN) and a full
+    # Metro bundle for Android, so a broken import never reaches an EAS build.
+    needs: [changes, js-quick]
+    if: needs.changes.outputs.js == 'true' && github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Bundle the Android app (Hermes)
+        working-directory: apps/mobile
+        env:
+          CI: '1'
+          API_BASE_URL: https://api.staging.skillsecosystem.co.za/v1
+        run: pnpm exec expo export --platform android --output-dir dist
+
   e2e:
     # Browser smoke test of the real web app against the real API (sign-in with MFA,
     # provider console, Super Admin console, phone layout). Uses the runner's Chrome.
