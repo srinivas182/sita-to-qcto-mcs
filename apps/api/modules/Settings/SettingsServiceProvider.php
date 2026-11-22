@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Settings;
 
+use Modules\Settings\Services\IntegrationCallbacks;
 use Modules\Settings\Services\IntegrationCatalogue;
 use Modules\Settings\Services\IntegrationTesters;
 use Modules\Support\ModuleServiceProvider;
@@ -19,6 +20,7 @@ final class SettingsServiceProvider extends ModuleServiceProvider
         $this->app->singleton(IntegrationCatalogue::class, fn (): IntegrationCatalogue => new IntegrationCatalogue((array) config('integrations')));
         // Modules that implement a type register a tester per driver at boot.
         $this->app->singleton(IntegrationTesters::class);
+        $this->app->singleton(IntegrationCallbacks::class);
     }
 
     protected function modulePath(): string

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Modules\Audit\Models\AuditLog;
 use Modules\Settings\Models\Integration;
 
@@ -54,6 +55,7 @@ it('stores secrets encrypted and never returns them', function (): void {
 
 it('enables, disables and orders drivers', function (): void {
     signInStaff($this);
+    Http::fake(['api.bulksms.com/v1/profile' => Http::response(['id' => '1'])]);
 
     $this->putJson($this->base.'/sms.clickatell', ['enabled' => true])->assertStatus(422)
         ->assertJsonPath('error.code', 'incomplete')->assertJsonStructure(['errors' => ['values.api_key']]);

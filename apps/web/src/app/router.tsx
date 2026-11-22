@@ -123,6 +123,11 @@ const billing = createRoute({
   }),
   component: lazyRouteComponent(() => import('./BillingRoute'), 'BillingRoute'),
 });
+const messages = createRoute({
+  getParentRoute: () => app,
+  path: '/messages',
+  component: lazyRouteComponent(() => import('@/features/messages/MessagesPage'), 'MessagesPage'),
+});
 const security = createRoute({
   getParentRoute: () => app,
   path: '/security',
@@ -134,7 +139,21 @@ const routeTree = root.addChildren([
   forgot,
   reset,
   invite,
-  app.addChildren([home, tenants, tenant, cells, staff, support, audit, users, brand, settings, billing, security]),
+  app.addChildren([
+    home,
+    tenants,
+    tenant,
+    cells,
+    staff,
+    support,
+    audit,
+    users,
+    brand,
+    settings,
+    billing,
+    messages,
+    security,
+  ]),
 ]);
 
 export function makeRouter(queryClient: QueryClient) {

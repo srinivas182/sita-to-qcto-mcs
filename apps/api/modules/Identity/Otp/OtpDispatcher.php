@@ -17,7 +17,7 @@ final class OtpDispatcher
     public function __construct(private readonly array $channels) {}
 
     /** @return string|null name of the channel that delivered, or null if none did */
-    public function deliver(string $destination, string $message, ?string $preferred = null): ?string
+    public function deliver(string $destination, string $message, ?string $preferred = null, ?string $code = null): ?string
     {
         $channels = $this->channels;
 
@@ -27,7 +27,7 @@ final class OtpDispatcher
 
         foreach ($channels as $channel) {
             try {
-                if ($channel->send($destination, $message)) {
+                if ($channel->send($destination, $message, $code)) {
                     return $channel->name();
                 }
             } catch (Throwable $e) {

@@ -20,6 +20,7 @@ export interface Integration {
   secrets: Record<string, string | null>;
   complete: boolean;
   testable: boolean;
+  callback_url: string | null;
   last_test: { at: string; ok: boolean; message: string } | null;
   updated_at: string;
 }

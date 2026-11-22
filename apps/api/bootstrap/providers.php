@@ -8,6 +8,7 @@ use Modules\Audit\AuditServiceProvider;
 use Modules\Billing\BillingServiceProvider;
 use Modules\Files\FilesServiceProvider;
 use Modules\Identity\IdentityServiceProvider;
+use Modules\Messaging\MessagingServiceProvider;
 use Modules\Platform\PlatformServiceProvider;
 use Modules\Settings\SettingsServiceProvider;
 use Modules\Tenancy\TenancyServiceProvider;
@@ -22,4 +23,5 @@ return [
     SettingsServiceProvider::class,
     FilesServiceProvider::class,
     BillingServiceProvider::class,
+    MessagingServiceProvider::class,
 ];

@@ -59,6 +59,7 @@ export const en = {
   'nav.audit': 'Audit log',
   'nav.settings': 'Settings',
   'nav.billing': 'Billing',
+  'nav.messages': 'Messages',
   'nav.support': 'Support access',
   'nav.brand': 'Brand & domain',
   'nav.users': 'Users & roles',

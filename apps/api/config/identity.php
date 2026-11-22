@@ -22,9 +22,10 @@ return [
         'log_codes' => (bool) env('OTP_LOG_CODES', false),
         /* Delivery order; the next channel is tried if one fails. */
         'channels' => array_filter(explode(',', (string) env('OTP_CHANNELS', 'whatsapp,sms'))),
+        /* "messaging": the providers switched on in Settings (Sprint 2c); "log": local only. */
         'drivers' => [
-            'whatsapp' => env('OTP_WHATSAPP_DRIVER', 'log'),
-            'sms' => env('OTP_SMS_DRIVER', 'log'),
+            'whatsapp' => env('OTP_WHATSAPP_DRIVER', 'messaging'),
+            'sms' => env('OTP_SMS_DRIVER', 'messaging'),
         ],
     ],
 

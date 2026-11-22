@@ -9,6 +9,10 @@ interface OtpChannel
 {
     public function name(): string;
 
-    /** @return bool true when the provider accepted the message */
-    public function send(string $destination, string $message): bool;
+    /**
+     * @param  string|null  $code  the PIN on its own, for channels that send it in a
+     *                             template (WhatsApp authentication templates)
+     * @return bool true when the provider accepted the message
+     */
+    public function send(string $destination, string $message, ?string $code = null): bool;
 }

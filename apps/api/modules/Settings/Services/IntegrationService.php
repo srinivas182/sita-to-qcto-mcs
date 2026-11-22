@@ -23,6 +23,7 @@ final class IntegrationService
     public function __construct(
         private readonly IntegrationCatalogue $catalogue,
         private readonly IntegrationTesters $testers,
+        private readonly IntegrationCallbacks $callbacks,
     ) {}
 
     /**
@@ -191,6 +192,7 @@ final class IntegrationService
             'secrets' => (object) $secrets,
             'complete' => $this->missing($integration) === [],
             'testable' => $this->testers->has($integration->driver),
+            'callback_url' => $this->callbacks->url($integration),
             'last_test' => $integration->last_tested_at === null ? null : [
                 'at' => $integration->last_tested_at->toIso8601String(),
                 'ok' => $integration->last_test_ok,

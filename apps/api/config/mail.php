@@ -37,7 +37,15 @@ return [
     |
     */
 
+    // Mailer used when MAIL_MAILER=platform and no email service is on in Settings.
+    'platform_fallback' => env('MAIL_FALLBACK', 'log'),
+
     'mailers' => [
+
+        // Sends through the email service chosen in Settings → Email (Sprint 2c).
+        'platform' => [
+            'transport' => 'platform',
+        ],
 
         'smtp' => [
             'transport' => 'smtp',

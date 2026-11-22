@@ -946,6 +946,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["messageAdmin.index"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/messages/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** This month: messages, delivery rate and cost by provider and by training provider */
+        get: operations["messageAdmin.summary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/settings/integrations/{integration}/send-test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send a real test message through one provider */
+        post: operations["messageAdmin.sendTest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/mfa/totp/enable": {
         parameters: {
             query?: never;
@@ -1670,6 +1720,23 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["billing.webhook"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/webhooks/messaging/{driver}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Meta's webhook set-up handshake */
+        get: operations["webhook.verify"];
+        put?: never;
+        post: operations["webhook.receive"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3747,6 +3814,7 @@ export interface operations {
                                     secrets: string;
                                     complete: boolean;
                                     testable: boolean;
+                                    callback_url: string | null;
                                     last_test: {
                                         at: string;
                                         ok: boolean | null;
@@ -3820,6 +3888,7 @@ export interface operations {
                             secrets: string;
                             complete: boolean;
                             testable: boolean;
+                            callback_url: string | null;
                             last_test: {
                                 at: string;
                                 ok: boolean | null;
@@ -3861,6 +3930,7 @@ export interface operations {
                             secrets: string;
                             complete: boolean;
                             testable: boolean;
+                            callback_url: string | null;
                             last_test: {
                                 at: string;
                                 ok: boolean | null;
@@ -3903,6 +3973,7 @@ export interface operations {
                             secrets: string;
                             complete: boolean;
                             testable: boolean;
+                            callback_url: string | null;
                             last_test: {
                                 at: string;
                                 ok: boolean | null;
@@ -3947,6 +4018,7 @@ export interface operations {
                             secrets: string;
                             complete: boolean;
                             testable: boolean;
+                            callback_url: string | null;
                             last_test: {
                                 at: string;
                                 ok: boolean | null;
@@ -4425,6 +4497,128 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "messageAdmin.index": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            tenant_id: string | null;
+                            channel: string;
+                            driver: string;
+                            purpose: string;
+                            to: string;
+                            status: string;
+                            cost_cents: number | null;
+                            error: string | null;
+                            fallback: boolean;
+                            sent_at: string | null;
+                            delivered_at: string | null;
+                            created_at: string;
+                            tenant: unknown;
+                        }[];
+                        meta: {
+                            total: number;
+                            page: number;
+                            last_page: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "messageAdmin.summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        since: string;
+                        by_driver: {
+                            driver: string;
+                            channel: string;
+                            sent: number;
+                            delivered: number;
+                            failed: number;
+                            cost_cents: number;
+                        }[];
+                        by_tenant: {
+                            tenant: string | null | "Platform";
+                            sent: number;
+                            cost_cents: number;
+                        }[];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "messageAdmin.sendTest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                integration: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    to: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        sent: string;
+                        error: string;
+                        message: string | null;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Error overview. */
+                        message: string;
+                    };
+                };
+            };
         };
     };
     "mfa.enable": {
@@ -6142,6 +6336,78 @@ export interface operations {
         };
     };
     "billing.webhook": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                driver: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": "invalid signature";
+                };
+            };
+            404: components["responses"]["ModelNotFoundException"];
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Error overview. */
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "webhook.verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                driver: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string | null;
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": "forbidden";
+                };
+            };
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "webhook.receive": {
         parameters: {
             query?: never;
             header?: never;
