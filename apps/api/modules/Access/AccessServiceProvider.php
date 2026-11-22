@@ -17,6 +17,8 @@ final class AccessServiceProvider extends ModuleServiceProvider
     {
         $this->app->singleton(Catalogue::class);
         $this->app->scoped(AccessService::class);
+        // Per request/job: a provider's own roles, loaded under its row-level security.
+        $this->app->scoped(CustomRoles::class);
     }
 
     protected function modulePath(): string

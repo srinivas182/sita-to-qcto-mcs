@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Modules\Access\Models\CustomRole;
 use Modules\Access\Services\AccessService;
 use Modules\Billing\Models\BillingProfile;
 use Modules\Billing\Models\Package;
@@ -16,6 +17,7 @@ use Modules\Identity\Models\UserTenant;
 use Modules\Identity\Support\IdType;
 use Modules\Identity\Support\MembershipStatus;
 use Modules\Onboarding\Models\Application;
+use Modules\People\Models\StaffCredential;
 use Modules\Qualifications\Models\Programme;
 use Modules\Qualifications\Models\Qualification;
 use Modules\Settings\Models\PlatformSetting;
@@ -142,6 +144,33 @@ final class DemoSeeder extends Seeder
             if ($getc !== null) {
                 Programme::query()->firstOrCreate(['qualification_id' => $getc->id], ['modes' => ['contact', 'workplace']]);
             }
+        });
+
+        // Staff with registrations: a verified assessor whose registration ends soon, and a
+        // facilitator's registration waiting to be checked. Plus a provider-made role.
+        $staff = $context->runAsPlatform(fn () => [
+            $this->person('Sipho', 'Ndlovu', 'sipho@demo.test'),
+            $this->person('Lindiwe', 'Mthembu', 'lindiwe@demo.test'),
+        ]);
+        $context->runAs($tym, function () use ($staff, $access): void {
+            [$sipho, $lindiwe] = $staff;
+            $soweto = Centre::query()->where('name', 'Soweto Campus')->firstOrFail();
+            $getc = Qualification::query()->where('saqa_id', '49411')->first();
+            foreach ([[$sipho, 'assessor'], [$lindiwe, 'facilitator']] as [$person, $role]) {
+                UserTenant::query()->firstOrCreate(['user_id' => $person->id], ['status' => MembershipStatus::Active, 'joined_at' => now(), 'centre_id' => $soweto->id]);
+                $access->assign($person, $role, $soweto->id);
+            }
+            if ($getc !== null && ! StaffCredential::query()->exists()) {
+                $verified = StaffCredential::query()->create(['user_id' => $sipho->id, 'role' => 'assessor', 'body' => 'CETA', 'registration_number' => 'CETA/ASS/2023/0412',
+                    'qualification_ids' => [$getc->id], 'starts_on' => now()->subYears(3), 'expires_on' => now()->addDays(52)]);
+                $verified->forceFill(['status' => 'verified', 'verified_at' => now()->subYears(3)])->save();
+                StaffCredential::query()->create(['user_id' => $lindiwe->id, 'role' => 'facilitator', 'body' => 'CETA', 'registration_number' => 'CETA/FAC/2026/1187',
+                    'qualification_ids' => [$getc->id], 'starts_on' => now()->subMonth(), 'expires_on' => now()->addYears(3)]);
+            }
+            CustomRole::query()->firstOrCreate(['name' => 'Quality officer'], [
+                'key' => 'custom:01jdemoqualityofficer00000', 'description' => 'Checks staff registrations and learner records', 'scope' => 'tenant',
+                'permissions' => ['credentials.view', 'credentials.manage', 'tenant.users.view', 'learners.view', 'programmes.view'], 'mfa' => true, 'based_on' => 'centre-manager',
+            ]);
         });
 
         $this->command?->info('Demo ready. Password: '.self::PASSWORD.' · TOTP secret: '.self::TOTP_SECRET);

@@ -54,6 +54,15 @@ with sync_playwright() as p:
     page.get_by_role('button', name='Add from catalogue').click(); page.get_by_role('dialog').wait_for(); page.get_by_text('Offered').first.wait_for(); audit(page, '/programmes catalogue')
     page.keyboard.press('Escape')
 
+    # Registrations, the provider's own roles, import and the owner's profile.
+    page.click('nav a[href="/people/credentials"]'); page.get_by_text('Sipho Ndlovu').first.wait_for(); audit(page, '/people/credentials')
+    page.click('nav a[href="/users"]'); page.get_by_role('button', name='Import').click(); page.get_by_role('dialog').wait_for(); audit(page, '/users import')
+    page.keyboard.press('Escape')
+    page.get_by_role('link', name='Your own roles').click(); page.get_by_text('Quality officer', exact=True).first.wait_for(); audit(page, '/roles')
+    page.get_by_text('Quality officer', exact=True).first.click(); page.get_by_role('dialog').wait_for(); audit(page, '/roles dialog')
+    page.keyboard.press('Escape')
+    page.click('nav a[href="/profile"]'); page.get_by_text('Equity information (optional)').wait_for(); audit(page, '/profile')
+
     # Centres with the expiry warning, and the edit dialog.
     page.click('nav a[href="/centres"]'); page.get_by_text('Durban Site', exact=True).first.wait_for(); audit(page, '/centres')
     page.get_by_text('Durban Site', exact=True).first.click(); page.get_by_role('dialog').wait_for(); audit(page, '/centres dialog')

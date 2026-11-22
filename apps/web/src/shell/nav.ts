@@ -2,7 +2,9 @@ import {
   Building2,
   CreditCard,
   Gauge,
+  BadgeCheck,
   BookOpen,
+  CircleUser,
   GraduationCap,
   Inbox,
   MapPin,
@@ -57,6 +59,13 @@ const platform: NavItem[] = [
 const provider: NavItem[] = [
   { to: '/', label: 'nav.overview', icon: Gauge, group: 'main' },
   { to: '/programmes', label: 'nav.programmes', icon: GraduationCap, group: 'main', permission: 'programmes.view' },
+  {
+    to: '/people/credentials',
+    label: 'nav.credentials',
+    icon: BadgeCheck,
+    group: 'main',
+    permission: 'credentials.view',
+  },
   { to: '/centres', label: 'nav.centres', icon: MapPin, group: 'main', permission: 'centres.view' },
   { to: '/users', label: 'nav.users', icon: Users, group: 'main', permission: 'tenant.users.view' },
   { to: '/brand', label: 'nav.brand', icon: Palette, group: 'manage', permission: 'tenant.settings.manage' },
@@ -66,9 +75,15 @@ const provider: NavItem[] = [
 ];
 
 const account: NavItem[] = [{ to: '/security', label: 'nav.security', icon: ShieldCheck, group: 'account' }];
+// Profiles are kept per provider, so "My profile" appears inside a provider only.
+const providerAccount: NavItem[] = [{ to: '/profile', label: 'nav.profile', icon: CircleUser, group: 'account' }];
 
 /** Navigation for where the person is (platform console or a provider) and what they may do. */
 export function navFor(me: Me): NavItem[] {
   const items = me.tenant ? provider : platform;
-  return [...items.filter((i) => !i.permission || me.permissions.includes(i.permission)), ...account];
+  return [
+    ...items.filter((i) => !i.permission || me.permissions.includes(i.permission)),
+    ...(me.tenant ? providerAccount : []),
+    ...account,
+  ];
 }

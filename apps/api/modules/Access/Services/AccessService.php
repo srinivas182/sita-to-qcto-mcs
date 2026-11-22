@@ -250,6 +250,11 @@ final class AccessService
             return true;
         }
 
+        // A provider's own roles are handed out by its owners only.
+        if ($this->catalogue->isCustom($role)) {
+            return false;
+        }
+
         return in_array('centre-manager', $held, true)
             && in_array($role, $this->catalogue->delegableByCentreManager(), true);
     }

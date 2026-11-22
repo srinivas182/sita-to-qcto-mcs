@@ -10,6 +10,7 @@ use Modules\Files\FilesServiceProvider;
 use Modules\Identity\IdentityServiceProvider;
 use Modules\Messaging\MessagingServiceProvider;
 use Modules\Onboarding\OnboardingServiceProvider;
+use Modules\People\PeopleServiceProvider;
 use Modules\Platform\PlatformServiceProvider;
 use Modules\Qualifications\QualificationsServiceProvider;
 use Modules\Settings\SettingsServiceProvider;
@@ -28,4 +29,5 @@ return [
     MessagingServiceProvider::class,
     OnboardingServiceProvider::class,
     QualificationsServiceProvider::class,
+    PeopleServiceProvider::class,
 ];

@@ -23,6 +23,12 @@ final readonly class SaIdNumber
         public int $citizenship,
     ) {}
 
+    /** The sex the number was issued with (digits 7–10): used only to flag a mismatch, never stored. */
+    public function sexOnIssue(): string
+    {
+        return (int) substr($this->value, 6, 4) < 5000 ? 'female' : 'male';
+    }
+
     public static function tryParse(string $input, ?CarbonImmutable $today = null): ?self
     {
         $digits = (string) preg_replace('/\D/', '', $input);

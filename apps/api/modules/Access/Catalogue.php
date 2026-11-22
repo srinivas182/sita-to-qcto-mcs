@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Modules\Access;
 
 use InvalidArgumentException;
+use Modules\Access\Models\CustomRole;
 
 /**
- * Read-only view of config/access.php: roles, their scope and permissions.
+ * Read-only view of config/access.php — roles, their scope and permissions — plus the
+ * current provider's own roles (keys `custom:<ulid>`), so every permission check
+ * treats both the same way.
  */
 final class Catalogue
 {
@@ -30,7 +33,22 @@ final class Catalogue
 
     public function hasRole(string $role): bool
     {
-        return isset($this->roles[$role]);
+        return isset($this->roles[$role]) || (CustomRole::isCustom($role) && isset($this->custom()[$role]));
+    }
+
+    public function isCustom(string $role): bool
+    {
+        return CustomRole::isCustom($role);
+    }
+
+    /**
+     * The permissions a provider may put into its own roles: what an owner holds.
+     *
+     * @return list<string>
+     */
+    public function customisablePermissions(): array
+    {
+        return array_values(array_diff($this->roles['tp-owner']['permissions'] ?? [], ['tenant.roles.manage']));
     }
 
     public function hasPermission(string $permission): bool
@@ -80,12 +98,29 @@ final class Catalogue
     /** @return array<string, array{label: string, scope: string, mfa: bool, permissions: list<string>}> */
     public function roles(): array
     {
+        return $this->roles + $this->custom();
+    }
+
+    /** @return array<string, array{label: string, scope: string, mfa: bool, permissions: list<string>}> */
+    public function builtInRoles(): array
+    {
         return $this->roles;
+    }
+
+    public function label(string $role): string
+    {
+        return $this->hasRole($role) ? $this->role($role)['label'] : $role;
     }
 
     /** @return array{label: string, scope: string, mfa: bool, permissions: list<string>} */
     private function role(string $role): array
     {
-        return $this->roles[$role] ?? throw new InvalidArgumentException("Unknown role [{$role}].");
+        return $this->roles[$role] ?? $this->custom()[$role] ?? throw new InvalidArgumentException("Unknown role [{$role}].");
+    }
+
+    /** @return array<string, array{label: string, scope: string, mfa: bool, permissions: list<string>}> */
+    private function custom(): array
+    {
+        return app(CustomRoles::class)->current();
     }
 }

@@ -56,8 +56,8 @@ describe('navigation', () => {
       }),
     ).map((i) => i.to);
 
-    expect(learner).toEqual(['/', '/security']);
-    expect(owner).toEqual(['/', '/users', '/brand', '/support', '/audit', '/security']);
+    expect(learner).toEqual(['/', '/profile', '/security']);
+    expect(owner).toEqual(['/', '/users', '/brand', '/support', '/audit', '/profile', '/security']);
   });
 
   it('shows the platform console off any provider', () => {

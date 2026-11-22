@@ -31,6 +31,7 @@ final class RoleController
             'scope' => $r['scope'],
             'mfa' => $r['mfa'],
             'permissions' => $r['permissions'],
+            'custom' => $this->catalogue()->isCustom($key),
             'assignable' => $this->access()->mayDelegate($user, $key),
         ])->values()]);
     }

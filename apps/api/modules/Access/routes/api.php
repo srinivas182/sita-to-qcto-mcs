@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use Modules\Access\Http\Controllers\Admin\StaffController;
+use Modules\Access\Http\Controllers\CustomRoleController;
 use Modules\Access\Http\Controllers\InvitationController;
 use Modules\Access\Http\Controllers\RoleController;
 use Modules\Access\Http\Controllers\SupportAccessController;
@@ -27,6 +28,11 @@ $secured = ['auth:sanctum', EnsureAccess::class, RequireMfaEnrolment::class];
 // Inside a training provider.
 Route::middleware($secured)->group(function (): void {
     Route::get('tenant', [CurrentTenantController::class, 'show']);
+
+    Route::get('roles/custom', [CustomRoleController::class, 'index']);
+    Route::post('roles/custom', [CustomRoleController::class, 'store']);
+    Route::patch('roles/custom/{role}', [CustomRoleController::class, 'update'])->whereUlid('role');
+    Route::delete('roles/custom/{role}', [CustomRoleController::class, 'destroy'])->whereUlid('role');
 
     Route::get('centres', [CentreController::class, 'index']);
     Route::post('centres', [CentreController::class, 'store']);
