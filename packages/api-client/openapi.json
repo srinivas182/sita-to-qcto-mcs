@@ -3984,7 +3984,7 @@
         },
         "/audit-logs": {
             "get": {
-                "operationId": "modules.audit.auditLog.index_49",
+                "operationId": "modules.audit.auditLog.index_52",
                 "tags": [
                     "AuditLog"
                 ],
@@ -4191,7 +4191,7 @@
         },
         "/admin/audit-logs": {
             "get": {
-                "operationId": "modules.audit.auditLog.index_68",
+                "operationId": "modules.audit.auditLog.index_71",
                 "tags": [
                     "AuditLog"
                 ],
@@ -8155,6 +8155,37 @@
                                                             "type": "string"
                                                         }
                                                     ]
+                                                },
+                                                "verified": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "accreditation_number": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "valid_until": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "verified_on": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "accreditation_number",
+                                                        "valid_until",
+                                                        "verified_on"
+                                                    ]
                                                 }
                                             },
                                             "required": [
@@ -8162,7 +8193,8 @@
                                                 "code",
                                                 "platform",
                                                 "status",
-                                                "branding"
+                                                "branding",
+                                                "verified"
                                             ]
                                         },
                                         {
@@ -8344,7 +8376,7 @@
         },
         "/tenants/{tenant}/domains": {
             "get": {
-                "operationId": "modules.tenancy.domain.index_33",
+                "operationId": "modules.tenancy.domain.index_36",
                 "tags": [
                     "Domain"
                 ],
@@ -8386,7 +8418,7 @@
                 }
             },
             "post": {
-                "operationId": "modules.tenancy.domain.store_34",
+                "operationId": "modules.tenancy.domain.store_37",
                 "tags": [
                     "Domain"
                 ],
@@ -8449,7 +8481,7 @@
         },
         "/tenants/{tenant}/domains/{domain}/verify": {
             "post": {
-                "operationId": "modules.tenancy.domain.verify_35",
+                "operationId": "modules.tenancy.domain.verify_38",
                 "summary": "Live DNS + certificate check (the \"Check now\" button)",
                 "tags": [
                     "Domain"
@@ -8503,7 +8535,7 @@
         },
         "/tenants/{tenant}/domains/{domain}/status": {
             "get": {
-                "operationId": "modules.tenancy.domain.status_36",
+                "operationId": "modules.tenancy.domain.status_39",
                 "tags": [
                     "Domain"
                 ],
@@ -8552,7 +8584,7 @@
         },
         "/tenants/{tenant}/domains/{domain}/primary": {
             "post": {
-                "operationId": "modules.tenancy.domain.primary_37",
+                "operationId": "modules.tenancy.domain.primary_40",
                 "tags": [
                     "Domain"
                 ],
@@ -8601,7 +8633,7 @@
         },
         "/tenants/{tenant}/domains/{domain}": {
             "delete": {
-                "operationId": "modules.tenancy.domain.destroy_38",
+                "operationId": "modules.tenancy.domain.destroy_41",
                 "tags": [
                     "Domain"
                 ],
@@ -8635,7 +8667,7 @@
         },
         "/admin/tenants/{tenant}/domains": {
             "get": {
-                "operationId": "modules.tenancy.domain.index_61",
+                "operationId": "modules.tenancy.domain.index_64",
                 "tags": [
                     "Domain"
                 ],
@@ -8677,7 +8709,7 @@
                 }
             },
             "post": {
-                "operationId": "modules.tenancy.domain.store_62",
+                "operationId": "modules.tenancy.domain.store_65",
                 "tags": [
                     "Domain"
                 ],
@@ -8740,7 +8772,7 @@
         },
         "/admin/tenants/{tenant}/domains/{domain}/verify": {
             "post": {
-                "operationId": "modules.tenancy.domain.verify_63",
+                "operationId": "modules.tenancy.domain.verify_66",
                 "summary": "Live DNS + certificate check (the \"Check now\" button)",
                 "tags": [
                     "Domain"
@@ -8794,7 +8826,7 @@
         },
         "/admin/tenants/{tenant}/domains/{domain}/status": {
             "get": {
-                "operationId": "modules.tenancy.domain.status_64",
+                "operationId": "modules.tenancy.domain.status_67",
                 "tags": [
                     "Domain"
                 ],
@@ -8843,7 +8875,7 @@
         },
         "/admin/tenants/{tenant}/domains/{domain}/primary": {
             "post": {
-                "operationId": "modules.tenancy.domain.primary_65",
+                "operationId": "modules.tenancy.domain.primary_68",
                 "tags": [
                     "Domain"
                 ],
@@ -8892,7 +8924,7 @@
         },
         "/admin/tenants/{tenant}/domains/{domain}": {
             "delete": {
-                "operationId": "modules.tenancy.domain.destroy_66",
+                "operationId": "modules.tenancy.domain.destroy_69",
                 "tags": [
                     "Domain"
                 ],
@@ -13419,6 +13451,173 @@
                 }
             }
         },
+        "/me/push-tokens": {
+            "post": {
+                "operationId": "pushToken.store",
+                "tags": [
+                    "PushToken"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "token": {
+                                        "type": "string",
+                                        "pattern": "^Expo(nent)?PushToken\\[[A-Za-z0-9_\\-]{10,}\\]$",
+                                        "maxLength": 200
+                                    }
+                                },
+                                "required": [
+                                    "token"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "registered": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "required": [
+                                        "registered"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "pushToken.destroy",
+                "tags": [
+                    "PushToken"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "registered": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "required": [
+                                        "registered"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/me/push-tokens/test": {
+            "post": {
+                "operationId": "pushToken.test",
+                "summary": "Settings \u2192 \"Send a test notification\"",
+                "tags": [
+                    "PushToken"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                "Turn on notifications first."
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/roles": {
             "get": {
                 "operationId": "role.roles",
@@ -14669,7 +14868,7 @@
         },
         "/support-access/{grant}/revoke": {
             "post": {
-                "operationId": "modules.access.supportAccess.revoke_48",
+                "operationId": "modules.access.supportAccess.revoke_51",
                 "tags": [
                     "SupportAccess"
                 ],
@@ -14945,7 +15144,7 @@
         },
         "/admin/support-access/{grant}/revoke": {
             "post": {
-                "operationId": "modules.access.supportAccess.revoke_71",
+                "operationId": "modules.access.supportAccess.revoke_74",
                 "tags": [
                     "SupportAccess"
                 ],

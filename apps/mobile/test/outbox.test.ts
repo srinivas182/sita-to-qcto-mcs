@@ -80,7 +80,7 @@ describe('outbox', () => {
   });
 
   it('classifies responses and caps back-off', () => {
-    expect([200, 0, 408, 429, 500, 409, 422, 403].map(classify)).toEqual(['ok', 'retry', 'retry', 'retry', 'retry', 'conflict', 'conflict', 'fail']);
+    expect([200, 0, 408, 429, 500, 409, 422, 403, 402].map(classify)).toEqual(['ok', 'retry', 'retry', 'retry', 'retry', 'conflict', 'conflict', 'fail', 'retry']);
     expect(backoff(1, () => 0)).toBe(2_500);
     expect(backoff(50, () => 1)).toBe(15 * 60_000);
   });

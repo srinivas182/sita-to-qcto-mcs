@@ -5,8 +5,10 @@ declare(strict_types=1);
 require_once __DIR__.'/../Billing/helpers.php';
 
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
 use Modules\Access\Models\Invitation;
+use Modules\Access\Services\AccessService;
 use Modules\Billing\Models\Subscription;
 use Modules\Onboarding\Models\Application;
 use Modules\Onboarding\Notifications\ApplicationDecided;
@@ -15,6 +17,7 @@ use Modules\Onboarding\Notifications\ApplicationNeedsInfo;
 use Modules\Onboarding\Notifications\ApplicationReceived;
 use Modules\Onboarding\Notifications\ApplicationToReview;
 use Modules\Onboarding\Support\Identifiers;
+use Modules\Settings\Models\Integration;
 use Modules\Tenancy\Models\Cell;
 use Modules\Tenancy\Models\Centre;
 use Modules\Tenancy\Models\Tenant;
@@ -262,4 +265,39 @@ it('queues emails that a worker can send without any tenant or platform context'
         $restored = unserialize(serialize($mail));
         expect($restored->toMail(new stdClass)->render()->toHtml())->not->toBeEmpty();
     }
+});
+
+it('copies decisions to the applicant phone and marks approved providers as verified', function (): void {
+    asPlatform(fn () => Cell::factory()->create(['id' => 'cell-1', 'capacity_tenants' => 100]));
+    asPlatform(fn () => Integration::query()->create(['type' => 'sms', 'driver' => 'sms.bulksms', 'credentials' => ['username' => 'u', 'password' => 'p'], 'settings' => [], 'mode' => 'live', 'enabled' => true, 'priority' => 10]));
+    Http::fake(['api.bulksms.com/*' => Http::response([['id' => 'b1', 'status' => ['type' => 'ACCEPTED']]], 201)]);
+
+    $app = startApplication($this);
+    completeApplication($this, $app);
+    $h = ['X-Application-Token' => $app['token']];
+    $this->patchJson(SITE."/applications/{$app['id']}", ['phone' => '082 555 1234'], $h)->assertOk();
+    $this->postJson(SITE."/applications/{$app['id']}/submit", [], $h)->assertOk();
+
+    signInStaff($this);
+    $adminBase = 'https://admin.skills.test/v1/admin/applications';
+    $this->putJson("{$adminBase}/{$app['id']}/review", ['checklist' => ['cipc_verified' => true, 'letter_matches' => true, 'scope_confirmed' => true, 'contact_confirmed' => true]])->assertOk();
+    $this->postJson("{$adminBase}/{$app['id']}/approve")->assertCreated();
+    Http::assertSent(fn ($r) => str_contains($r->url(), 'bulksms') && str_contains(json_encode($r->data()), 'is approved'));
+
+    $this->flushHeaders()->withHeaders(webOrigin('ndlovu.skills.test'));
+    $this->getJson('https://ndlovu.skills.test/v1/branding')->assertOk()
+        ->assertJsonPath('verified.accreditation_number', '07-QCTO/SDP180825105627');
+    $this->getJson('https://admin.skills.test/v1/branding')->assertJsonMissingPath('verified');
+});
+
+it('shows centre managers only their own centres', function (): void {
+    $tym = makeProvider('tym');
+    [$a, $b] = asTenant($tym, fn () => [Centre::query()->create(['name' => 'Alpha']), Centre::query()->create(['name' => 'Beta'])]);
+    $manager = makeMember($tym, [], ['email' => 'mgr@tym.test', 'password' => 'correct horse battery staple']);
+    asTenant($tym, fn () => app(AccessService::class)->assign($manager, 'centre-manager', $b->id));
+
+    $this->flushHeaders()->flushSession()->withHeaders(webOrigin('tym.skills.test'));
+    $this->postJson('https://tym.skills.test/v1/auth/login', ['email' => 'mgr@tym.test', 'password' => 'correct horse battery staple'])->assertOk();
+    $names = collect($this->getJson('https://tym.skills.test/v1/centres')->assertOk()->json('data'))->pluck('name')->all();
+    expect($names)->toBe(['Beta']);
 });

@@ -71,6 +71,10 @@ final class OtpService
         $host = $this->context->tenant()?->domains()->where('is_primary', true)->value('hostname');
         $message = "{$code} is your {$tenant->trading_name} sign-in PIN. It expires in ".intdiv($ttl, 60)
             .' minutes. Never share it.'.(is_string($host) ? "\n\n@{$host} #{$code}" : '');
+        $hash = config('identity.otp.android_sms_hash');
+        if (is_string($hash) && preg_match('/^[A-Za-z0-9+\/]{11}$/', $hash) === 1) {
+            $message .= "\n{$hash}";
+        }
 
         $channel = $this->dispatcher->deliver($user->phone_e164, $message, $preferredChannel, $code);
 

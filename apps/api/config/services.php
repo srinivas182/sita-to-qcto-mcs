@@ -37,4 +37,9 @@ return [
         ],
     ],
 
+    /* Expo push service; the access token is optional unless enhanced push security is on. */
+    'expo' => [
+        'access_token' => env('EXPO_ACCESS_TOKEN'),
+    ],
+
 ];

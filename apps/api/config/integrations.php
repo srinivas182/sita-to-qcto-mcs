@@ -192,6 +192,7 @@ return [
                 'app_secret' => ['label' => 'App secret', 'secret' => true, 'required' => true, 'help' => 'Used to check that webhooks come from Meta.'],
                 'otp_template' => ['label' => 'Sign-in code template name', 'default' => 'sign_in_code', 'help' => 'An approved authentication template with a copy-code (or one-tap) button.'],
                 'otp_language' => ['label' => 'Template language code', 'default' => 'en'],
+                'notice_template' => ['label' => 'Notice template name (optional)', 'help' => 'An approved utility template whose body is just {{1}}. Used for application decisions and billing reminders; without it those go by SMS and email.'],
                 'verify_token' => ['label' => 'Webhook verify token', 'help' => 'Any text; enter the same in Meta when adding the webhook. Leave blank to use the one shown below.'],
                 'graph_version' => ['label' => 'Graph API version', 'default' => 'v21.0'],
             ],

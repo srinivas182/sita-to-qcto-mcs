@@ -37,6 +37,20 @@ final class MessageService
         return $this->deliver('sms', $to, $purpose, fn ($driver, string $ref): SendResult => $driver->sendText($to, $text, $ref));
     }
 
+    /** A notice to a person's phone: WhatsApp (when a notice template is set), then SMS. */
+    public function notify(string $to, string $text, string $purpose): MessageResult
+    {
+        $whatsapp = $this->drivers->enabled('whatsapp')->contains(fn (Integration $i): bool => filled($i->value('notice_template')));
+        if ($whatsapp) {
+            $result = $this->deliver('whatsapp', $to, $purpose, fn ($driver, string $ref): SendResult => $driver->sendText($to, $text, $ref));
+            if ($result->sent) {
+                return $result;
+            }
+        }
+
+        return $this->sms($to, $text, $purpose);
+    }
+
     /** Send a sign-in code on one channel (WhatsApp template or SMS text). */
     public function code(string $channel, string $to, string $code, string $text): MessageResult
     {

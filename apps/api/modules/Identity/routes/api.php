@@ -8,6 +8,7 @@ use Modules\Identity\Http\Controllers\MfaController;
 use Modules\Identity\Http\Controllers\OtpController;
 use Modules\Identity\Http\Controllers\PasskeyController;
 use Modules\Identity\Http\Controllers\PasswordController;
+use Modules\Identity\Http\Controllers\PushTokenController;
 use Modules\Identity\Http\Controllers\SessionController;
 use Modules\Identity\Http\Middleware\EnsureAccess;
 
@@ -28,6 +29,9 @@ Route::middleware('throttle:auth')->prefix('auth')->group(function (): void {
 Route::middleware(['auth:sanctum', EnsureAccess::class])->group(function (): void {
     Route::get('me', [SessionController::class, 'me']);
     Route::post('auth/logout', [SessionController::class, 'logout']);
+    Route::post('me/push-tokens', [PushTokenController::class, 'store'])->middleware('throttle:20,1');
+    Route::delete('me/push-tokens', [PushTokenController::class, 'destroy']);
+    Route::post('me/push-tokens/test', [PushTokenController::class, 'test'])->middleware('throttle:5,1');
 
     Route::post('auth/mfa/totp/enable', [MfaController::class, 'enable']);
     Route::post('auth/mfa/totp/confirm', [MfaController::class, 'confirm']);

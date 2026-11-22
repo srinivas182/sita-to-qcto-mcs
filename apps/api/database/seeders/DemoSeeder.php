@@ -109,6 +109,16 @@ final class DemoSeeder extends Seeder
                 'bank_details' => "Demo Bank\nAccount 000 000 000\nBranch 000000",
             ]]);
 
+            // The demo provider came in through the accreditation check (shows "Verified").
+            Application::query()->firstOrCreate(['reference' => 'APP-DEMOTYM1'], [
+                'status' => 'approved', 'tenant_id' => $tym->id, 'token_hash' => hash('sha256', 'demo-tym'),
+                'submitted_at' => now()->subDays(20), 'decided_at' => now()->subDays(19), 'email_verified_at' => now()->subDays(20),
+                'first_name' => 'Sekal', 'last_name' => 'Moyo', 'email' => 'sekal@demo.test', 'legal_name' => 'Training Young Minds (Pty) Ltd',
+                'registration_number' => '2015/123456/07', 'sdp_number' => '07-QCTO/SDP180825105627', 'accreditation_expires_on' => now()->addYears(3),
+                'preferred_code' => 'tym', 'consented_at' => now()->subDays(20), 'consent_version' => '2026-11',
+                'checklist' => ['cipc_verified' => true, 'letter_matches' => true, 'scope_confirmed' => true, 'contact_confirmed' => true],
+            ]);
+
             // A provider waiting for review in the applications queue.
             Application::query()->firstOrCreate(['reference' => 'APP-DEMO0001'], [
                 'status' => 'submitted', 'token_hash' => hash('sha256', 'demo-application'), 'submitted_at' => now()->subHours(5),

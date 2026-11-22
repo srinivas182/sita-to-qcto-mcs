@@ -1,6 +1,7 @@
 import * as Clipboard from "expo-clipboard";
 import * as Device from "expo-device";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { listenForCode } from "../modules/code-autofill/src";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -34,6 +35,11 @@ export default function SignIn() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [now, setNow] = useState(Date.now());
+  const challengeRef = useRef<string | null>(null);
+  const stopListening = useRef<() => void>(() => undefined);
+
+  // Stop listening for WhatsApp/SMS codes when leaving the screen.
+  useEffect(() => () => stopListening.current(), []);
 
   useEffect(() => {
     if (!challenge) return;
@@ -45,10 +51,18 @@ export default function SignIn() {
     setBusy(true);
     setError(null);
     dismissNotice();
+    // Android: tell WhatsApp we expect a code (one-tap "Autofill") and start the SMS
+    // Retriever, before the code is sent. The code is then filled and checked by itself.
+    stopListening.current();
+    stopListening.current = listenForCode((code) => {
+      setPin(code);
+      void verify(code);
+    });
     try {
       const r = await json<{ challenge_id: string; resend_after: number }>(
         api.POST("/auth/otp/request", { body: { identifier } }),
       );
+      challengeRef.current = r.challenge_id;
       setChallenge({
         id: r.challenge_id,
         resendAt: Date.now() + r.resend_after * 1000,
@@ -71,7 +85,8 @@ export default function SignIn() {
   };
 
   const verify = async (code = pin) => {
-    if (!challenge || code.length !== 6) return;
+    const challengeId = challengeRef.current;
+    if (!challengeId || code.length !== 6) return;
     setBusy(true);
     setError(null);
     try {
@@ -84,9 +99,10 @@ export default function SignIn() {
       };
       const pair = await json<TokenPair>(
         api.POST("/auth/otp/verify", {
-          body: { challenge_id: challenge.id, code, device } as never,
+          body: { challenge_id: challengeId, code, device } as never,
         }),
       );
+      stopListening.current();
       await signedIn(pair);
     } catch (e) {
       setError(errorMessage(e));

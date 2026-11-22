@@ -9,8 +9,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 use Modules\Files\Models\File;
+use Modules\Onboarding\Models\Application;
 use Modules\Tenancy\Context\TenantContext;
 use Modules\Tenancy\Http\Resources\TenantResource;
+use Modules\Tenancy\Models\Centre;
+use Modules\Tenancy\Models\Tenant;
 
 final class CurrentTenantController
 {
@@ -32,7 +35,32 @@ final class CurrentTenantController
             'platform' => false,
             'status' => $tenant->status->value,
             'branding' => $tenant->branding ?? (object) [],
+            'verified' => $this->verification($tenant),
         ])->header('Cache-Control', 'public, max-age=60, stale-while-revalidate=600');
+    }
+
+    /**
+     * "Verified provider": approved through the accreditation check, with a centre whose
+     * accreditation is still valid. Learners and employers see it on the sign-in page.
+     *
+     * @return array{accreditation_number: string|null, valid_until: string|null, verified_on: string|null}|null
+     */
+    private function verification(Tenant $tenant): ?array
+    {
+        $application = $this->context()->runAsPlatform(fn () => Application::query()
+            ->where('tenant_id', $tenant->id)->where('status', 'approved')->latest('decided_at')->first());
+        if ($application === null) {
+            return null;
+        }
+
+        $centre = Centre::query()->where('status', 'active')->whereDate('accreditation_expires_on', '>=', now())
+            ->orderByDesc('accreditation_expires_on')->first();
+
+        return $centre === null ? null : [
+            'accreditation_number' => $centre->accreditation_number,
+            'valid_until' => $centre->accreditation_expires_on?->toDateString(),
+            'verified_on' => $application->decided_at?->toDateString(),
+        ];
     }
 
     public function show(): TenantResource

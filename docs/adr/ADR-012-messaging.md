@@ -43,3 +43,27 @@
   notifications are added as they are approved.
 - Local development and tests fall back to the log channel when no provider is on.
   Production does not: an unsent code is reported as not sent.
+
+## Addendum (Sprint 2 close): codes filled in without typing, notices, push
+
+**Android, WhatsApp one-tap.** The app's own Android module (`apps/mobile/modules/code-autofill`)
+tells WhatsApp it expects a code just before asking for one (the "handshake"). When the learner
+taps **Autofill** on the WhatsApp message, WhatsApp opens the app with the code; the app checks
+the message really came from WhatsApp (the attached PendingIntent's creator) and signs in.
+Set-up for the Super Admin, once per app signing key:
+1. In Meta Business Manager, create the authentication template named in Settings → WhatsApp
+   (default `sign_in_code`) with a **one-tap** button: package name `za.co.skillsecosystem.app`
+   (as in `app.config.ts`) and the app's signature hash (Settings → About in the app shows it).
+2. Without one-tap, the same template with a copy-code button still works: the learner taps
+   *Copy code* and then *Paste code from WhatsApp* in the app.
+
+**Android, SMS fallback.** Google's SMS Retriever reads the code with no SMS permission when the
+message ends with the app's 11-character hash. Set `ANDROID_SMS_HASH` (the value shown in the
+app under Settings → About for the release build). **iOS** offers the code above the keyboard.
+
+**Notices** (application decisions; billing reminders next): WhatsApp through an approved
+*utility* template whose body is `{{1}}` (Settings → WhatsApp → Notice template), else SMS.
+
+**Push**: Expo's push service (delivers through Firebase and APNs). The app registers its token
+on its device record only after the person turns notifications on; tokens Expo reports as gone
+are cleared. `EXPO_ACCESS_TOKEN` is needed only if enhanced push security is on.

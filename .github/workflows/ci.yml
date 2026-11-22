@@ -23,6 +23,7 @@ jobs:
     outputs:
       api: ${{ steps.filter.outputs.api }}
       js: ${{ steps.filter.outputs.js }}
+      native: ${{ steps.filter.outputs.native }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -40,6 +41,10 @@ jobs:
               - 'pnpm-lock.yaml'
               - 'turbo.json'
               - '.github/workflows/**'
+            native:
+              - 'apps/mobile/modules/**'
+              - 'apps/mobile/app.config.ts'
+              - 'apps/mobile/package.json'
 
   api-quick:
     needs: changes
@@ -162,6 +167,35 @@ jobs:
           CI: '1'
           API_BASE_URL: https://api.staging.skillsecosystem.co.za/v1
         run: pnpm exec expo export --platform android --output-dir dist
+
+  android-native:
+    # Compiles our own Android code (WhatsApp one-tap and SMS Retriever autofill) inside
+    # a generated Android project. Only when native code or the app config changes.
+    needs: [changes, js-quick]
+    if: needs.changes.outputs.native == 'true' && github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+      - run: pnpm install --frozen-lockfile
+      - name: Generate the Android project
+        working-directory: apps/mobile
+        env:
+          CI: '1'
+        run: pnpm exec expo prebuild --platform android --no-install
+      - name: Compile the autofill module
+        working-directory: apps/mobile/android
+        run: ./gradlew :code-autofill:compileReleaseKotlin --no-daemon --stacktrace
 
   e2e:
     # Browser smoke test of the real web app against the real API (sign-in with MFA,

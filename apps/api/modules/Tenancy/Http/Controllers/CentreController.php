@@ -8,6 +8,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
+use Modules\Access\Services\AccessService;
+use Modules\Identity\Models\User;
 use Modules\Onboarding\Support\Identifiers;
 use Modules\Tenancy\Context\TenantContext;
 use Modules\Tenancy\Models\Centre;
@@ -15,11 +17,18 @@ use Modules\Tenancy\Models\Centre;
 /** A provider's centres: accredited delivery sites with scope and expiry. */
 final class CentreController
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         Gate::authorize('centres.view');
+        $user = $request->user();
+        $only = $user instanceof User ? app(AccessService::class)->centresFor($user, 'centres.view') : [];
 
-        return response()->json(['data' => Centre::query()->orderBy('name')->get()->map(fn (Centre $c) => $c->present())->all()]);
+        $query = Centre::query()->orderBy('name');
+        if ($only !== null) {
+            $query->whereIn('id', $only); // centre-scoped roles see their own centres
+        }
+
+        return response()->json(['data' => $query->get()->map(fn (Centre $c) => $c->present())->all()]);
     }
 
     public function store(Request $request): JsonResponse
