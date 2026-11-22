@@ -30,6 +30,8 @@ use Modules\Tenancy\Enums\TenantStatus;
  * @property Carbon|null $approved_at
  * @property Carbon|null $suspended_at
  * @property string|null $suspension_reason
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class Tenant extends Model
 {

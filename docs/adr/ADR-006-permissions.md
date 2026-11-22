@@ -1,6 +1,6 @@
 # ADR-006: Spatie Permission with tenant teams and centre scope
 
-**Status:** Accepted (approved 22 Nov 2026)
+**Status:** Superseded by [ADR-009](ADR-009-access-catalogue.md) (22 Nov 2026, during Sprint 1c)
 
 ## Context
 Seventeen roles, scoped to a provider and sometimes to one centre.

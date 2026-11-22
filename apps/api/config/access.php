@@ -1,0 +1,100 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ | Role and permission catalogue (ADR-009).
+ |
+ | scope:
+ |   platform – held across the whole platform (Super Admin, regulators, ecosystem)
+ |   tenant   – held within one training provider
+ |   centre   – held within one training provider, optionally limited to centres
+ | mfa: true makes an authenticator app (or passkey) mandatory for the holder.
+ |
+ | Permissions not yet used by a module are declared now so roles are stable as
+ | later sprints add features.
+ */
+
+return [
+    'permissions' => [
+        // Platform
+        'platform.tenants.view' => 'See all training providers',
+        'platform.tenants.manage' => 'Create, approve, suspend and place training providers',
+        'platform.cells.view' => 'See cells and their load',
+        'platform.users.manage' => 'Manage platform staff and their roles',
+        'platform.audit.view' => 'Read the audit trail of every provider',
+        'platform.support.request' => 'Ask a provider for support access',
+        'regulator.view' => 'Read compliance evidence across providers',
+        'verify.records' => 'Verify certificates and statements of results',
+        'marketplace.jobs.manage' => 'Post jobs and review candidates',
+        'marketplace.pitches.view' => 'Browse graduate business pitches',
+        'marketplace.pitches.manage' => 'Create and manage business pitches',
+
+        // Training provider
+        'tenant.settings.manage' => 'Brand, domains and provider settings',
+        'tenant.users.view' => 'See people in the provider',
+        'tenant.users.invite' => 'Invite people to the provider',
+        'tenant.roles.assign' => 'Assign and remove roles',
+        'tenant.audit.view' => 'Read the provider audit trail',
+        'tenant.support.approve' => 'Approve or revoke platform support access',
+        'centres.view' => 'See centres',
+        'centres.manage' => 'Create and edit centres',
+        'learners.view' => 'See learner records',
+        'learning.deliver' => 'Deliver learning sessions',
+        'assessment.conduct' => 'Conduct assessments',
+        'assessment.moderate' => 'Moderate assessments',
+        'assessment.external' => 'Run external integrated summative assessments',
+        'workplace.logbook.sign' => 'Sign workplace logbooks',
+        'workplace.placements.manage' => 'Manage workplace placements',
+        'learning.self' => 'Learn: content, simulators, mock tests',
+    ],
+
+    'roles' => [
+        'super-admin' => ['label' => 'Super Admin', 'scope' => 'platform', 'mfa' => true, 'permissions' => [
+            'platform.tenants.view', 'platform.tenants.manage', 'platform.cells.view', 'platform.users.manage',
+            'platform.audit.view', 'platform.support.request',
+        ]],
+        'jv-compliance' => ['label' => 'JV compliance desk', 'scope' => 'platform', 'mfa' => true, 'permissions' => [
+            'platform.tenants.view', 'platform.audit.view', 'regulator.view',
+        ]],
+        'qcto-officer' => ['label' => 'QCTO officer', 'scope' => 'platform', 'mfa' => true, 'permissions' => [
+            'platform.tenants.view', 'regulator.view', 'verify.records',
+        ]],
+        'ceta-officer' => ['label' => 'CETA officer', 'scope' => 'platform', 'mfa' => true, 'permissions' => [
+            'platform.tenants.view', 'regulator.view', 'verify.records',
+        ]],
+        'public-verifier' => ['label' => 'Verifier', 'scope' => 'platform', 'mfa' => false, 'permissions' => ['verify.records']],
+        'hiring-company' => ['label' => 'Hiring company', 'scope' => 'platform', 'mfa' => false, 'permissions' => ['marketplace.jobs.manage']],
+        'investor' => ['label' => 'Investor', 'scope' => 'platform', 'mfa' => false, 'permissions' => ['marketplace.pitches.view']],
+        'entrepreneur' => ['label' => 'Entrepreneur', 'scope' => 'platform', 'mfa' => false, 'permissions' => ['marketplace.pitches.manage']],
+
+        'tp-owner' => ['label' => 'Training provider owner', 'scope' => 'tenant', 'mfa' => true, 'permissions' => [
+            'tenant.settings.manage', 'tenant.users.view', 'tenant.users.invite', 'tenant.roles.assign',
+            'tenant.audit.view', 'tenant.support.approve', 'centres.view', 'centres.manage', 'learners.view',
+        ]],
+        'host-employer' => ['label' => 'Host employer', 'scope' => 'tenant', 'mfa' => false, 'permissions' => [
+            'workplace.placements.manage', 'learners.view',
+        ]],
+        'assessment-centre' => ['label' => 'Assessment centre', 'scope' => 'tenant', 'mfa' => false, 'permissions' => [
+            'assessment.external', 'learners.view',
+        ]],
+
+        'centre-manager' => ['label' => 'Centre manager', 'scope' => 'centre', 'mfa' => false, 'permissions' => [
+            'tenant.users.view', 'tenant.users.invite', 'tenant.roles.assign', 'tenant.audit.view', 'centres.view', 'learners.view',
+        ]],
+        'facilitator' => ['label' => 'Facilitator', 'scope' => 'centre', 'mfa' => false, 'permissions' => ['learners.view', 'learning.deliver']],
+        'assessor' => ['label' => 'Assessor', 'scope' => 'centre', 'mfa' => false, 'permissions' => ['learners.view', 'assessment.conduct']],
+        'moderator' => ['label' => 'Moderator', 'scope' => 'centre', 'mfa' => false, 'permissions' => ['learners.view', 'assessment.moderate']],
+        'site-supervisor' => ['label' => 'Site supervisor', 'scope' => 'centre', 'mfa' => false, 'permissions' => ['learners.view', 'workplace.logbook.sign']],
+        'learner' => ['label' => 'Learner', 'scope' => 'centre', 'mfa' => false, 'permissions' => ['learning.self']],
+    ],
+
+    /*
+     | Effective permissions of platform staff inside a provider during an approved
+     | support-access window. Not assignable; settings stay read-only for safety.
+     */
+    'support_permissions' => ['tenant.users.view', 'tenant.audit.view', 'centres.view', 'learners.view'],
+
+    /* Roles a centre-scoped assigner may hand out (never above their own level). */
+    'delegable_by_centre_manager' => ['facilitator', 'assessor', 'moderator', 'site-supervisor', 'learner'],
+];
