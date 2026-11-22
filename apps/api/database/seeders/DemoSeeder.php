@@ -11,6 +11,9 @@ use Modules\Billing\Models\BillingProfile;
 use Modules\Billing\Models\Package;
 use Modules\Billing\Models\Subscription;
 use Modules\Billing\Support\SubscriptionStatus;
+use Modules\Employers\Models\Employer;
+use Modules\Employers\Models\EmployerSite;
+use Modules\Employers\Models\Mentor;
 use Modules\Identity\Models\MfaFactor;
 use Modules\Identity\Models\User;
 use Modules\Identity\Models\UserTenant;
@@ -171,6 +174,30 @@ final class DemoSeeder extends Seeder
                 'key' => 'custom:01jdemoqualityofficer00000', 'description' => 'Checks staff registrations and learner records', 'scope' => 'tenant',
                 'permissions' => ['credentials.view', 'credentials.manage', 'tenant.users.view', 'learners.view', 'programmes.view'], 'mfa' => true, 'based_on' => 'centre-manager',
             ]);
+        });
+
+        // A host employer with two workplaces: one approved (two mentors, capacity 20) and one
+        // whose approval ends in 45 days (one mentor), so the list shows the warning.
+        $context->runAs($tym, function (): void {
+            $getc = Qualification::query()->where('saqa_id', '49411')->first();
+            if ($getc === null || Employer::query()->exists()) {
+                return;
+            }
+            $mabaso = Employer::query()->create(['legal_name' => 'Mabaso Builders (Pty) Ltd', 'trading_name' => 'Mabaso Builders', 'registration_number' => '2015/123456/07',
+                'sdl_number' => 'L123456789', 'seta' => 'CETA', 'bbbee_level' => '2', 'sector' => 'Residential construction',
+                'contact_name' => 'Bheki Mabaso', 'contact_email' => 'bheki@mabaso.test', 'contact_phone' => '+27825550101']);
+            $yard = EmployerSite::query()->create(['employer_id' => $mabaso->id, 'name' => 'Soweto yard', 'address_line1' => '14 Klipspruit Valley Rd', 'city' => 'Soweto',
+                'province' => 'Gauteng', 'postal_code' => '1809', 'approval_number' => 'CETA/WPA/2025/0091', 'approval_body' => 'CETA',
+                'approved_on' => now()->subYear(), 'approval_expires_on' => now()->addYears(2), 'approved_qualification_ids' => [$getc->id]]);
+            $midrand = EmployerSite::query()->create(['employer_id' => $mabaso->id, 'name' => 'Midrand site', 'city' => 'Midrand', 'province' => 'Gauteng',
+                'approval_number' => 'CETA/WPA/2023/0310', 'approval_body' => 'CETA', 'approved_on' => now()->subYears(3), 'approval_expires_on' => now()->addDays(45),
+                'approved_qualification_ids' => [$getc->id]]);
+            foreach ([['Bheki Mabaso', 'Site foreman', 14], ['Zodwa Khumalo', 'Bricklaying supervisor', 9]] as [$name, $title, $years]) {
+                Mentor::query()->create(['employer_id' => $mabaso->id, 'name' => $name, 'designation' => $title, 'years_experience' => $years,
+                    'highest_qualification' => 'Bricklayer trade certificate', 'qualification_nqf_level' => 4, 'site_ids' => [$yard->id]]);
+            }
+            Mentor::query()->create(['employer_id' => $mabaso->id, 'name' => 'Thabo Molefe', 'designation' => 'Site agent', 'years_experience' => 6,
+                'highest_qualification' => 'National Diploma: Building', 'qualification_nqf_level' => 6, 'site_ids' => [$midrand->id]]);
         });
 
         $this->command?->info('Demo ready. Password: '.self::PASSWORD.' · TOTP secret: '.self::TOTP_SECRET);

@@ -1,5 +1,6 @@
 import {
   Building2,
+  Factory,
   CreditCard,
   Gauge,
   BadgeCheck,
@@ -66,6 +67,7 @@ const provider: NavItem[] = [
     group: 'main',
     permission: 'credentials.view',
   },
+  { to: '/employers', label: 'nav.employers', icon: Factory, group: 'main', permission: 'employers.view' },
   { to: '/centres', label: 'nav.centres', icon: MapPin, group: 'main', permission: 'centres.view' },
   { to: '/users', label: 'nav.users', icon: Users, group: 'main', permission: 'tenant.users.view' },
   { to: '/brand', label: 'nav.brand', icon: Palette, group: 'manage', permission: 'tenant.settings.manage' },

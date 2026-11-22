@@ -14,3 +14,4 @@
 - [ADR-013 Provider onboarding](ADR-013-onboarding.md)
 - [ADR-014 Shared qualification catalogue](ADR-014-qualification-catalogue.md)
 - [ADR-015 Staff credentials, provider roles and personal data](ADR-015-people-credentials-roles.md)
+- [ADR-016 Host employers, workplace approvals and capacity](ADR-016-employers-workplaces.md)

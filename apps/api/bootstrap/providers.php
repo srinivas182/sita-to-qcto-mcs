@@ -6,6 +6,7 @@ use App\Providers\AppServiceProvider;
 use Modules\Access\AccessServiceProvider;
 use Modules\Audit\AuditServiceProvider;
 use Modules\Billing\BillingServiceProvider;
+use Modules\Employers\EmployersServiceProvider;
 use Modules\Files\FilesServiceProvider;
 use Modules\Identity\IdentityServiceProvider;
 use Modules\Messaging\MessagingServiceProvider;
@@ -30,4 +31,5 @@ return [
     OnboardingServiceProvider::class,
     QualificationsServiceProvider::class,
     PeopleServiceProvider::class,
+    EmployersServiceProvider::class,
 ];
