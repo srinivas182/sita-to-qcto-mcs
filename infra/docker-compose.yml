@@ -17,6 +17,24 @@ services:
   redis:
     image: redis:7-alpine
     ports: ["6379:6379"]
+  clamav:
+    # Virus scanner for uploads. Set FILES_SCANNER=clamd to use it.
+    image: clamav/clamav:stable
+    ports: ["3310:3310"]
+  minio:
+    # S3-compatible store for trying Settings → Storage → Amazon S3 locally
+    # (endpoint http://127.0.0.1:9000, path-style URLs on).
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio-secret
+    ports: ["9000:9000", "9001:9001"]
+  azurite:
+    # Azure Blob emulator for Settings → Storage → Azure (custom endpoint).
+    image: mcr.microsoft.com/azure-storage/azurite:latest
+    command: azurite-blob --blobHost 0.0.0.0
+    ports: ["10000:10000"]
   mailpit:
     image: axllent/mailpit:latest
     ports: ["8025:8025", "1025:1025"]

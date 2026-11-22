@@ -1,0 +1,57 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ | Files: uploads, virus scanning and image variants.
+ |
+ | Where files are stored is chosen by the Super Admin in Settings → Storage (local
+ | disk, Amazon S3 or Azure Blob). Until one is switched on, files go to `default`.
+ | Each file records the store it was written to, so changing store later never
+ | breaks existing files.
+ */
+
+return [
+    // Used when no storage integration is enabled.
+    'default' => ['driver' => 'storage.local', 'root' => 'files'],
+
+    // How long a signed upload or download link stays valid, in minutes.
+    'upload_ttl' => 15,
+    'download_ttl' => 10,
+
+    // Virus scanner. "clamd" talks to ClamAV over TCP; "none" is refused outside
+    // local and testing, so production files are never used unscanned.
+    'scanner' => [
+        'driver' => env('FILES_SCANNER', 'clamd'),
+        'host' => env('CLAMD_HOST', '127.0.0.1'),
+        'port' => (int) env('CLAMD_PORT', 3310),
+        'timeout' => 30,
+    ],
+
+    // Largest image the variant generator will decode (guards against image bombs).
+    'max_image_pixels' => 4096 * 4096,
+
+    /*
+     | What a file is for decides who may upload it, its size and type limits and the
+     | variants made from it. scope: tenant (inside a provider) or platform.
+     | permission: needed to upload and to download.
+     */
+    'purposes' => [
+        'tenant_logo' => [
+            'scope' => 'tenant',
+            'permission' => 'tenant.settings.manage',
+            'max_kb' => 2048,
+            'mimes' => ['image/png', 'image/jpeg', 'image/webp'],
+            'variants' => ['lg' => 512, 'sm' => 128],
+            'public_variants' => true,
+        ],
+        'application_document' => [
+            'scope' => 'platform',
+            'permission' => 'platform.tenants.manage',
+            'max_kb' => 10240,
+            'mimes' => ['application/pdf', 'image/jpeg', 'image/png'],
+            'variants' => [],
+            'public_variants' => false,
+        ],
+    ],
+];

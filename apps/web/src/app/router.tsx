@@ -106,6 +106,14 @@ const brand = createRoute({
   path: '/brand',
   component: lazyRouteComponent(() => import('@/features/provider/BrandPage'), 'BrandPage'),
 });
+const settings = createRoute({
+  getParentRoute: () => app,
+  path: '/settings',
+  validateSearch: (search: Record<string, unknown>) => ({
+    tab: typeof search.tab === 'string' ? search.tab : undefined,
+  }),
+  component: lazyRouteComponent(() => import('@/features/settings/SettingsPage'), 'SettingsPage'),
+});
 const security = createRoute({
   getParentRoute: () => app,
   path: '/security',
@@ -117,7 +125,7 @@ const routeTree = root.addChildren([
   forgot,
   reset,
   invite,
-  app.addChildren([home, tenants, tenant, cells, staff, support, audit, users, brand, security]),
+  app.addChildren([home, tenants, tenant, cells, staff, support, audit, users, brand, settings, security]),
 ]);
 
 export function makeRouter(queryClient: QueryClient) {

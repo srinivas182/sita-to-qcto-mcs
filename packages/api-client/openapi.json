@@ -431,6 +431,76 @@
                 }
             }
         },
+        "/admin/settings/company": {
+            "get": {
+                "operationId": "company.show",
+                "tags": [
+                    "Company"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": {}
+                                        },
+                                        "complete": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "complete"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "company.update",
+                "tags": [
+                    "Company"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": {}
+                                        },
+                                        "complete": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "complete"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/me/consents": {
             "get": {
                 "operationId": "consent.index",
@@ -730,6 +800,12 @@
                                                 ],
                                                 "format": "uri",
                                                 "maxLength": 500
+                                            },
+                                            "logo_file_id": {
+                                                "type": [
+                                                    "string",
+                                                    "null"
+                                                ]
                                             },
                                             "primary": {
                                                 "type": [
@@ -1378,6 +1454,1477 @@
                 "responses": {
                     "204": {
                         "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/files": {
+            "post": {
+                "operationId": "file.store",
+                "tags": [
+                    "File"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "purpose": {
+                                        "type": "string",
+                                        "maxLength": 40
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "mime": {
+                                        "type": "string",
+                                        "maxLength": 100
+                                    },
+                                    "size": {
+                                        "type": "integer",
+                                        "minimum": 1
+                                    }
+                                },
+                                "required": [
+                                    "purpose",
+                                    "name",
+                                    "mime",
+                                    "size"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "purpose": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "mime": {
+                                                    "type": "string"
+                                                },
+                                                "size": {
+                                                    "type": "integer"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "pending",
+                                                        "processing",
+                                                        "ready",
+                                                        "rejected",
+                                                        "failed"
+                                                    ]
+                                                },
+                                                "status_reason": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "variants": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "object",
+                                                            "additionalProperties": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "width": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "height": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "width",
+                                                                    "height"
+                                                                ]
+                                                            }
+                                                        },
+                                                        {
+                                                            "type": "string"
+                                                        }
+                                                    ]
+                                                },
+                                                "created_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "purpose",
+                                                "name",
+                                                "mime",
+                                                "size",
+                                                "status",
+                                                "status_reason",
+                                                "variants",
+                                                "created_at"
+                                            ]
+                                        },
+                                        "upload": {
+                                            "anyOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "method": {
+                                                            "type": "object"
+                                                        },
+                                                        "url": {
+                                                            "type": "string"
+                                                        },
+                                                        "headers": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "method",
+                                                        "url",
+                                                        "headers"
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "method": {
+                                                            "type": "string",
+                                                            "const": "PUT"
+                                                        },
+                                                        "url": {
+                                                            "type": "string"
+                                                        },
+                                                        "headers": {
+                                                            "type": "string"
+                                                        },
+                                                        "via": {
+                                                            "type": "string",
+                                                            "const": "api"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "method",
+                                                        "url",
+                                                        "headers",
+                                                        "via"
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "upload"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/files/{file}": {
+            "get": {
+                "operationId": "file.show",
+                "tags": [
+                    "File"
+                ],
+                "parameters": [
+                    {
+                        "name": "file",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "purpose": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "mime": {
+                                                    "type": "string"
+                                                },
+                                                "size": {
+                                                    "type": "integer"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "pending",
+                                                        "processing",
+                                                        "ready",
+                                                        "rejected",
+                                                        "failed"
+                                                    ]
+                                                },
+                                                "status_reason": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "variants": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "object",
+                                                            "additionalProperties": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "width": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "height": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "width",
+                                                                    "height"
+                                                                ]
+                                                            }
+                                                        },
+                                                        {
+                                                            "type": "string"
+                                                        }
+                                                    ]
+                                                },
+                                                "created_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "purpose",
+                                                "name",
+                                                "mime",
+                                                "size",
+                                                "status",
+                                                "status_reason",
+                                                "variants",
+                                                "created_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "file.destroy",
+                "tags": [
+                    "File"
+                ],
+                "parameters": [
+                    {
+                        "name": "file",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/files/{file}/content": {
+            "put": {
+                "operationId": "file.upload",
+                "summary": "Local storage only: the bytes come through the API",
+                "tags": [
+                    "File"
+                ],
+                "parameters": [
+                    {
+                        "name": "file",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "purpose": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "mime": {
+                                                    "type": "string"
+                                                },
+                                                "size": {
+                                                    "type": "integer"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "pending",
+                                                        "processing",
+                                                        "ready",
+                                                        "rejected",
+                                                        "failed"
+                                                    ]
+                                                },
+                                                "status_reason": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "variants": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "object",
+                                                            "additionalProperties": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "width": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "height": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "width",
+                                                                    "height"
+                                                                ]
+                                                            }
+                                                        },
+                                                        {
+                                                            "type": "string"
+                                                        }
+                                                    ]
+                                                },
+                                                "created_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "purpose",
+                                                "name",
+                                                "mime",
+                                                "size",
+                                                "status",
+                                                "status_reason",
+                                                "variants",
+                                                "created_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "get": {
+                "operationId": "file.content",
+                "summary": "Streams a ready file from local storage",
+                "tags": [
+                    "File"
+                ],
+                "parameters": [
+                    {
+                        "name": "file",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Transfer-Encoding": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "enum": [
+                                        "chunked"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/files/{file}/complete": {
+            "post": {
+                "operationId": "file.complete",
+                "tags": [
+                    "File"
+                ],
+                "parameters": [
+                    {
+                        "name": "file",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "purpose": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "mime": {
+                                                    "type": "string"
+                                                },
+                                                "size": {
+                                                    "type": "integer"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "pending",
+                                                        "processing",
+                                                        "ready",
+                                                        "rejected",
+                                                        "failed"
+                                                    ]
+                                                },
+                                                "status_reason": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "variants": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "object",
+                                                            "additionalProperties": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "width": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "height": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "width",
+                                                                    "height"
+                                                                ]
+                                                            }
+                                                        },
+                                                        {
+                                                            "type": "string"
+                                                        }
+                                                    ]
+                                                },
+                                                "created_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "purpose",
+                                                "name",
+                                                "mime",
+                                                "size",
+                                                "status",
+                                                "status_reason",
+                                                "variants",
+                                                "created_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/files/{file}/download": {
+            "get": {
+                "operationId": "file.download",
+                "tags": [
+                    "File"
+                ],
+                "parameters": [
+                    {
+                        "name": "file",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "url": {
+                                                    "type": "null"
+                                                },
+                                                "via": {
+                                                    "type": "string",
+                                                    "const": "api"
+                                                }
+                                            },
+                                            "required": [
+                                                "url",
+                                                "via"
+                                            ]
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "url": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "via": {
+                                                    "type": "string",
+                                                    "const": "direct"
+                                                }
+                                            },
+                                            "required": [
+                                                "url",
+                                                "via"
+                                            ]
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "url": {
+                                                    "type": "string"
+                                                },
+                                                "via": {
+                                                    "type": "string",
+                                                    "const": "api"
+                                                }
+                                            },
+                                            "required": [
+                                                "url",
+                                                "via"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/admin/settings/integrations": {
+            "get": {
+                "operationId": "integration.index",
+                "summary": "The catalogue of drivers with their fields, and what is set up for each",
+                "tags": [
+                    "Integration"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "type": {
+                                                        "type": "string"
+                                                    },
+                                                    "drivers": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "driver": {
+                                                                    "type": "string"
+                                                                },
+                                                                "label": {
+                                                                    "type": "string"
+                                                                },
+                                                                "description": {
+                                                                    "type": "string"
+                                                                },
+                                                                "capabilities": {
+                                                                    "type": "string"
+                                                                },
+                                                                "fields": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "name": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "label": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "secret": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "required": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "type": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "options": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "default": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "help": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "name",
+                                                                            "label",
+                                                                            "secret",
+                                                                            "required",
+                                                                            "type",
+                                                                            "options",
+                                                                            "default",
+                                                                            "help"
+                                                                        ]
+                                                                    }
+                                                                },
+                                                                "integration": {
+                                                                    "type": [
+                                                                        "object",
+                                                                        "null"
+                                                                    ],
+                                                                    "properties": {
+                                                                        "id": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "type": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "driver": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "mode": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "enabled": {
+                                                                            "type": "boolean"
+                                                                        },
+                                                                        "priority": {
+                                                                            "type": "integer"
+                                                                        },
+                                                                        "values": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "secrets": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "complete": {
+                                                                            "type": "boolean"
+                                                                        },
+                                                                        "testable": {
+                                                                            "type": "boolean"
+                                                                        },
+                                                                        "last_test": {
+                                                                            "type": [
+                                                                                "object",
+                                                                                "null"
+                                                                            ],
+                                                                            "properties": {
+                                                                                "at": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "ok": {
+                                                                                    "type": [
+                                                                                        "boolean",
+                                                                                        "null"
+                                                                                    ]
+                                                                                },
+                                                                                "message": {
+                                                                                    "type": [
+                                                                                        "string",
+                                                                                        "null"
+                                                                                    ]
+                                                                                }
+                                                                            },
+                                                                            "required": [
+                                                                                "at",
+                                                                                "ok",
+                                                                                "message"
+                                                                            ]
+                                                                        },
+                                                                        "updated_at": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "id",
+                                                                        "type",
+                                                                        "driver",
+                                                                        "mode",
+                                                                        "enabled",
+                                                                        "priority",
+                                                                        "values",
+                                                                        "secrets",
+                                                                        "complete",
+                                                                        "testable",
+                                                                        "last_test",
+                                                                        "updated_at"
+                                                                    ]
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "driver",
+                                                                "label",
+                                                                "description",
+                                                                "capabilities",
+                                                                "fields",
+                                                                "integration"
+                                                            ]
+                                                        }
+                                                    }
+                                                },
+                                                "required": [
+                                                    "type",
+                                                    "drivers"
+                                                ],
+                                                "additionalProperties": {}
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/admin/settings/integrations/order": {
+            "put": {
+                "operationId": "integration.reorder",
+                "tags": [
+                    "Integration"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "payment",
+                                            "sms",
+                                            "whatsapp",
+                                            "email",
+                                            "storage"
+                                        ]
+                                    },
+                                    "ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "minItems": 1
+                                    }
+                                },
+                                "required": [
+                                    "type",
+                                    "ids"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/admin/settings/integrations/{driver}": {
+            "put": {
+                "operationId": "integration.save",
+                "tags": [
+                    "Integration"
+                ],
+                "parameters": [
+                    {
+                        "name": "driver",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "type": {
+                                                    "type": "string"
+                                                },
+                                                "driver": {
+                                                    "type": "string"
+                                                },
+                                                "mode": {
+                                                    "type": "string"
+                                                },
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                },
+                                                "priority": {
+                                                    "type": "integer"
+                                                },
+                                                "values": {
+                                                    "type": "string"
+                                                },
+                                                "secrets": {
+                                                    "type": "string"
+                                                },
+                                                "complete": {
+                                                    "type": "boolean"
+                                                },
+                                                "testable": {
+                                                    "type": "boolean"
+                                                },
+                                                "last_test": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "at": {
+                                                            "type": "string"
+                                                        },
+                                                        "ok": {
+                                                            "type": [
+                                                                "boolean",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "message": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "at",
+                                                        "ok",
+                                                        "message"
+                                                    ]
+                                                },
+                                                "updated_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "type",
+                                                "driver",
+                                                "mode",
+                                                "enabled",
+                                                "priority",
+                                                "values",
+                                                "secrets",
+                                                "complete",
+                                                "testable",
+                                                "last_test",
+                                                "updated_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/admin/settings/integrations/{integration}/enable": {
+            "post": {
+                "operationId": "integration.enable",
+                "tags": [
+                    "Integration"
+                ],
+                "parameters": [
+                    {
+                        "name": "integration",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "type": {
+                                                    "type": "string"
+                                                },
+                                                "driver": {
+                                                    "type": "string"
+                                                },
+                                                "mode": {
+                                                    "type": "string"
+                                                },
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                },
+                                                "priority": {
+                                                    "type": "integer"
+                                                },
+                                                "values": {
+                                                    "type": "string"
+                                                },
+                                                "secrets": {
+                                                    "type": "string"
+                                                },
+                                                "complete": {
+                                                    "type": "boolean"
+                                                },
+                                                "testable": {
+                                                    "type": "boolean"
+                                                },
+                                                "last_test": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "at": {
+                                                            "type": "string"
+                                                        },
+                                                        "ok": {
+                                                            "type": [
+                                                                "boolean",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "message": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "at",
+                                                        "ok",
+                                                        "message"
+                                                    ]
+                                                },
+                                                "updated_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "type",
+                                                "driver",
+                                                "mode",
+                                                "enabled",
+                                                "priority",
+                                                "values",
+                                                "secrets",
+                                                "complete",
+                                                "testable",
+                                                "last_test",
+                                                "updated_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/admin/settings/integrations/{integration}/disable": {
+            "post": {
+                "operationId": "integration.disable",
+                "tags": [
+                    "Integration"
+                ],
+                "parameters": [
+                    {
+                        "name": "integration",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "type": {
+                                                    "type": "string"
+                                                },
+                                                "driver": {
+                                                    "type": "string"
+                                                },
+                                                "mode": {
+                                                    "type": "string"
+                                                },
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                },
+                                                "priority": {
+                                                    "type": "integer"
+                                                },
+                                                "values": {
+                                                    "type": "string"
+                                                },
+                                                "secrets": {
+                                                    "type": "string"
+                                                },
+                                                "complete": {
+                                                    "type": "boolean"
+                                                },
+                                                "testable": {
+                                                    "type": "boolean"
+                                                },
+                                                "last_test": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "at": {
+                                                            "type": "string"
+                                                        },
+                                                        "ok": {
+                                                            "type": [
+                                                                "boolean",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "message": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "at",
+                                                        "ok",
+                                                        "message"
+                                                    ]
+                                                },
+                                                "updated_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "type",
+                                                "driver",
+                                                "mode",
+                                                "enabled",
+                                                "priority",
+                                                "values",
+                                                "secrets",
+                                                "complete",
+                                                "testable",
+                                                "last_test",
+                                                "updated_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/admin/settings/integrations/{integration}/test": {
+            "post": {
+                "operationId": "integration.test",
+                "tags": [
+                    "Integration"
+                ],
+                "parameters": [
+                    {
+                        "name": "integration",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "ok": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "type": {
+                                                    "type": "string"
+                                                },
+                                                "driver": {
+                                                    "type": "string"
+                                                },
+                                                "mode": {
+                                                    "type": "string"
+                                                },
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                },
+                                                "priority": {
+                                                    "type": "integer"
+                                                },
+                                                "values": {
+                                                    "type": "string"
+                                                },
+                                                "secrets": {
+                                                    "type": "string"
+                                                },
+                                                "complete": {
+                                                    "type": "boolean"
+                                                },
+                                                "testable": {
+                                                    "type": "boolean"
+                                                },
+                                                "last_test": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "at": {
+                                                            "type": "string"
+                                                        },
+                                                        "ok": {
+                                                            "type": [
+                                                                "boolean",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "message": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "at",
+                                                        "ok",
+                                                        "message"
+                                                    ]
+                                                },
+                                                "updated_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "type",
+                                                "driver",
+                                                "mode",
+                                                "enabled",
+                                                "priority",
+                                                "values",
+                                                "secrets",
+                                                "complete",
+                                                "testable",
+                                                "last_test",
+                                                "updated_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "ok",
+                                        "message",
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/admin/settings/integrations/{integration}": {
+            "delete": {
+                "operationId": "integration.destroy",
+                "tags": [
+                    "Integration"
+                ],
+                "parameters": [
+                    {
+                        "name": "integration",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
@@ -3158,6 +4705,82 @@
                     },
                     "422": {
                         "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/images/{file}/{variant}": {
+            "get": {
+                "operationId": "files.publicImage",
+                "tags": [
+                    "PublicImage"
+                ],
+                "parameters": [
+                    {
+                        "name": "file",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "variant",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "image/webp": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "public, max-age=31536000, immutable"
+                                }
+                            },
+                            "ETag": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "X-Content-Type-Options": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "nosniff"
+                                }
+                            },
+                            "Content-Security-Policy": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "default-src 'none'"
+                                }
+                            }
+                        }
+                    },
+                    "304": {
+                        "description": "",
+                        "headers": {
+                            "ETag": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             }

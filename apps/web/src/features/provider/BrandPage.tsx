@@ -4,6 +4,7 @@ import { Alert, Button, Card, CardHeader, Field, PageHeader, useToast } from '@/
 import { call, errorMessage } from '@/lib/api';
 import { brandingQuery, meQuery, useMe } from '@/lib/session';
 import { DomainsPanel } from './DomainsPanel';
+import { LogoPicker } from './LogoPicker';
 
 /** Brand & domain: logo, colours and tagline with a live sign-in preview, plus domains. */
 export function BrandPage() {
@@ -14,6 +15,8 @@ export function BrandPage() {
   const [form, setForm] = useState({
     trading_name: me.tenant?.name ?? '',
     logo_url: current.logo_url ?? '',
+    // undefined: unchanged; null: remove; string: a newly uploaded file.
+    logo_file_id: undefined as string | null | undefined,
     primary: current.primary ?? '#4338ca',
     tagline: current.tagline ?? '',
   });
@@ -23,7 +26,11 @@ export function BrandPage() {
     mutationFn: () =>
       call('PATCH', '/tenant/branding', {
         trading_name: form.trading_name,
-        branding: { logo_url: form.logo_url || null, primary: form.primary, tagline: form.tagline || null },
+        branding: {
+          ...(form.logo_file_id !== undefined ? { logo_file_id: form.logo_file_id } : {}),
+          primary: form.primary,
+          tagline: form.tagline || null,
+        },
       }),
     onSuccess: () => {
       toast('Brand updated');
@@ -56,13 +63,10 @@ export function BrandPage() {
               value={form.trading_name}
               onChange={(e) => setForm({ ...form, trading_name: e.target.value })}
             />
-            <Field
-              label="Logo URL (HTTPS)"
-              type="url"
-              value={form.logo_url}
-              onChange={(e) => setForm({ ...form, logo_url: e.target.value })}
-              placeholder="https://…/logo.png"
-              hint="Logo upload arrives with the content module; a hosted link works today."
+            <LogoPicker
+              preview={form.logo_url || null}
+              onUploaded={(id, url) => setForm({ ...form, logo_file_id: id, logo_url: url })}
+              onClear={() => setForm({ ...form, logo_file_id: null, logo_url: '' })}
             />
             <div className="grid gap-1.5">
               <label className="text-small font-medium" htmlFor="primary">

@@ -57,6 +57,7 @@ export const en = {
   'nav.cells': 'Cells',
   'nav.staff': 'Platform staff',
   'nav.audit': 'Audit log',
+  'nav.settings': 'Settings',
   'nav.support': 'Support access',
   'nav.brand': 'Brand & domain',
   'nav.users': 'Users & roles',

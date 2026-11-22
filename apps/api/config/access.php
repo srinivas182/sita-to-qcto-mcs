@@ -24,6 +24,7 @@ return [
         'platform.users.manage' => 'Manage platform staff and their roles',
         'platform.audit.view' => 'Read the audit trail of every provider',
         'platform.support.request' => 'Ask a provider for support access',
+        'platform.settings.manage' => 'Company details, payment, messaging and storage settings',
         'regulator.view' => 'Read compliance evidence across providers',
         'verify.records' => 'Verify certificates and statements of results',
         'marketplace.jobs.manage' => 'Post jobs and review candidates',
@@ -52,7 +53,7 @@ return [
     'roles' => [
         'super-admin' => ['label' => 'Super Admin', 'scope' => 'platform', 'mfa' => true, 'permissions' => [
             'platform.tenants.view', 'platform.tenants.manage', 'platform.cells.view', 'platform.users.manage',
-            'platform.audit.view', 'platform.support.request',
+            'platform.audit.view', 'platform.support.request', 'platform.settings.manage',
         ]],
         'jv-compliance' => ['label' => 'JV compliance desk', 'scope' => 'platform', 'mfa' => true, 'permissions' => [
             'platform.tenants.view', 'platform.audit.view', 'regulator.view',

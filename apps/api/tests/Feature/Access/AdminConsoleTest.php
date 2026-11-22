@@ -5,31 +5,10 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Notification;
 use Modules\Access\Notifications\InvitationNotification;
 use Modules\Audit\Models\AuditLog;
-use Modules\Identity\Mfa\TotpService;
-use Modules\Identity\Models\MfaFactor;
-use Modules\Identity\Models\User;
 use Modules\Tenancy\Domains\DnsResolver;
 use Modules\Tenancy\Models\Cell;
 use Modules\Tenancy\Models\TenantDomain;
-use PragmaRX\Google2FA\Google2FA;
 use Tests\Support\FakeDns;
-
-/** Sign a platform staff member in on the admin host with MFA set up. */
-function signInStaff(object $test, string $role = 'super-admin', string $email = 'admin@tym-mcs.co.za'): User
-{
-    $user = makeStaff($role, ['email' => $email, 'password' => 'correct horse battery staple']);
-    asPlatform(fn () => app(TotpService::class)->begin($user, 'Skills'));
-    $secret = asPlatform(fn () => MfaFactor::query()->where('user_id', $user->id)->firstOrFail()->secret);
-    app(TotpService::class)->confirm($user, app(Google2FA::class)->getCurrentOtp($secret));
-    MfaFactor::query()->where('user_id', $user->id)->update(['last_timestep' => null]);
-
-    $test->flushHeaders()->flushSession();
-    $test->withHeaders(webOrigin('admin.skills.test'));
-    $token = $test->postJson('https://admin.skills.test/v1/auth/login', ['email' => $email, 'password' => 'correct horse battery staple'])->json('mfa_token');
-    $test->postJson('https://admin.skills.test/v1/auth/mfa/totp/challenge', ['mfa_token' => $token, 'code' => app(Google2FA::class)->getCurrentOtp($secret)])->assertOk();
-
-    return $user;
-}
 
 beforeEach(function (): void {
     Notification::fake();
