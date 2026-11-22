@@ -72,7 +72,7 @@ final class OtpService
         $message = "{$code} is your {$tenant->trading_name} sign-in PIN. It expires in ".intdiv($ttl, 60)
             .' minutes. Never share it.'.(is_string($host) ? "\n\n@{$host} #{$code}" : '');
 
-        $channel = $this->dispatcher->deliver($user->phone_e164, $message, $preferredChannel);
+        $channel = $this->dispatcher->deliver($user->phone_e164, $message, $preferredChannel, $code);
 
         if ($channel === null) {
             throw AuthError::deliveryFailed();

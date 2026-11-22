@@ -130,7 +130,7 @@ it('falls back to SMS when WhatsApp fails', function (): void {
                 return 'whatsapp';
             }
 
-            public function send(string $destination, string $message): bool
+            public function send(string $destination, string $message, ?string $code = null): bool
             {
                 throw new RuntimeException('provider down');
             }

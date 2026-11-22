@@ -119,6 +119,7 @@ return [
             'description' => 'Large SA provider with delivery receipts.',
             'capabilities' => ['send', 'delivery_receipts'],
             'fields' => [
+                'price_cents' => ['label' => 'Your price per message (cents, excl. VAT)', 'type' => 'number', 'help' => 'Used for the message log and re-billing.'],
                 'api_key' => ['label' => 'API key', 'secret' => true, 'required' => true],
                 'sender_id' => ['label' => 'Sender ID', 'help' => 'Optional. Approved alphanumeric sender or long number.'],
             ],
@@ -128,6 +129,7 @@ return [
             'description' => 'SA-founded provider with simple pricing.',
             'capabilities' => ['send', 'delivery_receipts'],
             'fields' => [
+                'price_cents' => ['label' => 'Your price per message (cents, excl. VAT)', 'type' => 'number', 'help' => 'Used for the message log and re-billing.'],
                 'token_id' => ['label' => 'Token ID', 'required' => true],
                 'token_secret' => ['label' => 'Token secret', 'secret' => true, 'required' => true],
                 'sender_id' => ['label' => 'Sender ID'],
@@ -138,6 +140,7 @@ return [
             'description' => 'SA provider with local routes and delivery reports.',
             'capabilities' => ['send', 'delivery_receipts'],
             'fields' => [
+                'price_cents' => ['label' => 'Your price per message (cents, excl. VAT)', 'type' => 'number', 'help' => 'Used for the message log and re-billing.'],
                 'client_id' => ['label' => 'Client ID', 'required' => true],
                 'api_secret' => ['label' => 'API secret', 'secret' => true, 'required' => true],
             ],
@@ -147,8 +150,9 @@ return [
             'description' => 'SA provider with direct network connections.',
             'capabilities' => ['send', 'delivery_receipts'],
             'fields' => [
+                'price_cents' => ['label' => 'Your price per message (cents, excl. VAT)', 'type' => 'number', 'help' => 'Used for the message log and re-billing.'],
                 'username' => ['label' => 'Username', 'required' => true],
-                'api_key' => ['label' => 'API key', 'secret' => true, 'required' => true],
+                'api_key' => ['label' => 'Password or API key', 'secret' => true, 'required' => true],
                 'sender_id' => ['label' => 'Sender ID'],
             ],
         ],
@@ -157,6 +161,7 @@ return [
             'description' => 'Global provider with an SA presence.',
             'capabilities' => ['send', 'delivery_receipts'],
             'fields' => [
+                'price_cents' => ['label' => 'Your price per message (cents, excl. VAT)', 'type' => 'number', 'help' => 'Used for the message log and re-billing.'],
                 'base_url' => ['label' => 'Base URL', 'type' => 'url', 'required' => true, 'help' => 'e.g. https://xxxxx.api.infobip.com'],
                 'api_key' => ['label' => 'API key', 'secret' => true, 'required' => true],
                 'sender_id' => ['label' => 'Sender ID'],
@@ -167,6 +172,7 @@ return [
             'description' => 'Global provider, useful as a last fallback.',
             'capabilities' => ['send', 'delivery_receipts'],
             'fields' => [
+                'price_cents' => ['label' => 'Your price per message (cents, excl. VAT)', 'type' => 'number', 'help' => 'Used for the message log and re-billing.'],
                 'account_sid' => ['label' => 'Account SID', 'required' => true],
                 'auth_token' => ['label' => 'Auth token', 'secret' => true, 'required' => true],
                 'from' => ['label' => 'From number or Messaging Service SID', 'required' => true],
@@ -179,11 +185,15 @@ return [
             'description' => 'Direct from Meta, no reseller markup. Needs a verified business and a dedicated number.',
             'capabilities' => ['send', 'templates', 'authentication', 'delivery_receipts'],
             'fields' => [
+                'price_cents' => ['label' => 'Your price per message (cents, excl. VAT)', 'type' => 'number', 'help' => 'Used for the message log and re-billing.'],
                 'phone_number_id' => ['label' => 'Phone number ID', 'required' => true],
                 'business_account_id' => ['label' => 'WhatsApp Business account ID', 'required' => true],
                 'access_token' => ['label' => 'Access token (system user)', 'secret' => true, 'required' => true],
                 'app_secret' => ['label' => 'App secret', 'secret' => true, 'required' => true, 'help' => 'Used to check that webhooks come from Meta.'],
-                'otp_template' => ['label' => 'Sign-in code template name', 'default' => 'sign_in_code'],
+                'otp_template' => ['label' => 'Sign-in code template name', 'default' => 'sign_in_code', 'help' => 'An approved authentication template with a copy-code (or one-tap) button.'],
+                'otp_language' => ['label' => 'Template language code', 'default' => 'en'],
+                'verify_token' => ['label' => 'Webhook verify token', 'help' => 'Any text; enter the same in Meta when adding the webhook. Leave blank to use the one shown below.'],
+                'graph_version' => ['label' => 'Graph API version', 'default' => 'v21.0'],
             ],
         ],
 

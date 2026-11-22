@@ -3,6 +3,7 @@ import {
   CreditCard,
   Gauge,
   LifeBuoy,
+  MessageSquareText,
   Palette,
   ScrollText,
   Server,
@@ -31,6 +32,13 @@ const platform: NavItem[] = [
   { to: '/support', label: 'nav.support', icon: LifeBuoy, group: 'manage', permission: 'platform.support.request' },
   { to: '/staff', label: 'nav.staff', icon: UserCog, group: 'manage', permission: 'platform.users.manage' },
   { to: '/audit', label: 'nav.audit', icon: ScrollText, group: 'manage', permission: 'platform.audit.view' },
+  {
+    to: '/messages',
+    label: 'nav.messages',
+    icon: MessageSquareText,
+    group: 'manage',
+    permission: 'platform.settings.manage',
+  },
   { to: '/settings', label: 'nav.settings', icon: Settings, group: 'manage', permission: 'platform.settings.manage' },
 ];
 

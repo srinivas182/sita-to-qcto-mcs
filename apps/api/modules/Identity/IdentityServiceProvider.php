@@ -61,7 +61,7 @@ final class IdentityServiceProvider extends ModuleServiceProvider
         return match ($driver) {
             'log' => new LogOtpChannel($name),
             default => $app->bound("otp.channel.{$driver}")
-                ? $app->make("otp.channel.{$driver}")
+                ? $app->make("otp.channel.{$driver}", ['channel' => $name])
                 : throw new RuntimeException("OTP driver [{$driver}] for channel [{$name}] is not installed."),
         };
     }

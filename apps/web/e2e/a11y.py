@@ -60,6 +60,8 @@ with sync_playwright() as p:
     admin.get_by_role('tab', name='Billing rules').click(); admin.get_by_role('heading', name='Billing rules').wait_for(); audit(admin, '/settings billing rules')
     admin.click('nav a[href="/billing"]'); admin.get_by_text('Monthly recurring').wait_for(); audit(admin, '/billing admin')
     admin.get_by_role('tab', name='packages').click(); admin.get_by_text('Starter').first.wait_for(); audit(admin, '/billing packages')
+    admin.click('nav a[href="/messages"]'); admin.get_by_text('By provider').wait_for(); audit(admin, '/messages')
+    admin.click('nav a[href="/settings"]'); admin.get_by_role('tab', name='SMS').click(); admin.get_by_text('Clickatell').first.wait_for(); audit(admin, '/settings sms')
     b.close()
 
 sys.exit(1 if failed else 0)

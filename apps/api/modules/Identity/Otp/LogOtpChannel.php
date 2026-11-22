@@ -23,7 +23,7 @@ final class LogOtpChannel implements OtpChannel
         return $this->channel;
     }
 
-    public function send(string $destination, string $message): bool
+    public function send(string $destination, string $message, ?string $code = null): bool
     {
         self::$sent[] = ['destination' => $destination, 'message' => $message, 'channel' => $this->channel];
 

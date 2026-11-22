@@ -5367,6 +5367,12 @@
                                                                         "testable": {
                                                                             "type": "boolean"
                                                                         },
+                                                                        "callback_url": {
+                                                                            "type": [
+                                                                                "string",
+                                                                                "null"
+                                                                            ]
+                                                                        },
                                                                         "last_test": {
                                                                             "type": [
                                                                                 "object",
@@ -5410,6 +5416,7 @@
                                                                         "secrets",
                                                                         "complete",
                                                                         "testable",
+                                                                        "callback_url",
                                                                         "last_test",
                                                                         "updated_at"
                                                                     ]
@@ -5557,6 +5564,12 @@
                                                 "testable": {
                                                     "type": "boolean"
                                                 },
+                                                "callback_url": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
                                                 "last_test": {
                                                     "type": [
                                                         "object",
@@ -5600,6 +5613,7 @@
                                                 "secrets",
                                                 "complete",
                                                 "testable",
+                                                "callback_url",
                                                 "last_test",
                                                 "updated_at"
                                             ]
@@ -5675,6 +5689,12 @@
                                                 "testable": {
                                                     "type": "boolean"
                                                 },
+                                                "callback_url": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
                                                 "last_test": {
                                                     "type": [
                                                         "object",
@@ -5718,6 +5738,7 @@
                                                 "secrets",
                                                 "complete",
                                                 "testable",
+                                                "callback_url",
                                                 "last_test",
                                                 "updated_at"
                                             ]
@@ -5796,6 +5817,12 @@
                                                 "testable": {
                                                     "type": "boolean"
                                                 },
+                                                "callback_url": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
                                                 "last_test": {
                                                     "type": [
                                                         "object",
@@ -5839,6 +5866,7 @@
                                                 "secrets",
                                                 "complete",
                                                 "testable",
+                                                "callback_url",
                                                 "last_test",
                                                 "updated_at"
                                             ]
@@ -5923,6 +5951,12 @@
                                                 "testable": {
                                                     "type": "boolean"
                                                 },
+                                                "callback_url": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
                                                 "last_test": {
                                                     "type": [
                                                         "object",
@@ -5966,6 +6000,7 @@
                                                 "secrets",
                                                 "complete",
                                                 "testable",
+                                                "callback_url",
                                                 "last_test",
                                                 "updated_at"
                                             ]
@@ -7163,6 +7198,330 @@
                     },
                     "403": {
                         "$ref": "#/components/responses/AuthorizationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/admin/messages": {
+            "get": {
+                "operationId": "messageAdmin.index",
+                "tags": [
+                    "MessageAdmin"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "tenant_id": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "channel": {
+                                                        "type": "string"
+                                                    },
+                                                    "driver": {
+                                                        "type": "string"
+                                                    },
+                                                    "purpose": {
+                                                        "type": "string"
+                                                    },
+                                                    "to": {
+                                                        "type": "string"
+                                                    },
+                                                    "status": {
+                                                        "type": "string"
+                                                    },
+                                                    "cost_cents": {
+                                                        "type": [
+                                                            "integer",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "error": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "fallback": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "sent_at": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "delivered_at": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string"
+                                                    },
+                                                    "tenant": {}
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "tenant_id",
+                                                    "channel",
+                                                    "driver",
+                                                    "purpose",
+                                                    "to",
+                                                    "status",
+                                                    "cost_cents",
+                                                    "error",
+                                                    "fallback",
+                                                    "sent_at",
+                                                    "delivered_at",
+                                                    "created_at",
+                                                    "tenant"
+                                                ]
+                                            }
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer"
+                                                },
+                                                "page": {
+                                                    "type": "integer"
+                                                },
+                                                "last_page": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "required": [
+                                                "total",
+                                                "page",
+                                                "last_page"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/admin/messages/summary": {
+            "get": {
+                "operationId": "messageAdmin.summary",
+                "summary": "This month: messages, delivery rate and cost by provider and by training provider",
+                "tags": [
+                    "MessageAdmin"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "since": {
+                                            "type": "string"
+                                        },
+                                        "by_driver": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "driver": {
+                                                        "type": "string"
+                                                    },
+                                                    "channel": {
+                                                        "type": "string"
+                                                    },
+                                                    "sent": {
+                                                        "type": "integer"
+                                                    },
+                                                    "delivered": {
+                                                        "type": "integer"
+                                                    },
+                                                    "failed": {
+                                                        "type": "integer"
+                                                    },
+                                                    "cost_cents": {
+                                                        "type": "integer"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "driver",
+                                                    "channel",
+                                                    "sent",
+                                                    "delivered",
+                                                    "failed",
+                                                    "cost_cents"
+                                                ]
+                                            }
+                                        },
+                                        "by_tenant": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "tenant": {
+                                                        "anyOf": [
+                                                            {
+                                                                "type": "string"
+                                                            },
+                                                            {
+                                                                "type": "null"
+                                                            },
+                                                            {
+                                                                "type": "string",
+                                                                "enum": [
+                                                                    "Platform"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    },
+                                                    "sent": {
+                                                        "type": "integer"
+                                                    },
+                                                    "cost_cents": {
+                                                        "type": "integer"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "tenant",
+                                                    "sent",
+                                                    "cost_cents"
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "since",
+                                        "by_driver",
+                                        "by_tenant"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/admin/settings/integrations/{integration}/send-test": {
+            "post": {
+                "operationId": "messageAdmin.sendTest",
+                "summary": "Send a real test message through one provider",
+                "tags": [
+                    "MessageAdmin"
+                ],
+                "parameters": [
+                    {
+                        "name": "integration",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "to": {
+                                        "type": "string",
+                                        "maxLength": 20
+                                    }
+                                },
+                                "required": [
+                                    "to"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "sent": {
+                                            "type": "string"
+                                        },
+                                        "error": {
+                                            "type": "string"
+                                        },
+                                        "message": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "sent",
+                                        "error",
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
@@ -11114,6 +11473,115 @@
         "/webhooks/payments/{driver}": {
             "post": {
                 "operationId": "billing.webhook",
+                "tags": [
+                    "Webhook"
+                ],
+                "parameters": [
+                    {
+                        "name": "driver",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "invalid signature"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
+        "/webhooks/messaging/{driver}": {
+            "get": {
+                "operationId": "webhook.verify",
+                "summary": "Meta's webhook set-up handshake",
+                "tags": [
+                    "Webhook"
+                ],
+                "parameters": [
+                    {
+                        "name": "driver",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string",
+                                    "const": "forbidden"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "webhook.receive",
                 "tags": [
                     "Webhook"
                 ],

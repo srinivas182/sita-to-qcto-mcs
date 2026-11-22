@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Schedule;
 use Modules\Billing\Console\RunBilling;
 use Modules\Billing\Gateways\Gateways;
 use Modules\Billing\Gateways\GatewayTester;
+use Modules\Settings\Services\IntegrationCallbacks;
 use Modules\Settings\Services\IntegrationTesters;
 use Modules\Support\ModuleServiceProvider;
 
@@ -29,6 +30,11 @@ final class BillingServiceProvider extends ModuleServiceProvider
             if (method_exists($class, 'ping')) {
                 $testers->register($driver, GatewayTester::class);
             }
+        }
+
+        $callbacks = $this->app->make(IntegrationCallbacks::class);
+        foreach (array_keys(Gateways::ADAPTERS) as $driver) {
+            $callbacks->register($driver, fn () => Gateways::webhookUrl($driver));
         }
 
         if ($this->app->runningInConsole()) {

@@ -275,3 +275,19 @@ a second, independent way before an invoice is marked paid.
 - Peach's success codes: we use the standard processed-successfully code pattern.
 
 Each gateway's Settings dialog says this.
+
+---
+
+## 12. Part 2c: Messaging. What leaders do, their weak spots, and what we add
+
+Leaders reviewed: Twilio (Messaging, Verify), Infobip, Clickatell One API, Bird,
+and Meta's WhatsApp Cloud API.
+
+| Area | What leaders do (we adopt) | Weak spots for SA training providers | Our addition |
+|---|---|---|---|
+| Channels | One API for SMS and WhatsApp (Clickatell One API, Infobip); delivery receipts | Tied to a single vendor; switching means rewriting | **Any mix of six SA SMS providers + Meta WhatsApp** behind one interface. The Super Admin picks and orders them in Settings |
+| Failover | Twilio and Infobip retry within their own network | No failover across vendors; one outage blocks every sign-in | **Cross-provider failover**: WhatsApp first, then SMS providers in the Super Admin's order. Every attempt is logged |
+| Sign-in codes | Twilio Verify, Infobip 2FA (paid per verification); WhatsApp authentication templates with a copy-code or one-tap button | Paid per verification on top of message costs; SMS-only by default in SA | **WhatsApp authentication template** (copy-code button; one-tap on Android once the native module ships) with SMS fallback. Codes are never stored or logged in plain text |
+| Receipts and costs | Dashboards per account | Costs aren't split per customer, so a platform can't recharge them | **Message log with status and cost per provider and per training provider**, for re-billing and dispute handling |
+| Security | Signed webhooks (Twilio, Meta) | Many SA providers' callbacks are unsigned | Every callback is verified: Meta HMAC-SHA256, Twilio HMAC-SHA1, and a secret per-integration key in the callback URL for the providers that don't sign |
+| Email | SMTP/SES set up in code | Changing provider needs a deployment | **Email provider chosen in Settings** (SMTP or Amazon SES) with its own sender address; the platform mailer follows it |

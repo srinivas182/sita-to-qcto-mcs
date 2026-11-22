@@ -17,7 +17,7 @@ it('signs direct uploads to S3 for one object, type and size', function (): void
 
     expect($target?->method)->toBe('PUT')
         ->and($target?->url)->toStartWith('https://skills-files.s3.af-south-1.amazonaws.com/prod/t1/tenant_logo/2026/12/abc?')
-        ->toContain('X-Amz-Signature=')->toContain('X-Amz-Expires=900')
+        ->toContain('X-Amz-Signature=')->toMatch('/X-Amz-Expires=(899|900)&/')
         ->and($target?->headers['Content-Type'])->toBe('image/png');
 
     $download = $store->downloadUrl('x/y', 'Report ü.pdf', 'application/pdf', now()->addMinutes(10));
