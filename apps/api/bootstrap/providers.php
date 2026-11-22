@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Providers\AppServiceProvider;
 use Modules\Access\AccessServiceProvider;
 use Modules\Audit\AuditServiceProvider;
+use Modules\Billing\BillingServiceProvider;
 use Modules\Files\FilesServiceProvider;
 use Modules\Identity\IdentityServiceProvider;
 use Modules\Platform\PlatformServiceProvider;
@@ -20,4 +21,5 @@ return [
     AccessServiceProvider::class,
     SettingsServiceProvider::class,
     FilesServiceProvider::class,
+    BillingServiceProvider::class,
 ];

@@ -47,7 +47,7 @@ describe('webauthn encoding', () => {
 
 describe('navigation', () => {
   it('shows provider screens only with the permission for them', () => {
-    const tenant = { id: 't', code: 'tym', name: 'TYM', status: 'active', branding: {} };
+    const tenant = { id: 't', code: 'tym', name: 'TYM', status: 'active', branding: {}, billing: null };
     const learner = navFor(me({ tenant, permissions: ['learning.self'] })).map((i) => i.to);
     const owner = navFor(
       me({

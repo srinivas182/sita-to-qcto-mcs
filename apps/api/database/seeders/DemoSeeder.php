@@ -6,11 +6,16 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Modules\Access\Services\AccessService;
+use Modules\Billing\Models\BillingProfile;
+use Modules\Billing\Models\Package;
+use Modules\Billing\Models\Subscription;
+use Modules\Billing\Support\SubscriptionStatus;
 use Modules\Identity\Models\MfaFactor;
 use Modules\Identity\Models\User;
 use Modules\Identity\Models\UserTenant;
 use Modules\Identity\Support\IdType;
 use Modules\Identity\Support\MembershipStatus;
+use Modules\Settings\Models\PlatformSetting;
 use Modules\Tenancy\Context\TenantContext;
 use Modules\Tenancy\Models\Centre;
 use Modules\Tenancy\Models\Tenant;
@@ -70,7 +75,31 @@ final class DemoSeeder extends Seeder
                     UserTenant::query()->firstOrCreate(['user_id' => $user->id], ['status' => MembershipStatus::Active, 'joined_at' => now(), 'centre_id' => $centre]);
                     $access->assign($user, $role, $centre);
                 }
+
+                // Demo plan: Growth (example pricing) in its trial, with invoice details.
+                if (! Subscription::query()->exists()) {
+                    Subscription::query()->create([
+                        'package_id' => Package::query()->where('code', 'growth')->value('id'),
+                        'interval' => 'month',
+                        'status' => SubscriptionStatus::Trialing,
+                        'collection' => 'invoice',
+                        'trial_ends_at' => now()->addDays(5),
+                    ]);
+                }
+                BillingProfile::query()->updateOrCreate([], [
+                    'legal_name' => 'Training Young Minds (Pty) Ltd', 'vat_number' => '4987654321',
+                    'address_line1' => '12 Vilakazi Street', 'city' => 'Soweto', 'province' => 'Gauteng',
+                    'postal_code' => '1804', 'email' => 'finance@demo.test',
+                ]);
             });
+
+            // Demo supplier details (replace in Settings → Company before real invoices).
+            PlatformSetting::query()->firstOrCreate(['key' => 'company'], ['value' => [
+                'registered_name' => 'TYM MCS Skills JV (Pty) Ltd (demo)', 'vat_number' => '4123456789',
+                'address_line1' => '1 Demo Road', 'city' => 'Johannesburg', 'province' => 'Gauteng', 'postal_code' => '2001',
+                'country' => 'ZA', 'email' => 'accounts@demo.test', 'invoice_prefix' => 'DEMO', 'currency' => 'ZAR', 'vat_rate' => 15,
+                'bank_details' => "Demo Bank\nAccount 000 000 000\nBranch 000000",
+            ]]);
         });
 
         $this->command?->info('Demo ready. Password: '.self::PASSWORD.' · TOTP secret: '.self::TOTP_SECRET);

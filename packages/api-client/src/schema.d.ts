@@ -36,6 +36,280 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/billing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["billing.show"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/billing/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["billing.profile"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/billing/subscribe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["billing.subscribe"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/billing/change": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["billing.change"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/billing/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["billing.cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/billing/resume": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["billing.resume"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/billing/collection": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Pay automatically with the saved card, or pay each invoice yourself */
+        put: operations["billing.collection"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/billing/payment-method": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["billing.removeCard"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/billing/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["billingAdmin.overview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/billing/packages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["billingAdmin.packages"];
+        put?: never;
+        post: operations["billingAdmin.storePackage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/billing/packages/{package}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["billingAdmin.updatePackage"];
+        trace?: never;
+    };
+    "/admin/billing/subscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["billingAdmin.subscriptions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/billing/invoices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["billingAdmin.invoices"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/billing/invoices/{invoice}/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["billingAdmin.pdf"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/billing/invoices/{invoice}/eft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Record an EFT that arrived in the JV's bank account */
+        post: operations["billingAdmin.recordEft"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/billing/invoices/{invoice}/credit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["billingAdmin.credit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/settings/billing-rules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["billingAdmin.rules"];
+        put: operations["billingAdmin.updateRules"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/settings/company": {
         parameters: {
             query?: never;
@@ -575,6 +849,103 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/invoices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["invoice.index"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invoices/{invoice}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["invoice.show"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invoices/{invoice}/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["invoice.pdf"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invoices/{invoice}/pay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["invoice.pay"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/credit-notes/{note}/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["invoice.creditNotePdf"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payments/{reference}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** After returning from the gateway: the payment's outcome */
+        get: operations["invoice.payment"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/mfa/totp/enable": {
         parameters: {
             query?: never;
@@ -665,6 +1036,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["otp.verify"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/packages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["billing.package"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1273,6 +1660,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/webhooks/payments/{driver}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["billing.webhook"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1330,6 +1733,11 @@ export interface components {
                 branding: {
                     [key: string]: string;
                 };
+                /** @description Plan status for the console banner (null: no plan). */
+                billing: {
+                    status: string;
+                    trial_ends_at: string | null;
+                } | null;
             } | null;
             roles: {
                 role: string;
@@ -1535,6 +1943,956 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
+        };
+    };
+    "billing.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        subscription: {
+                            id: string;
+                            /** @enum {string} */
+                            status: "trialing" | "active" | "past_due" | "read_only" | "suspended" | "cancelled";
+                            interval: string;
+                            collection: string;
+                            package: {
+                                id: string;
+                                code: string;
+                                name: string;
+                                description: string | null;
+                                features: string[];
+                                base_fee_cents: number;
+                                annual_fee_cents: number;
+                                per_learner_cents: number;
+                                included_learners: number;
+                                max_learners: number | null;
+                                max_centres: number | null;
+                                annual_discount_percent: number;
+                                trial_days: number;
+                                is_example: boolean;
+                                active: boolean;
+                                public: boolean;
+                                sort: number;
+                            };
+                            pending_package: {
+                                id: string;
+                                code: string;
+                                name: string;
+                                description: string | null;
+                                features: string[];
+                                base_fee_cents: number;
+                                annual_fee_cents: number;
+                                per_learner_cents: number;
+                                included_learners: number;
+                                max_learners: number | null;
+                                max_centres: number | null;
+                                annual_discount_percent: number;
+                                trial_days: number;
+                                is_example: boolean;
+                                active: boolean;
+                                public: boolean;
+                                sort: number;
+                            } | null;
+                            trial_ends_at: string | null;
+                            current_period_start: string | null;
+                            current_period_end: string | null;
+                            cancel_at_period_end: boolean;
+                            cancelled_at: string | null;
+                            past_due_since: string | null;
+                        } | null;
+                        estimate: string | null;
+                        profile: {
+                            [key: string]: unknown;
+                        } | null;
+                        payment_method: {
+                            id: string;
+                            driver: string;
+                            brand: string | null;
+                            last4: string | null;
+                            exp_month: number | null;
+                            exp_year: number | null;
+                            expired: boolean;
+                        } | null;
+                        open_invoices: {
+                            id: string;
+                            number: string | null;
+                            status: string;
+                            currency: string;
+                            subtotal_cents: number;
+                            vat_rate: number;
+                            vat_cents: number;
+                            total_cents: number;
+                            amount_paid_cents: number;
+                            amount_credited_cents: number;
+                            amount_due_cents: number;
+                            eft_reference: string;
+                            period_start: string | null;
+                            period_end: string | null;
+                            issued_at: string;
+                            due_at: string;
+                            paid_at: string | null;
+                            recipient: {
+                                legal_name: unknown;
+                            };
+                        }[];
+                        packages: {
+                            id: string;
+                            code: string;
+                            name: string;
+                            description: string | null;
+                            features: string[];
+                            base_fee_cents: number;
+                            annual_fee_cents: number;
+                            per_learner_cents: number;
+                            included_learners: number;
+                            max_learners: number | null;
+                            max_centres: number | null;
+                            annual_discount_percent: number;
+                            trial_days: number;
+                            is_example: boolean;
+                            active: boolean;
+                            public: boolean;
+                            sort: number;
+                        }[];
+                        gateways: string;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "billing.profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        profile: {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "billing.subscribe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    package_id: string;
+                    /** @enum {string} */
+                    interval: "month" | "year";
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        subscription: {
+                            id: string;
+                            /** @enum {string} */
+                            status: "trialing" | "active" | "past_due" | "read_only" | "suspended" | "cancelled";
+                            interval: string;
+                            collection: string;
+                            package: {
+                                id: string;
+                                code: string;
+                                name: string;
+                                description: string | null;
+                                features: string[];
+                                base_fee_cents: number;
+                                annual_fee_cents: number;
+                                per_learner_cents: number;
+                                included_learners: number;
+                                max_learners: number | null;
+                                max_centres: number | null;
+                                annual_discount_percent: number;
+                                trial_days: number;
+                                is_example: boolean;
+                                active: boolean;
+                                public: boolean;
+                                sort: number;
+                            };
+                            pending_package: {
+                                id: string;
+                                code: string;
+                                name: string;
+                                description: string | null;
+                                features: string[];
+                                base_fee_cents: number;
+                                annual_fee_cents: number;
+                                per_learner_cents: number;
+                                included_learners: number;
+                                max_learners: number | null;
+                                max_centres: number | null;
+                                annual_discount_percent: number;
+                                trial_days: number;
+                                is_example: boolean;
+                                active: boolean;
+                                public: boolean;
+                                sort: number;
+                            } | null;
+                            trial_ends_at: string | null;
+                            current_period_start: string | null;
+                            current_period_end: string | null;
+                            cancel_at_period_end: boolean;
+                            cancelled_at: string | null;
+                            past_due_since: string | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "billing.change": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    package_id: string;
+                    /** @enum {string} */
+                    interval: "month" | "year";
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        subscription: {
+                            id: string;
+                            /** @enum {string} */
+                            status: "trialing" | "active" | "past_due" | "read_only" | "suspended" | "cancelled";
+                            interval: string;
+                            collection: string;
+                            package: {
+                                id: string;
+                                code: string;
+                                name: string;
+                                description: string | null;
+                                features: string[];
+                                base_fee_cents: number;
+                                annual_fee_cents: number;
+                                per_learner_cents: number;
+                                included_learners: number;
+                                max_learners: number | null;
+                                max_centres: number | null;
+                                annual_discount_percent: number;
+                                trial_days: number;
+                                is_example: boolean;
+                                active: boolean;
+                                public: boolean;
+                                sort: number;
+                            };
+                            pending_package: {
+                                id: string;
+                                code: string;
+                                name: string;
+                                description: string | null;
+                                features: string[];
+                                base_fee_cents: number;
+                                annual_fee_cents: number;
+                                per_learner_cents: number;
+                                included_learners: number;
+                                max_learners: number | null;
+                                max_centres: number | null;
+                                annual_discount_percent: number;
+                                trial_days: number;
+                                is_example: boolean;
+                                active: boolean;
+                                public: boolean;
+                                sort: number;
+                            } | null;
+                            trial_ends_at: string | null;
+                            current_period_start: string | null;
+                            current_period_end: string | null;
+                            cancel_at_period_end: boolean;
+                            cancelled_at: string | null;
+                            past_due_since: string | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "billing.cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        subscription: {
+                            id: string;
+                            /** @enum {string} */
+                            status: "trialing" | "active" | "past_due" | "read_only" | "suspended" | "cancelled";
+                            interval: string;
+                            collection: string;
+                            package: {
+                                id: string;
+                                code: string;
+                                name: string;
+                                description: string | null;
+                                features: string[];
+                                base_fee_cents: number;
+                                annual_fee_cents: number;
+                                per_learner_cents: number;
+                                included_learners: number;
+                                max_learners: number | null;
+                                max_centres: number | null;
+                                annual_discount_percent: number;
+                                trial_days: number;
+                                is_example: boolean;
+                                active: boolean;
+                                public: boolean;
+                                sort: number;
+                            };
+                            pending_package: {
+                                id: string;
+                                code: string;
+                                name: string;
+                                description: string | null;
+                                features: string[];
+                                base_fee_cents: number;
+                                annual_fee_cents: number;
+                                per_learner_cents: number;
+                                included_learners: number;
+                                max_learners: number | null;
+                                max_centres: number | null;
+                                annual_discount_percent: number;
+                                trial_days: number;
+                                is_example: boolean;
+                                active: boolean;
+                                public: boolean;
+                                sort: number;
+                            } | null;
+                            trial_ends_at: string | null;
+                            current_period_start: string | null;
+                            current_period_end: string | null;
+                            cancel_at_period_end: boolean;
+                            cancelled_at: string | null;
+                            past_due_since: string | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "billing.resume": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        subscription: {
+                            id: string;
+                            /** @enum {string} */
+                            status: "trialing" | "active" | "past_due" | "read_only" | "suspended" | "cancelled";
+                            interval: string;
+                            collection: string;
+                            package: {
+                                id: string;
+                                code: string;
+                                name: string;
+                                description: string | null;
+                                features: string[];
+                                base_fee_cents: number;
+                                annual_fee_cents: number;
+                                per_learner_cents: number;
+                                included_learners: number;
+                                max_learners: number | null;
+                                max_centres: number | null;
+                                annual_discount_percent: number;
+                                trial_days: number;
+                                is_example: boolean;
+                                active: boolean;
+                                public: boolean;
+                                sort: number;
+                            };
+                            pending_package: {
+                                id: string;
+                                code: string;
+                                name: string;
+                                description: string | null;
+                                features: string[];
+                                base_fee_cents: number;
+                                annual_fee_cents: number;
+                                per_learner_cents: number;
+                                included_learners: number;
+                                max_learners: number | null;
+                                max_centres: number | null;
+                                annual_discount_percent: number;
+                                trial_days: number;
+                                is_example: boolean;
+                                active: boolean;
+                                public: boolean;
+                                sort: number;
+                            } | null;
+                            trial_ends_at: string | null;
+                            current_period_start: string | null;
+                            current_period_end: string | null;
+                            cancel_at_period_end: boolean;
+                            cancelled_at: string | null;
+                            past_due_since: string | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "billing.collection": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    collection: "auto" | "invoice";
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        subscription: {
+                            id: string;
+                            /** @enum {string} */
+                            status: "trialing" | "active" | "past_due" | "read_only" | "suspended" | "cancelled";
+                            interval: string;
+                            collection: string;
+                            package: {
+                                id: string;
+                                code: string;
+                                name: string;
+                                description: string | null;
+                                features: string[];
+                                base_fee_cents: number;
+                                annual_fee_cents: number;
+                                per_learner_cents: number;
+                                included_learners: number;
+                                max_learners: number | null;
+                                max_centres: number | null;
+                                annual_discount_percent: number;
+                                trial_days: number;
+                                is_example: boolean;
+                                active: boolean;
+                                public: boolean;
+                                sort: number;
+                            };
+                            pending_package: {
+                                id: string;
+                                code: string;
+                                name: string;
+                                description: string | null;
+                                features: string[];
+                                base_fee_cents: number;
+                                annual_fee_cents: number;
+                                per_learner_cents: number;
+                                included_learners: number;
+                                max_learners: number | null;
+                                max_centres: number | null;
+                                annual_discount_percent: number;
+                                trial_days: number;
+                                is_example: boolean;
+                                active: boolean;
+                                public: boolean;
+                                sort: number;
+                            } | null;
+                            trial_ends_at: string | null;
+                            current_period_start: string | null;
+                            current_period_end: string | null;
+                            cancel_at_period_end: boolean;
+                            cancelled_at: string | null;
+                            past_due_since: string | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "billing.removeCard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        removed: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "billingAdmin.overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        subscriptions: unknown[];
+                        mrr_cents: string;
+                        overdue: {
+                            count: number;
+                            amount_cents: number;
+                        };
+                        collected_this_month: {
+                            driver: string;
+                            count: number;
+                            amount_cents: number;
+                        }[];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "billingAdmin.packages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            code: string;
+                            name: string;
+                            description: string | null;
+                            features: string[];
+                            base_fee_cents: number;
+                            annual_fee_cents: number;
+                            per_learner_cents: number;
+                            included_learners: number;
+                            max_learners: number | null;
+                            max_centres: number | null;
+                            annual_discount_percent: number;
+                            trial_days: number;
+                            is_example: boolean;
+                            active: boolean;
+                            public: boolean;
+                            sort: number;
+                        }[];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "billingAdmin.storePackage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            code: string;
+                            name: string;
+                            description: string | null;
+                            features: string[];
+                            base_fee_cents: number;
+                            annual_fee_cents: number;
+                            per_learner_cents: number;
+                            included_learners: number;
+                            max_learners: number | null;
+                            max_centres: number | null;
+                            annual_discount_percent: number;
+                            trial_days: number;
+                            is_example: boolean;
+                            active: boolean;
+                            public: boolean;
+                            sort: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "billingAdmin.updatePackage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                package: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            code: string;
+                            name: string;
+                            description: string | null;
+                            features: string[];
+                            base_fee_cents: number;
+                            annual_fee_cents: number;
+                            per_learner_cents: number;
+                            included_learners: number;
+                            max_learners: number | null;
+                            max_centres: number | null;
+                            annual_discount_percent: number;
+                            trial_days: number;
+                            is_example: boolean;
+                            active: boolean;
+                            public: boolean;
+                            sort: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "billingAdmin.subscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            tenant: {
+                                id: string;
+                                name: string | null;
+                                code: string | null;
+                            };
+                            package: string;
+                            /** @enum {string} */
+                            status: "trialing" | "active" | "past_due" | "read_only" | "suspended" | "cancelled";
+                            interval: string;
+                            collection: string;
+                            trial_ends_at: string | null;
+                            current_period_end: string | null;
+                            past_due_since: string | null;
+                        }[];
+                        meta: {
+                            total: number;
+                            page: number;
+                            last_page: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "billingAdmin.invoices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            number: string | null;
+                            status: string;
+                            currency: string;
+                            subtotal_cents: number;
+                            vat_rate: number;
+                            vat_cents: number;
+                            total_cents: number;
+                            amount_paid_cents: number;
+                            amount_credited_cents: number;
+                            amount_due_cents: number;
+                            eft_reference: string;
+                            period_start: string | null;
+                            period_end: string | null;
+                            issued_at: string;
+                            due_at: string;
+                            paid_at: string | null;
+                            recipient: {
+                                legal_name: unknown;
+                            };
+                            tenant: {
+                                id: string;
+                                name: string | null;
+                            };
+                        }[];
+                        meta: {
+                            total: number;
+                            page: number;
+                            last_page: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "billingAdmin.pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invoice: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "billingAdmin.recordEft": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invoice: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    amount_cents: number;
+                    bank_reference: string;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: string;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "billingAdmin.credit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invoice: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    amount_cents: number;
+                    reason: string;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            number: string;
+                            total_cents: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "billingAdmin.rules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: string;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "billingAdmin.updateRules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: string;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
         };
     };
     "company.show": {
@@ -2816,6 +4174,258 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
+    "invoice.index": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            number: string | null;
+                            status: string;
+                            currency: string;
+                            subtotal_cents: number;
+                            vat_rate: number;
+                            vat_cents: number;
+                            total_cents: number;
+                            amount_paid_cents: number;
+                            amount_credited_cents: number;
+                            amount_due_cents: number;
+                            eft_reference: string;
+                            period_start: string | null;
+                            period_end: string | null;
+                            issued_at: string;
+                            due_at: string;
+                            paid_at: string | null;
+                            recipient: {
+                                legal_name: unknown;
+                            };
+                        }[];
+                        credit_notes: {
+                            id: string;
+                            number: string;
+                            invoice_id: string;
+                            reason: string;
+                            total_cents: number;
+                            issued_at: string;
+                        }[];
+                        meta: {
+                            total: number;
+                            page: number;
+                            last_page: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "invoice.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invoice: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            number: string | null;
+                            status: string;
+                            currency: string;
+                            subtotal_cents: number;
+                            vat_rate: number;
+                            vat_cents: number;
+                            total_cents: number;
+                            amount_paid_cents: number;
+                            amount_credited_cents: number;
+                            amount_due_cents: number;
+                            eft_reference: string;
+                            period_start: string | null;
+                            period_end: string | null;
+                            issued_at: string;
+                            due_at: string;
+                            paid_at: string | null;
+                            recipient: {
+                                legal_name: unknown;
+                            };
+                            lines: {
+                                kind: string;
+                                description: string;
+                                quantity: number;
+                                unit_cents: number;
+                                amount_cents: number;
+                            }[];
+                            payments: {
+                                id: string;
+                                reference: string;
+                                invoice_id: string;
+                                driver: string;
+                                method: string;
+                                amount_cents: number;
+                                status: string;
+                                failure_message: string | null;
+                                paid_at: string | null;
+                                created_at: string;
+                            }[];
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "invoice.pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invoice: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    "Content-Disposition"?: string;
+                    "Cache-Control"?: "private, max-age=300";
+                    "X-Content-Type-Options"?: "nosniff";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "invoice.pay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invoice: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    driver: string;
+                    /** @enum {string} */
+                    method: "card" | "instant_eft";
+                    save_card?: boolean;
+                    /** Format: uri */
+                    return_url: string;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        payment: string;
+                        checkout: string;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Error overview. */
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "invoice.creditNotePdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                note: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    "Content-Disposition"?: string;
+                    "Cache-Control"?: "private, max-age=300";
+                    "X-Content-Type-Options"?: "nosniff";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "invoice.payment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                reference: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: string;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
     "mfa.enable": {
         parameters: {
             query?: never;
@@ -3021,6 +4631,47 @@ export interface operations {
                     "application/json": {
                         /** @description Error overview. */
                         message: string;
+                    };
+                };
+            };
+        };
+    };
+    "billing.package": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            code: string;
+                            name: string;
+                            description: string | null;
+                            features: string[];
+                            base_fee_cents: number;
+                            annual_fee_cents: number;
+                            per_learner_cents: number;
+                            included_learners: number;
+                            max_learners: number | null;
+                            max_centres: number | null;
+                            annual_discount_percent: number;
+                            trial_days: number;
+                            is_example: boolean;
+                            active: boolean;
+                            public: boolean;
+                            sort: number;
+                        }[];
+                        vat_inclusive: boolean;
+                        example_pricing: boolean;
                     };
                 };
             };
@@ -4487,6 +6138,48 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "billing.webhook": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                driver: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": "invalid signature";
+                };
+            };
+            404: components["responses"]["ModelNotFoundException"];
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Error overview. */
+                        message: string;
+                    };
+                };
+            };
         };
     };
 }

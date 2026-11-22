@@ -8,6 +8,8 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Modules\Access\Exceptions\AccessError;
+use Modules\Billing\Exceptions\BillingError;
+use Modules\Billing\Http\Middleware\EnforceSubscription;
 use Modules\Files\Exceptions\FileError;
 use Modules\Identity\Exceptions\AuthError;
 use Modules\Identity\Http\Middleware\SecurityHeaders;
@@ -30,7 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // (or the X-Tenant header on platform hosts), then gets a cookie session if
         // it comes from the same-origin web app. Health checks are outside this group.
         $middleware->prependToGroup('api', [ResolveTenant::class, StatefulSameOrigin::class]);
-        $middleware->appendToGroup('api', Idempotency::class);
+        $middleware->appendToGroup('api', [EnforceSubscription::class, Idempotency::class]);
 
         // Proxies: Cloudflare → load balancer. Trust forwarded headers from them.
         $middleware->trustProxies(at: '*');
@@ -58,6 +60,7 @@ return Application::configure(basePath: dirname(__DIR__))
             ['error' => ['code' => $e->reason, 'message' => $e->getMessage()], 'errors' => (object) $e->errors],
             422,
         ));
+        $exceptions->render(fn (BillingError $e) => $json($e->reason, $e->getMessage(), $e->status));
         $exceptions->render(fn (FileError $e) => $json($e->reason, $e->getMessage(), $e->status));
         $exceptions->render(fn (TenantError $e) => $json($e->reason, $e->getMessage(), $e->reason === 'cell_capacity' ? 503 : 422));
         $exceptions->render(fn (AuthenticationException $e, Request $request) => $json('unauthenticated', 'Sign in to continue.', 401));

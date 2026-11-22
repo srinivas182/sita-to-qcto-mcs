@@ -44,6 +44,11 @@ with sync_playwright() as p:
     page.get_by_alt_text('Current logo').wait_for(timeout=20000)
     page.get_by_role('button', name='Save brand').click(); page.get_by_text('Brand updated').wait_for(); audit(page, '/brand logo')
 
+    # Billing: plan, estimate, invoices, change-plan and pay dialogs.
+    page.click('nav a[href="/billing"]'); page.get_by_text('Growth plan').wait_for(); audit(page, '/billing')
+    page.get_by_role('button', name='Change plan').click(); page.get_by_role('dialog').wait_for(); audit(page, '/billing plan dialog')
+    page.keyboard.press('Escape')
+
     # Super Admin settings (a different account, so the same code window is fine).
     admin = b.new_page(viewport={'width':1280,'height':900})
     sign_in(admin, 'admin.platform.test', 'admin@demo.test')
@@ -52,6 +57,9 @@ with sync_playwright() as p:
     admin.get_by_role('button', name='Set up').first.click(); admin.get_by_role('dialog').wait_for(); audit(admin, '/settings gateway dialog')
     admin.keyboard.press('Escape')
     admin.get_by_role('tab', name='Storage').click(); admin.get_by_text('Azure Blob Storage').wait_for(); audit(admin, '/settings storage')
+    admin.get_by_role('tab', name='Billing rules').click(); admin.get_by_role('heading', name='Billing rules').wait_for(); audit(admin, '/settings billing rules')
+    admin.click('nav a[href="/billing"]'); admin.get_by_text('Monthly recurring').wait_for(); audit(admin, '/billing admin')
+    admin.get_by_role('tab', name='packages').click(); admin.get_by_text('Starter').first.wait_for(); audit(admin, '/billing packages')
     b.close()
 
 sys.exit(1 if failed else 0)

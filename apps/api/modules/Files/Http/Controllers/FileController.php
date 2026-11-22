@@ -29,7 +29,7 @@ final class FileController
         ]);
 
         $purpose = (array) config("files.purposes.{$data['purpose']}", []);
-        if (($purpose['scope'] ?? null) !== 'tenant') {
+        if (($purpose['scope'] ?? null) !== 'tenant' || ($purpose['uploadable'] ?? true) === false) {
             throw new FileError('Unknown file purpose.', 'unknown_purpose');
         }
         Gate::authorize((string) $purpose['permission']);

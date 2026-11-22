@@ -1,5 +1,6 @@
 import {
   Building2,
+  CreditCard,
   Gauge,
   LifeBuoy,
   Palette,
@@ -26,6 +27,7 @@ const platform: NavItem[] = [
   { to: '/', label: 'nav.overview', icon: Gauge, group: 'main', permission: 'platform.tenants.view' },
   { to: '/tenants', label: 'nav.tenants', icon: Building2, group: 'main', permission: 'platform.tenants.view' },
   { to: '/cells', label: 'nav.cells', icon: Server, group: 'main', permission: 'platform.cells.view' },
+  { to: '/billing', label: 'nav.billing', icon: CreditCard, group: 'main', permission: 'platform.billing.manage' },
   { to: '/support', label: 'nav.support', icon: LifeBuoy, group: 'manage', permission: 'platform.support.request' },
   { to: '/staff', label: 'nav.staff', icon: UserCog, group: 'manage', permission: 'platform.users.manage' },
   { to: '/audit', label: 'nav.audit', icon: ScrollText, group: 'manage', permission: 'platform.audit.view' },
@@ -36,6 +38,7 @@ const provider: NavItem[] = [
   { to: '/', label: 'nav.overview', icon: Gauge, group: 'main' },
   { to: '/users', label: 'nav.users', icon: Users, group: 'main', permission: 'tenant.users.view' },
   { to: '/brand', label: 'nav.brand', icon: Palette, group: 'manage', permission: 'tenant.settings.manage' },
+  { to: '/billing', label: 'nav.billing', icon: CreditCard, group: 'manage', permission: 'tenant.billing.manage' },
   { to: '/support', label: 'nav.support', icon: LifeBuoy, group: 'manage', permission: 'tenant.support.approve' },
   { to: '/audit', label: 'nav.audit', icon: ScrollText, group: 'manage', permission: 'tenant.audit.view' },
 ];

@@ -58,6 +58,7 @@ export const en = {
   'nav.staff': 'Platform staff',
   'nav.audit': 'Audit log',
   'nav.settings': 'Settings',
+  'nav.billing': 'Billing',
   'nav.support': 'Support access',
   'nav.brand': 'Brand & domain',
   'nav.users': 'Users & roles',
