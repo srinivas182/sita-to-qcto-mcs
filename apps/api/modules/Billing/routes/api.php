@@ -35,7 +35,7 @@ Route::middleware($secured)->group(function (): void {
     Route::get('invoices/{invoice}/pdf', [InvoiceController::class, 'pdf'])->whereUlid('invoice');
     Route::post('invoices/{invoice}/pay', [InvoiceController::class, 'pay'])->whereUlid('invoice')->middleware('throttle:20,1');
     Route::get('credit-notes/{note}/pdf', [InvoiceController::class, 'creditNotePdf'])->whereUlid('note');
-    Route::get('payments/{reference}', [InvoiceController::class, 'payment'])->where('reference', 'PAY-[A-Z0-9]{26}');
+    Route::get('payments/{reference}', [InvoiceController::class, 'payment'])->where('reference', 'P[A-Z0-9]{15}');
 });
 
 // Super Admin.

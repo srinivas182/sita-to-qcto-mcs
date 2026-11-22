@@ -3725,6 +3725,7 @@ export interface operations {
                                 label: string;
                                 description: string;
                                 capabilities: string;
+                                note: string | null;
                                 fields: {
                                     name: string;
                                     label: string;

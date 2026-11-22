@@ -11,7 +11,7 @@ use InvalidArgumentException;
  * the fields each driver needs and which of them are secret.
  *
  * @phpstan-type Field array{label: string, secret?: bool, required?: bool, type?: string, options?: list<string>, default?: mixed, help?: string}
- * @phpstan-type Driver array{label: string, description: string, capabilities: list<string>, fields: array<string, Field>}
+ * @phpstan-type Driver array{label: string, description: string, capabilities: list<string>, note?: string, fields: array<string, Field>}
  */
 final class IntegrationCatalogue
 {

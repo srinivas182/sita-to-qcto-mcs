@@ -24,8 +24,11 @@ final class BillingServiceProvider extends ModuleServiceProvider
         $this->loadViewsFrom(__DIR__.'/resources/views', 'billing');
 
         $testers = $this->app->make(IntegrationTesters::class);
-        foreach (array_keys(Gateways::ADAPTERS) as $driver) {
-            $testers->register($driver, GatewayTester::class);
+        // Only gateways with a safe, read-only check get a connection test.
+        foreach (Gateways::ADAPTERS as $driver => $class) {
+            if (method_exists($class, 'ping')) {
+                $testers->register($driver, GatewayTester::class);
+            }
         }
 
         if ($this->app->runningInConsole()) {

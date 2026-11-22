@@ -31,6 +31,7 @@ final class IntegrationController
                     'label' => $driver['label'],
                     'description' => $driver['description'],
                     'capabilities' => $driver['capabilities'],
+                    'note' => $driver['note'] ?? null,
                     'fields' => collect($driver['fields'])->map(fn (array $f, string $name): array => [
                         'name' => $name,
                         'label' => $f['label'],

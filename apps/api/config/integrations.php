@@ -15,6 +15,7 @@ declare(strict_types=1);
  |                  options? (for select), default?, help?]
  |   secret fields are never returned by the API; only a masked hint is.
  | capabilities: what a driver can do. Billing and Messaging pick drivers by these.
+ | note: shown to the Super Admin when setting the driver up.
  | single: only one driver of the type may be enabled at a time (storage).
  |
  | Driver behaviour (charges, sending, uploads) lives in the module that uses the
@@ -53,8 +54,9 @@ return [
         ],
         'payment.peach' => [
             'label' => 'Peach Payments',
-            'description' => 'Cards with tokenisation, EFT and wallets for larger volumes.',
-            'capabilities' => ['card', 'recurring', 'instant_eft'],
+            'description' => 'Hosted checkout for cards, EFT and wallets, for larger volumes.',
+            'capabilities' => ['card', 'instant_eft'],
+            'note' => 'Every result is confirmed with Peach before an invoice is marked paid. Add the webhook URL in the Peach Dashboard and, ideally, switch on webhook signing. Run one sandbox payment before going live.',
             'fields' => [
                 'entity_id' => ['label' => 'Entity ID', 'required' => true],
                 'client_id' => ['label' => 'Client ID', 'required' => true],
@@ -67,6 +69,7 @@ return [
             'label' => 'Ozow',
             'description' => 'Instant EFT from all major South African banks. One-off payments.',
             'capabilities' => ['instant_eft'],
+            'note' => 'Sandbox mode sends test requests (IsTest). Run one test payment before going live.',
             'fields' => [
                 'site_code' => ['label' => 'Site code', 'required' => true],
                 'api_key' => ['label' => 'API key', 'secret' => true, 'required' => true],
@@ -75,8 +78,9 @@ return [
         ],
         'payment.yoco' => [
             'label' => 'Yoco',
-            'description' => 'Online card checkout, popular with small businesses.',
+            'description' => 'Online card checkout, popular with small businesses. Minimum R2.',
             'capabilities' => ['card'],
+            'note' => 'Register the webhook URL with Yoco and paste the whsec_ secret it returns. Test or live follows the keys.',
             'fields' => [
                 'public_key' => ['label' => 'Public key', 'required' => true],
                 'secret_key' => ['label' => 'Secret key', 'secret' => true, 'required' => true],
@@ -85,18 +89,24 @@ return [
         ],
         'payment.stitch' => [
             'label' => 'Stitch',
-            'description' => 'Pay by bank, cards and recurring payments through one API.',
-            'capabilities' => ['card', 'recurring', 'instant_eft'],
+            'description' => 'Pay by bank (with Capitec Pay) and cards through one payment request.',
+            'capabilities' => ['card', 'instant_eft'],
+            'note' => 'Payments are read back from Stitch before an invoice is marked paid. Add your site to the client\'s redirect allowlist. Test or live follows the client.',
             'fields' => [
                 'client_id' => ['label' => 'Client ID', 'required' => true],
                 'client_secret' => ['label' => 'Client secret', 'secret' => true, 'required' => true],
-                'webhook_secret' => ['label' => 'Webhook secret', 'secret' => true],
+                'webhook_secret' => ['label' => 'Webhook secret (whsec_…)', 'secret' => true, 'required' => true],
+                'merchant_id' => ['label' => 'Stitch merchant ID', 'help' => 'If Stitch registered one for you. Otherwise fill in the bank account below.'],
+                'beneficiary_name' => ['label' => 'Account holder (receives payments)'],
+                'beneficiary_bank' => ['label' => 'Bank', 'help' => 'Stitch bank ID, e.g. absa, fnb, nedbank, standard_bank, capitec'],
+                'beneficiary_account_number' => ['label' => 'Account number'],
             ],
         ],
         'payment.ikhokha' => [
             'label' => 'iKhokha',
             'description' => 'Payment links for cards and Instant EFT.',
             'capabilities' => ['card', 'instant_eft'],
+            'note' => 'iKhokha\'s published signature samples differ slightly; run one test payment and check it is marked paid before going live.',
             'fields' => [
                 'application_id' => ['label' => 'Application ID', 'required' => true],
                 'application_secret' => ['label' => 'Application secret', 'secret' => true, 'required' => true],
