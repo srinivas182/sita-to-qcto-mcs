@@ -5,6 +5,7 @@ import {
   Palette,
   ScrollText,
   Server,
+  Settings,
   ShieldCheck,
   UserCog,
   Users,
@@ -28,6 +29,7 @@ const platform: NavItem[] = [
   { to: '/support', label: 'nav.support', icon: LifeBuoy, group: 'manage', permission: 'platform.support.request' },
   { to: '/staff', label: 'nav.staff', icon: UserCog, group: 'manage', permission: 'platform.users.manage' },
   { to: '/audit', label: 'nav.audit', icon: ScrollText, group: 'manage', permission: 'platform.audit.view' },
+  { to: '/settings', label: 'nav.settings', icon: Settings, group: 'manage', permission: 'platform.settings.manage' },
 ];
 
 const provider: NavItem[] = [

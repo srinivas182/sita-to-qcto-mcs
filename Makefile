@@ -17,8 +17,8 @@ setup: ## Install dependencies and prepare the API
 demo: ## Fresh local database with demo data (password: demo passphrase 2026)
 	cd $(API) && php artisan migrate:fresh && php artisan db:seed --class=DemoSeeder
 
-dev: ## Run the API (:8000) and the web app (:5173). Open http://tym.platform.test:5173 (map *.platform.test to 127.0.0.1)
-	cd $(API) && php artisan serve --port=8000 & pnpm --filter @skills/web dev
+dev: ## Run the API (:8000), a queue worker and the web app (:5173). Open http://tym.platform.test:5173 (map *.platform.test to 127.0.0.1)
+	cd $(API) && php artisan serve --port=8000 & cd $(API) && php artisan queue:work --tries=5 --sleep=1 & pnpm --filter @skills/web dev
 
 api-client: ## Regenerate the OpenAPI document and the typed client
 	cd $(API) && php artisan scramble:export

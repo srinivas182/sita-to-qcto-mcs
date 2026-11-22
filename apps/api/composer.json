@@ -10,10 +10,12 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "azure-oss/storage-blob-flysystem": "^2.2",
         "dedoc/scramble": "^0.13.55",
         "laravel/framework": "^13.17",
         "laravel/sanctum": "^4.5",
         "laravel/tinker": "^3.0",
+        "league/flysystem-aws-s3-v3": "^3.0",
         "pragmarx/google2fa": "^9.1",
         "web-auth/webauthn-lib": "^5.3"
     },

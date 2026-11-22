@@ -36,6 +36,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/settings/company": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["company.show"];
+        put: operations["company.update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me/consents": {
         parameters: {
             query?: never;
@@ -277,6 +293,201 @@ export interface paths {
         put?: never;
         post?: never;
         delete: operations["modules.tenancy.domain.destroy_63"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["file.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/files/{file}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["file.show"];
+        put?: never;
+        post?: never;
+        delete: operations["file.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/files/{file}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Streams a ready file from local storage */
+        get: operations["file.content"];
+        /** Local storage only: the bytes come through the API */
+        put: operations["file.upload"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/files/{file}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["file.complete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/files/{file}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["file.download"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/settings/integrations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The catalogue of drivers with their fields, and what is set up for each */
+        get: operations["integration.index"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/settings/integrations/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["integration.reorder"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/settings/integrations/{driver}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["integration.save"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/settings/integrations/{integration}/enable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["integration.enable"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/settings/integrations/{integration}/disable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["integration.disable"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/settings/integrations/{integration}/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["integration.test"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/settings/integrations/{integration}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["integration.destroy"];
         options?: never;
         head?: never;
         patch?: never;
@@ -614,6 +825,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["password.mfaChallenge"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/images/{file}/{variant}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["files.publicImage"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1310,6 +1537,56 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
+    "company.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            [key: string]: unknown;
+                        };
+                        complete: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "company.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            [key: string]: unknown;
+                        };
+                        complete: boolean;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
     "consent.index": {
         parameters: {
             query?: never;
@@ -1459,6 +1736,7 @@ export interface operations {
                     branding?: {
                         /** Format: uri */
                         logo_url?: string | null;
+                        logo_file_id?: string | null;
                         primary?: string | null;
                         accent?: string | null;
                         tagline?: string | null;
@@ -1794,6 +2072,556 @@ export interface operations {
                 content?: never;
             };
             401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "file.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    purpose: string;
+                    name: string;
+                    mime: string;
+                    size: number;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            purpose: string;
+                            name: string;
+                            mime: string;
+                            size: number;
+                            /** @enum {string} */
+                            status: "pending" | "processing" | "ready" | "rejected" | "failed";
+                            status_reason: string | null;
+                            variants: {
+                                [key: string]: {
+                                    width: string;
+                                    height: string;
+                                };
+                            } | string;
+                            created_at: string;
+                        };
+                        upload: {
+                            method: Record<string, never>;
+                            url: string;
+                            headers: string;
+                        } | {
+                            /** @constant */
+                            method: "PUT";
+                            url: string;
+                            headers: string;
+                            /** @constant */
+                            via: "api";
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @description Error overview. */
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "file.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                file: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            purpose: string;
+                            name: string;
+                            mime: string;
+                            size: number;
+                            /** @enum {string} */
+                            status: "pending" | "processing" | "ready" | "rejected" | "failed";
+                            status_reason: string | null;
+                            variants: {
+                                [key: string]: {
+                                    width: string;
+                                    height: string;
+                                };
+                            } | string;
+                            created_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "file.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                file: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "file.content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                file: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    "Transfer-Encoding": "chunked";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/html": string;
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "file.upload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                file: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            purpose: string;
+                            name: string;
+                            mime: string;
+                            size: number;
+                            /** @enum {string} */
+                            status: "pending" | "processing" | "ready" | "rejected" | "failed";
+                            status_reason: string | null;
+                            variants: {
+                                [key: string]: {
+                                    width: string;
+                                    height: string;
+                                };
+                            } | string;
+                            created_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "file.complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                file: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            purpose: string;
+                            name: string;
+                            mime: string;
+                            size: number;
+                            /** @enum {string} */
+                            status: "pending" | "processing" | "ready" | "rejected" | "failed";
+                            status_reason: string | null;
+                            variants: {
+                                [key: string]: {
+                                    width: string;
+                                    height: string;
+                                };
+                            } | string;
+                            created_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "file.download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                file: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        url: null;
+                        /** @constant */
+                        via: "api";
+                    } | {
+                        url: string | null;
+                        /** @constant */
+                        via: "direct";
+                    } | {
+                        url: string;
+                        /** @constant */
+                        via: "api";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "integration.index": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: ({
+                            type: string;
+                            drivers: {
+                                driver: string;
+                                label: string;
+                                description: string;
+                                capabilities: string;
+                                fields: {
+                                    name: string;
+                                    label: string;
+                                    secret: boolean;
+                                    required: boolean;
+                                    type: string;
+                                    options: string;
+                                    default: string;
+                                    help: string;
+                                }[];
+                                integration: {
+                                    id: string;
+                                    type: string;
+                                    driver: string;
+                                    mode: string;
+                                    enabled: boolean;
+                                    priority: number;
+                                    values: string;
+                                    secrets: string;
+                                    complete: boolean;
+                                    testable: boolean;
+                                    last_test: {
+                                        at: string;
+                                        ok: boolean | null;
+                                        message: string | null;
+                                    } | null;
+                                    updated_at: string;
+                                } | null;
+                            }[];
+                        } & {
+                            [key: string]: unknown;
+                        })[];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "integration.reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    type: "payment" | "sms" | "whatsapp" | "email" | "storage";
+                    ids: string[];
+                };
+            };
+        };
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "integration.save": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                driver: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            type: string;
+                            driver: string;
+                            mode: string;
+                            enabled: boolean;
+                            priority: number;
+                            values: string;
+                            secrets: string;
+                            complete: boolean;
+                            testable: boolean;
+                            last_test: {
+                                at: string;
+                                ok: boolean | null;
+                                message: string | null;
+                            } | null;
+                            updated_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "integration.enable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                integration: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            type: string;
+                            driver: string;
+                            mode: string;
+                            enabled: boolean;
+                            priority: number;
+                            values: string;
+                            secrets: string;
+                            complete: boolean;
+                            testable: boolean;
+                            last_test: {
+                                at: string;
+                                ok: boolean | null;
+                                message: string | null;
+                            } | null;
+                            updated_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "integration.disable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                integration: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: string;
+                            type: string;
+                            driver: string;
+                            mode: string;
+                            enabled: boolean;
+                            priority: number;
+                            values: string;
+                            secrets: string;
+                            complete: boolean;
+                            testable: boolean;
+                            last_test: {
+                                at: string;
+                                ok: boolean | null;
+                                message: string | null;
+                            } | null;
+                            updated_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "integration.test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                integration: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        ok: boolean;
+                        message: string;
+                        data: {
+                            id: string;
+                            type: string;
+                            driver: string;
+                            mode: string;
+                            enabled: boolean;
+                            priority: number;
+                            values: string;
+                            secrets: string;
+                            complete: boolean;
+                            testable: boolean;
+                            last_test: {
+                                at: string;
+                                ok: boolean | null;
+                                message: string | null;
+                            } | null;
+                            updated_at: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "integration.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                integration: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
         };
     };
     "invitation.show": {
@@ -2609,6 +3437,40 @@ export interface operations {
                     };
                 };
             };
+        };
+    };
+    "files.publicImage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                file: string;
+                variant: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    "Cache-Control"?: "public, max-age=31536000, immutable";
+                    ETag?: string;
+                    "X-Content-Type-Options"?: "nosniff";
+                    "Content-Security-Policy"?: "default-src 'none'";
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/webp": string;
+                };
+            };
+            304: {
+                headers: {
+                    ETag?: string;
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["ModelNotFoundException"];
         };
     };
     "role.roles": {

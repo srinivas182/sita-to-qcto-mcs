@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Access\Services\AccessService;
+use Modules\Identity\Mfa\TotpService;
+use Modules\Identity\Models\MfaFactor;
 use Modules\Identity\Models\User;
 use Modules\Identity\Models\UserTenant;
 use Modules\Identity\Support\MembershipStatus;
@@ -11,6 +13,7 @@ use Modules\Tenancy\Context\TenantContext;
 use Modules\Tenancy\Domains\DomainService;
 use Modules\Tenancy\Models\Cell;
 use Modules\Tenancy\Models\Tenant;
+use PragmaRX\Google2FA\Google2FA;
 use Tests\TestCase;
 
 pest()->extend(TestCase::class)
@@ -101,4 +104,21 @@ function makeStaff(string $role = 'super-admin', array $attributes = []): User
 function webOrigin(string $host): array
 {
     return ['Origin' => 'https://'.$host, 'Referer' => 'https://'.$host.'/'];
+}
+
+/** Sign a platform staff member in on the admin host with MFA set up. */
+function signInStaff(object $test, string $role = 'super-admin', string $email = 'admin@tym-mcs.co.za'): User
+{
+    $user = makeStaff($role, ['email' => $email, 'password' => 'correct horse battery staple']);
+    asPlatform(fn () => app(TotpService::class)->begin($user, 'Skills'));
+    $secret = asPlatform(fn () => MfaFactor::query()->where('user_id', $user->id)->firstOrFail()->secret);
+    app(TotpService::class)->confirm($user, app(Google2FA::class)->getCurrentOtp($secret));
+    MfaFactor::query()->where('user_id', $user->id)->update(['last_timestep' => null]);
+
+    $test->flushHeaders()->flushSession();
+    $test->withHeaders(webOrigin('admin.skills.test'));
+    $token = $test->postJson('https://admin.skills.test/v1/auth/login', ['email' => $email, 'password' => 'correct horse battery staple'])->json('mfa_token');
+    $test->postJson('https://admin.skills.test/v1/auth/mfa/totp/challenge', ['mfa_token' => $token, 'code' => app(Google2FA::class)->getCurrentOtp($secret)])->assertOk();
+
+    return $user;
 }

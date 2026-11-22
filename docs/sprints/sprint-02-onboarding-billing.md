@@ -1,6 +1,6 @@
 # Sprint 2 — Provider onboarding, billing and centres
 
-**Plan dates:** 7–18 Dec 2026 (Phase 1 – SaaS compliance core). **Status:** proposed, for approval.
+**Plan dates:** 7–18 Dec 2026 (Phase 1 – SaaS compliance core). **Status:** approved 22 Nov 2026 (decisions in §9); in build.
 **Goal (from the sprint plan):** *TPs can sign up, pay and set up centres.*
 Sprint 1 already delivered custom domains with auto SSL, branding, and TP code/QR in
 the app. This sprint finishes the rest of that goal and the Sprint 1 carry-overs: real
@@ -59,7 +59,8 @@ WhatsApp/SMS, uploads, and full centres.
   - Annual discount.
 - Subscriptions: trial → active → past due → read-only → suspended. Upgrades and
   downgrades are prorated; cancellation takes effect at period end.
-- Payment-gateway adapter interface; first adapter per decision 1.
+- Payment-gateway adapter interface with **all popular SA gateways** (decision 1); the Super Admin
+  enters keys, picks sandbox/live and enables each one in Settings.
   - Hosted/inline checkout, so card data never touches our servers (PCI SAQ-A).
   - Tokenised recurring charges.
   - Signed webhooks, processed idempotently.
@@ -80,7 +81,10 @@ WhatsApp/SMS, uploads, and full centres.
   interface is unchanged).
 
 **Files**
-- Presigned direct uploads to S3-compatible storage.
+- Storage chosen by the Super Admin in Settings: **local disk, AWS S3 (Cape Town by default,
+  any S3-compatible) or Azure Blob**. Uploads go direct to the cloud store where it
+  supports signed URLs. Each file records the store it was written to, so switching store
+  later never breaks old files.
 - Virus scan (ClamAV) before a file is usable; image variants for logos.
 - Tenant-scoped, encrypted at rest; signed short-lived download links.
 
@@ -130,7 +134,8 @@ WhatsApp/SMS, uploads, and full centres.
 | `subscriptions` | tenant_id, package, status, period start/end, trial_ends_at, cancel_at, gateway customer/subscription refs |
 | `invoices`, `invoice_lines`, `credit_notes` | number (sequential per series), tenant, VAT details, totals excl./VAT/incl., status, pdf file |
 | `payments`, `payment_methods` | gateway, reference, amount, status, raw webhook (encrypted); tokenised method (brand, last4, expiry) |
-| `gateways` | type (payment/whatsapp/sms/email), driver, config (encrypted), priority, active |
+| `integrations` | type (payment/sms/whatsapp/email/storage), driver, credentials (encrypted), settings, mode (sandbox/live), enabled, priority, last test result |
+| `platform_settings` | key (e.g. `company`), value (json): JV registered name, VAT number, address, invoice prefix |
 | `message_log` | tenant, channel, template, destination (masked), status, cost, provider ref |
 | `centres` (extend) | address, lat/lng, scope (json), accreditation fields, alert state |
 
@@ -190,17 +195,32 @@ this.
 | VAT rules for tax invoices | Use SARS tax-invoice requirements; the JV's accountant confirms numbering and wording |
 | Scope is full for two weeks | Billing first (week 1); gateways centre and centres in week 2; simulator workshop runs in parallel |
 
-## 9. Decisions to approve
-1. **Payment gateway:** **Paystack** (a Stripe company; cards, EFT via Ozow, Capitec
-   Pay, subscriptions and tokenised charges). The adapter interface lets us add
-   **PayFast** next for TPs who prefer it.
-2. **SMS provider:** an SA provider with delivery receipts (e.g. Clickatell or
-   BulkSMS). Tell us if the JV already has an account.
-3. **WhatsApp:** Meta **Cloud API directly** (no reseller markup). Needs Meta
-   Business verification of the JV and a dedicated phone number.
-4. **Storage:** S3-compatible storage in **AWS af-south-1 (Cape Town)**; MinIO locally.
-5. **Pricing shape (examples only):** base fee + per active learner + add-ons;
-   14-day trial; read-only after 7 days past due; suspension after 21.
-6. **JV billing details:** registered name, VAT number and address for tax invoices.
-7. **Simulator 1:** TYM to choose the first trade and name 1–2 subject experts for
-   the workshop.
+## 9. Decisions (approved 22 Nov 2026)
+1. **Payment gateways:** all popular SA gateways, each set up by the Super Admin in
+   Settings (keys, sandbox/live, enable/disable):
+   - Paystack, PayFast, Peach Payments, Ozow, Yoco, Stitch and iKhokha.
+   - Each gateway declares what it supports (recurring card, one-off card, instant
+     EFT). Subscriptions use the ones that support recurring; invoices can be paid
+     through any enabled gateway.
+2. **SMS:** all major SA providers, each enabled or disabled by the Super Admin:
+   - Clickatell, BulkSMS, SMSPortal, Panacea Mobile, Infobip and Twilio.
+   - The admin sets the order; the next one is used if one fails.
+3. **WhatsApp:** Meta Cloud API directly, set up in Settings. *Action for the JV:*
+   start Meta Business verification and get a dedicated number.
+4. **Storage:** the Super Admin chooses local disk, AWS S3 (af-south-1 by default) or
+   Azure Blob in Settings, with a connection test.
+5. **Pricing shape (examples only):**
+   - Base fee + per active learner + add-ons; 14-day trial.
+   - Read-only after 7 days overdue; suspended after 21.
+6. **Company details** (JV registered name, registration and VAT numbers, address, invoice
+   prefix) are set in **Settings → Company** and printed on every tax invoice.
+7. **Simulator 1:** TYM picks the trade and names 1–2 subject experts.
+
+## 10. Build order
+| Part | Content |
+|---|---|
+| 2a | Settings framework: Company; integrations catalogue with encrypted keys, enable/disable, order and tests; storage (local / S3 / Azure); Files module (direct upload, virus scan, image variants); logo upload |
+| 2b | Billing: packages, subscriptions, payment gateway adapters, webhooks, tax invoices, dunning |
+| 2c | Messaging: WhatsApp Cloud API and the SMS adapters, delivery receipts, message log and costs; real OTP; Android one-tap autofill |
+| 2d | Onboarding: public sign-up and pricing, application review, centres with accreditation scope and expiry alerts |
+| close | Load and accessibility checks, report, Sprint 3 spec |
