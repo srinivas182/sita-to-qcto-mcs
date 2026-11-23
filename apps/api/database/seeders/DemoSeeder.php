@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Modules\Access\Models\CustomRole;
@@ -17,7 +18,10 @@ use Modules\Billing\Models\Package;
 use Modules\Billing\Models\Subscription;
 use Modules\Billing\Support\SubscriptionStatus;
 use Modules\Cohorts\Models\Cohort;
+use Modules\Cohorts\Models\CohortStaff;
 use Modules\Cohorts\Services\CohortService;
+use Modules\Delivery\Models\Room;
+use Modules\Delivery\Services\TimetableService;
 use Modules\Employers\Models\Employer;
 use Modules\Employers\Models\EmployerSite;
 use Modules\Employers\Models\Mentor;
@@ -377,9 +381,31 @@ final class DemoSeeder extends Seeder
                         'address_line2' => 'Jabavu', 'city' => 'Soweto', 'province' => 'Gauteng', 'postal_code' => '1809', 'socioeconomic_status' => '02'], $sekal, true);
                 }
             }
+            $this->demoTimetable($cohort, $soweto, $bricklayer->id, $sekal);
         });
 
         $this->command?->info('Demo ready. Password: '.self::PASSWORD.' · TOTP secret: '.self::TOTP_SECRET);
+    }
+
+    /** Demo only: rooms at Soweto, Lindiwe registered for Bricklayer, and the first four weeks of classes. */
+    private function demoTimetable(Cohort $cohort, Centre $soweto, string $qualificationId, User $by): void
+    {
+        $room = Room::query()->firstOrCreate(['centre_id' => $soweto->id, 'name' => 'Room 1'], ['capacity' => 25]);
+        $yard = Room::query()->firstOrCreate(['centre_id' => $soweto->id, 'name' => 'Brick yard'], ['kind' => 'outdoor', 'capacity' => 20]);
+        Room::query()->firstOrCreate(['centre_id' => $soweto->id, 'name' => 'Computer lab'], ['kind' => 'computer_lab', 'capacity' => 16]);
+        /** @var User $lindiwe */
+        $lindiwe = User::query()->where('email', 'lindiwe@demo.test')->firstOrFail();
+        $c = StaffCredential::query()->create(['user_id' => $lindiwe->id, 'role' => 'facilitator', 'body' => 'CETA', 'registration_number' => 'CETA/FAC/2026/1201',
+            'qualification_ids' => [$qualificationId], 'starts_on' => now()->subMonth(), 'expires_on' => now()->addYears(3)]);
+        $c->forceFill(['status' => 'verified', 'verified_at' => now()->subWeeks(2)])->save();
+        CohortStaff::query()->firstOrCreate(['cohort_id' => $cohort->id, 'user_id' => $lindiwe->id, 'role' => 'facilitator']);
+        $timetable = app(TimetableService::class);
+        $start = CarbonImmutable::parse($cohort->intake_on)->next('Monday');
+        $until = $start->addWeeks(4)->toDateString();
+        $timetable->create($cohort, ['kind' => 'knowledge', 'title' => 'Safety on a building site', 'date' => $start->toDateString(), 'start' => '08:00', 'end' => '11:00',
+            'room_id' => $room->id, 'facilitator_id' => $lindiwe->id, 'repeat' => ['days' => [1, 3], 'until' => $until]], $by);
+        $timetable->create($cohort, ['kind' => 'practical', 'title' => 'Mixing mortar and laying a course', 'date' => $start->toDateString(), 'start' => '12:00', 'end' => '15:30',
+            'room_id' => $yard->id, 'facilitator_id' => $lindiwe->id, 'repeat' => ['days' => [2, 4], 'until' => $until]], $by);
     }
 
     /** Demo only: a drawn "document" photo stored as the person's upload, checked like a real one. */

@@ -98,6 +98,12 @@ with sync_playwright() as p:
     page.keyboard.press('Escape')
     page.get_by_role('button', name='Mark as sent').click(); page.get_by_label('Date sent').wait_for(); audit(page, '/cohorts qcto sent dialog')
     page.keyboard.press('Escape')
+    page.get_by_role('link', name='Bricklayer, December 2026').first.click(); page.get_by_role('link', name='Timetable').click()
+    page.get_by_role('button', name='Next week').click(); page.get_by_text('Safety on a building site').first.wait_for(); audit(page, '/cohorts/:id/timetable')
+    page.get_by_text('Safety on a building site').first.click(); page.get_by_role('dialog').get_by_label('Starts').wait_for(); audit(page, '/timetable session dialog')
+    page.keyboard.press('Escape')
+    page.get_by_role('button', name='Rooms').click(); page.get_by_role('button', name='Retire Brick yard').wait_for(); audit(page, '/timetable rooms dialog')
+    page.keyboard.press('Escape')
     page.goto(f'http://tym.platform.test:{PORT}/cohorts'); page.get_by_role('button', name='Plan a cohort').click(); page.get_by_role('dialog').wait_for(); audit(page, '/cohorts plan dialog')
     page.keyboard.press('Escape')
 
