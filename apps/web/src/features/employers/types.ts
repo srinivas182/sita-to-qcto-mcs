@@ -70,6 +70,7 @@ export interface EmployerDetail extends EmployerSummary {
     mentors: number;
     ratio: number;
     capacity: number;
+    placed: number;
   }[];
   workplace_criteria: { qualification: string; code: string; title: string; criteria: string }[];
 }

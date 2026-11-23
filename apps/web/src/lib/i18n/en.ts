@@ -60,6 +60,7 @@ export const en = {
   'nav.credentials': 'Registrations',
   'nav.employers': 'Employers',
   'nav.agreements': 'Agreements',
+  'nav.cohorts': 'Cohorts',
   'nav.profile': 'My profile',
   'nav.tenants': 'Training providers',
   'nav.cells': 'Cells',

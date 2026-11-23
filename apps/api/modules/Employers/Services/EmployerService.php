@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Employers\Services;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -171,11 +172,15 @@ final class EmployerService
      * Learners each workplace can take per approved qualification: active mentors at the
      * site × learners per mentor. "Placed" is filled in once cohorts place learners (3e).
      *
-     * @return list<array{site_id: string, qualification_id: string, title: string, mentors: int, ratio: int, capacity: int}>
+     * @return list<array{site_id: string, qualification_id: string, title: string, mentors: int, ratio: int, capacity: int, placed: int}>
      */
     public function capacity(Employer $employer): array
     {
         $sites = $employer->sites()->get();
+        // Places held by open cohorts running now (any qualification: mentors are shared).
+        $placed = DB::table('cohort_placements as p')->join('cohorts as c', 'c.id', '=', 'p.cohort_id')->whereIn('p.site_id', $sites->pluck('id'))
+            ->where('c.status', 'open')->whereDate('c.planned_end_on', '>=', now())
+            ->groupBy('p.site_id')->selectRaw('p.site_id, sum(p.planned_learners) as n')->pluck('n', 'site_id');
         $mentors = $employer->mentors()->where('active', true)->get();
         $titles = Qualification::query()->whereIn('id', $sites->pluck('approved_qualification_ids')->flatten()->filter()->unique()->all())->pluck('title', 'id');
         $rows = [];
@@ -184,7 +189,7 @@ final class EmployerService
             foreach ($site->approved_qualification_ids ?? [] as $q) {
                 $ratio = $site->ratioFor($q);
                 $rows[] = ['site_id' => $site->id, 'qualification_id' => $q, 'title' => (string) $titles->get($q), 'mentors' => $count,
-                    'ratio' => $ratio, 'capacity' => $site->approvedFor($q) ? $count * $ratio : 0];
+                    'ratio' => $ratio, 'capacity' => $site->approvedFor($q) ? $count * $ratio : 0, 'placed' => (int) $placed->get($site->id, 0)];
             }
         }
 

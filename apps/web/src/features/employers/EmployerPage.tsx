@@ -180,6 +180,15 @@ export function EmployerPage() {
                   header: 'Learners',
                   cell: (c) => <span className="font-medium tabular-nums">{c.capacity}</span>,
                 },
+                {
+                  key: 'placed',
+                  header: 'In cohorts now',
+                  cell: (c) => (
+                    <span className={c.placed > c.capacity ? 'font-medium text-danger tabular-nums' : 'tabular-nums'}>
+                      {c.placed}
+                    </span>
+                  ),
+                },
               ]}
             />
           ) : (
@@ -495,7 +504,7 @@ function SiteDialog({
             <span className="text-muted">Add programmes first; workplaces are approved for those.</span>
           )}
           {err('approved_qualification_ids') ? (
-            <span className="text-danger-700">{err('approved_qualification_ids')}</span>
+            <span className="text-danger">{err('approved_qualification_ids')}</span>
           ) : null}
         </fieldset>
         <label className="grid gap-1.5 text-small">
@@ -506,7 +515,7 @@ function SiteDialog({
             onChange={(ev) => void pick(ev.target.files?.[0])}
           />
           {progress !== null ? <span className="text-muted">Uploading… {Math.round(progress * 100)}%</span> : null}
-          {uploadError ? <span className="text-danger-700">{uploadError}</span> : null}
+          {uploadError ? <span className="text-danger">{uploadError}</span> : null}
         </label>
         <div className="flex justify-end gap-2">
           <Button type="button" variant="secondary" onClick={onClose}>
@@ -632,7 +641,7 @@ function MentorDialog({
               {s.name}
             </label>
           ))}
-          {err('site_ids') ? <span className="text-danger-700">{err('site_ids')}</span> : null}
+          {err('site_ids') ? <span className="text-danger">{err('site_ids')}</span> : null}
         </fieldset>
         {mentor ? (
           <label className="flex items-center gap-2 text-small">

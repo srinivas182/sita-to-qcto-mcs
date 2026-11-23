@@ -100,7 +100,7 @@ export function AgreementPage() {
                       {s.evidence?.channel ? ` · PIN by ${CHANNEL[s.evidence.channel] ?? s.evidence.channel}` : ''}
                     </p>
                   ) : null}
-                  {s.decline_reason ? <p className="text-small text-danger-700">“{s.decline_reason}”</p> : null}
+                  {s.decline_reason ? <p className="text-small text-danger">“{s.decline_reason}”</p> : null}
                   {manage && a.status === 'sent' && s.status === 'pending' && a.signature_level === 'simple' ? (
                     <div>
                       <Button

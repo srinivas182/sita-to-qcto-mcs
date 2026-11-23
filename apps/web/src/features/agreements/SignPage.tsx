@@ -111,7 +111,7 @@ export function SignPage() {
       {you.status === 'signed' ? (
         <Card>
           <div className="flex items-start gap-3">
-            <CheckCircle2 className="mt-0.5 size-6 shrink-0 text-success-600" />
+            <CheckCircle2 className="mt-0.5 size-6 shrink-0 text-success" />
             <div>
               <h2 className="font-semibold text-ink">You signed on {when(you.signed_at)}</h2>
               <p className="text-small text-muted">
@@ -197,7 +197,7 @@ export function SignPage() {
                 />
                 I have read this agreement and I agree to sign it electronically.
               </label>
-              {err('agree') ? <span className="text-small text-danger-700">{err('agree')}</span> : null}
+              {err('agree') ? <span className="text-small text-danger">{err('agree')}</span> : null}
               <Button type="submit" className="w-full sm:w-auto" loading={sign.isPending} disabled={!form.agree}>
                 Sign
               </Button>
