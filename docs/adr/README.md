@@ -21,3 +21,4 @@
 - [ADR-020 Learner documents and their checks](ADR-020-learner-documents.md)
 - [ADR-021 Offers, consent and enrolment](ADR-021-offers-consent-enrolment.md)
 - [ADR-022 QCTO enrolment list, Home Affairs ID checks and applicant retention](ADR-022-qcto-enrolment-identity-retention.md)
+- [ADR-023 Timetables (class sessions)](ADR-023-timetables.md)
