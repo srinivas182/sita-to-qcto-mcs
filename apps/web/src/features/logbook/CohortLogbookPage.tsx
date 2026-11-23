@@ -19,7 +19,16 @@ import {
 import { ApiError, call, errorMessage } from '@/lib/api';
 import { shortDate } from '@/lib/money';
 import { useCan } from '@/lib/session';
-import { type Chain, type Entry, type ModuleHours, type Signoff, duration, entryState, signoffState } from './types';
+import {
+  type Chain,
+  type Entry,
+  type ModuleHours,
+  type Signoff,
+  duration,
+  entryState,
+  photoOpener,
+  signoffState,
+} from './types';
 
 interface PlacementRow {
   id: string;
@@ -365,6 +374,8 @@ function PlaceDialog({ cohortId, options, onClose }: { cohortId: string; options
 }
 
 function EntriesDialog({ cohortId, learner, onClose }: { cohortId: string; learner: LearnerRow; onClose: () => void }) {
+  const toast = useToast();
+  const openPhoto = photoOpener((m) => toast(m, 'error'));
   const q = useQuery({
     queryKey: ['cohort-logbook', cohortId, learner.user_id],
     queryFn: () =>
@@ -398,6 +409,15 @@ function EntriesDialog({ cohortId, learner, onClose }: { cohortId: string; learn
                   <Badge tone={entryState[e.status].tone}>{entryState[e.status].label}</Badge>
                 </div>
                 {e.note ? <p className="text-small text-ink">{e.note}</p> : null}
+                {e.file_ids.length > 0 ? (
+                  <span className="flex flex-wrap gap-2">
+                    {e.file_ids.map((f, n) => (
+                      <Button key={f} size="sm" variant="ghost" onClick={() => openPhoto(f)}>
+                        Photo {n + 1}
+                      </Button>
+                    ))}
+                  </span>
+                ) : null}
                 <p className="text-small text-muted">
                   {e.distance_m !== null
                     ? e.location_ok

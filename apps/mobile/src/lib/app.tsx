@@ -6,6 +6,7 @@ import type { TokenPair } from '@/core/session';
 import { RELOCK_AFTER_MS } from '@/core/lock';
 import { deleteDatabase } from './db';
 import { deviceLocale, translate, type Key, type Locale } from './i18n';
+import { syncLogbook, waiting } from './logbook';
 import { outbox, sendOutboxItem } from './outbox';
 import { PERSONAL_KEYS, secure } from './secure';
 import { onSessionEnded, session, setTenantCode } from './session';
@@ -113,7 +114,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const syncNow = useCallback(async () => {
     if (phase !== 'ready') return;
     await outbox.process(sendOutboxItem).catch(() => undefined);
-    setPending((await outbox.pending()).length);
+    const logbook = await syncLogbook().catch(() => waiting().length);
+    setPending((await outbox.pending()).length + logbook);
   }, [phase]);
 
   // Connectivity: banner + sync when the connection returns.

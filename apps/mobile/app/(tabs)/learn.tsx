@@ -29,7 +29,22 @@ export default function Learn() {
             {c.status === 'active' ? <Text className="font-semibold text-body text-primary-700">{t('learn.open')}</Text> : null}
           </Card>
           </Pressable>
-        )) : (
+        )) : null}
+        {courses.some((c) => c.status === 'active') ? (
+          <Pressable accessibilityRole="button" onPress={() => router.push('/logbook' as never)}>
+            <Card className="flex-row items-center gap-3">
+              <View className="h-12 w-12 items-center justify-center rounded-2xl bg-warning-bg">
+                <Feather name="clipboard" size={22} color="#b45309" />
+              </View>
+              <View className="flex-1">
+                <Text className="font-semibold text-body text-ink dark:text-night-ink">{t('learn.logbook')}</Text>
+                <Text className="font-sans text-small text-muted dark:text-night-muted">{t('learn.logbookBody')}</Text>
+              </View>
+              <Feather name="chevron-right" size={18} color="#64748b" />
+            </Card>
+          </Pressable>
+        ) : null}
+        {courses.length ? null : (
           <View className="items-center gap-3 pt-10">
             <View className="h-14 w-14 items-center justify-center rounded-2xl bg-primary-50">
               <Feather name="book-open" size={24} color="#4338ca" />

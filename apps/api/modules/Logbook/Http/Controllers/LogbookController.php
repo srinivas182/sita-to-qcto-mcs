@@ -193,7 +193,7 @@ final class LogbookController
 
     /**
      * Statement of Work Experience data for an enrolment: the workplaces, mentors, hours per
-     * work experience module and the sign-offs. It feeds the Statement of Results (Sprint 8).
+     * work experience module and the sign-offs. It feeds the Statement of Results (Sprint 7).
      */
     public function statement(Request $request, string $enrolment): JsonResponse
     {

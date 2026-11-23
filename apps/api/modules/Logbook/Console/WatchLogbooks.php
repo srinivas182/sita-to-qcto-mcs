@@ -51,7 +51,7 @@ final class WatchLogbooks extends Command
                         continue;
                     }
                     $text = "{$tenant->trading_name}: {$weeks->count()} logbook ".($weeks->count() === 1 ? 'week is' : 'weeks are').' waiting for your signature. Open the app to sign or send back.';
-                    $this->reach($context, $messages, $pushes, $mentor->user_id, null, 'Logbooks to sign', $text, 'logbook');
+                    $this->reach($context, $messages, $pushes, $mentor->user_id, null, 'Logbooks to sign', $text, 'logbook_mentor');
                     LogbookWeek::query()->whereIn('id', $weeks->pluck('id'))->update(['reminded_at' => now()]);
                     $reminded += $weeks->count();
                 }

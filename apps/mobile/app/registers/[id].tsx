@@ -11,7 +11,7 @@ import { useMyRegisters } from '@/lib/delivery';
 interface Register {
   month: string;
   cohort: string | null;
-  grid: { sessions: { id: string; date: string; start: string; module: string | null; kind: string }[]; learners: { user_id: string; marks: Record<string, string | null>; held: number; attended: number; excused: number; pct: number | null }[] };
+  grid: { sessions: { id: string; date: string; start: string; module: string | null; kind: string }[]; learners: { user_id: string; name?: string; marks: Record<string, string | null>; held: number; attended: number; excused: number; pct: number | null; workplace_days?: number; workplace_hours?: number }[] };
 }
 const LABEL: Record<string, string> = { present: 'Present', late: 'Late', left_early: 'Left early', absent: 'Absent', excused: 'Excused' };
 
@@ -42,7 +42,8 @@ export default function RegisterScreen() {
       setBusy(false);
     }
   };
-  const line = q.data?.grid.learners[0];
+  const mentor = mine?.role === 'mentor';
+  const line = mentor ? undefined : q.data?.grid.learners[0];
 
   return (
     <Screen scroll>
@@ -60,6 +61,15 @@ export default function RegisterScreen() {
             ))}
           </Card>
         ) : null}
+        {mentor && q.data ? (
+          <Card className="gap-2">
+            {q.data.grid.learners.map((l) => (
+              <Text key={l.user_id} className="border-b border-line py-1.5 font-sans text-small text-ink">
+                {t('registers.workplace', { name: l.name ?? '', days: l.workplace_days ?? 0, hours: l.workplace_hours ?? 0 })}
+              </Text>
+            ))}
+          </Card>
+        ) : null}
         {error ? <Notice tone="danger">{error}</Notice> : null}
         {mine && mine.my_status === 'pending' ? (
           disputing ? (
@@ -70,7 +80,7 @@ export default function RegisterScreen() {
             </Card>
           ) : (
             <Card className="gap-3">
-              <Body>{mine.role === 'facilitator' ? t('registers.confirmFacilitator') : t('registers.confirm')}</Body>
+              <Body>{mine.role === 'facilitator' ? t('registers.confirmFacilitator') : mine.role === 'mentor' ? t('registers.confirmMentor') : t('registers.confirm')}</Body>
               <Field label={t('registers.name')} autoComplete="name" value={name} onChangeText={setName} />
               <Button title={t('registers.sign')} loading={busy} disabled={!name.trim()} onPress={() => void act(`/registers/${id}/sign`, { name, role: mine.role })} />
               {mine.role === 'learner' ? <Button title={t('registers.dispute')} variant="ghost" onPress={() => setDisputing(true)} /> : null}
