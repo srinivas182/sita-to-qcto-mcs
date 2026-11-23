@@ -182,10 +182,13 @@ final class ApplicationService
             throw ValidationException::withMessages(['application' => 'You have already applied for this intake.']);
         }
 
-        return Application::query()->create([
+        $application = Application::query()->create([
             'intake_id' => $intake->id, 'user_id' => $user->id, 'reference' => 'APP-'.strtoupper(Str::random(6)),
             'answers' => $answers, 'source' => $source, 'submitted_at' => now(),
         ]);
+        app(ApplicationPdf::class)->keep($application);
+
+        return $application;
     }
 
     /**

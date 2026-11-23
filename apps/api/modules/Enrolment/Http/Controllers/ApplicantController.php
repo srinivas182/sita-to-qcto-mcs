@@ -33,7 +33,7 @@ final class ApplicantController
         $intake = Intake::query()->whereKey($a->intake_id)->firstOrFail();
         $u = User::query()->whereKey($a->user_id)->firstOrFail();
 
-        return response()->json(['data' => $a->only(['id', 'reference', 'status', 'answers', 'reason', 'waitlist_position', 'source']) + [
+        return response()->json(['data' => $a->only(['id', 'reference', 'status', 'answers', 'reason', 'waitlist_position', 'source', 'pdf_file_id']) + [
             'submitted_at' => $a->submitted_at->toIso8601String(),
             'documents_requested_at' => $a->documents_requested_at?->toIso8601String(),
             'intake' => ['id' => $intake->id, 'title' => $intake->title, 'questions' => $intake->questions],

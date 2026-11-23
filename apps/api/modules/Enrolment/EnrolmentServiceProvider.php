@@ -24,6 +24,7 @@ final class EnrolmentServiceProvider extends ModuleServiceProvider
 
     protected function bootModule(): void
     {
+        $this->loadViewsFrom(__DIR__.'/resources/views', 'enrolment');
         Event::listen(AgreementCompleted::class, [EnrolmentService::class, 'onAgreementCompleted']);
         if ($this->app->runningInConsole()) {
             $this->commands([LapseOffers::class, QctoDueAlerts::class, RunIdentityChecks::class, PurgeApplicants::class]);

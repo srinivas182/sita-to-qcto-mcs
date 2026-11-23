@@ -21,6 +21,7 @@ import { reqState, type LearnerDocument, type Requirement } from './documents';
 import { appState, day, FUNDING, offerState, type ApplicationRow, type OfferView, type Question } from './types';
 
 interface Detail extends Omit<ApplicationRow, 'applicant' | 'documents'> {
+  pdf_file_id: string | null;
   documents_requested_at: string | null;
   intake: { id: string; title: string; questions: Question[] | null };
   applicant: {
@@ -94,9 +95,25 @@ export function ApplicantPage() {
           .filter(Boolean)
           .join(' · ')}
         actions={
-          <Badge tone={appState[a.status].tone} dot>
-            {appState[a.status].label}
-          </Badge>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge tone={appState[a.status].tone} dot>
+              {appState[a.status].label}
+            </Badge>
+            {a.pdf_file_id ? (
+              <Button
+                size="sm"
+                variant="secondary"
+                icon={<ExternalLink className="size-4" />}
+                onClick={() =>
+                  void call<{ url: string }>('GET', `/files/${a.pdf_file_id}/download`)
+                    .then((r) => window.open(r.url, '_blank', 'noopener'))
+                    .catch((e: unknown) => toast(errorMessage(e), 'error'))
+                }
+              >
+                Application PDF
+              </Button>
+            ) : null}
+          </div>
         }
       />
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
