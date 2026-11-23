@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use Modules\Delivery\Http\Controllers\AttendanceController;
+use Modules\Delivery\Http\Controllers\DashboardController;
 use Modules\Delivery\Http\Controllers\MaterialController;
 use Modules\Delivery\Http\Controllers\RegisterController;
 use Modules\Delivery\Http\Controllers\TaskController;
@@ -20,6 +21,7 @@ Route::middleware(['auth:sanctum', EnsureAccess::class, RequireMfaEnrolment::cla
     Route::post('centres/{centre}/rooms', [TimetableController::class, 'saveRoom'])->whereUlid('centre');
     Route::patch('centres/{centre}/rooms/{room}', [TimetableController::class, 'saveRoom'])->whereUlid('centre')->whereUlid('room');
     Route::get('me/timetable', [TimetableController::class, 'mine']);
+    Route::get('me/dashboard', DashboardController::class);
 
     Route::get('class-sessions/{session}/qr', [AttendanceController::class, 'qr'])->whereUlid('session');
     Route::get('class-sessions/{session}/attendance', [AttendanceController::class, 'roster'])->whereUlid('session');

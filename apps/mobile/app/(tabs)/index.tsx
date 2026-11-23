@@ -9,6 +9,7 @@ import { useMyAgreements } from '@/lib/agreements';
 import { useMe } from '@/lib/me';
 import { useMentoring } from '@/lib/mentoring';
 import { useMyCourses, useMyDocuments, useMyOffers } from '@/lib/enrolment';
+import { useDashboard } from '@/lib/delivery';
 import { outbox } from '@/lib/outbox';
 
 export default function Home() {
@@ -24,7 +25,8 @@ export default function Home() {
   const openOffers = (offers.data ?? []).filter((o) => o.status === 'open').length;
   const docsNeeded = (documents.data?.needed ?? []).flatMap((n) => n.items).filter((i) => ['missing', 'rejected', 'expired'].includes(i.state)).length;
   const learner = (courses.data ?? []).length > 0;
-  const card = (icon: 'gift' | 'file-plus' | 'search', tone: string, color: string, title: string, body: string, to: string) => (
+  const dash = useDashboard(online && learner);
+  const card = (icon: 'gift' | 'file-plus' | 'search' | 'edit' | 'calendar', tone: string, color: string, title: string, body: string, to: string) => (
     <Pressable accessibilityRole="button" onPress={() => router.push(to as never)}>
       <Card className="flex-row items-center gap-3">
         <View className={`h-10 w-10 items-center justify-center rounded-xl ${tone}`}>
@@ -42,7 +44,7 @@ export default function Home() {
 
   return (
     <Screen scroll>
-      <ScrollView contentContainerClassName="gap-4 pb-8 pt-4" refreshControl={<RefreshControl refreshing={me.isRefetching} onRefresh={() => void Promise.all([me.refetch(), syncNow(), agreements.refetch(), mentoring.refetch(), offers.refetch(), documents.refetch(), courses.refetch()])} />}>
+      <ScrollView contentContainerClassName="gap-4 pb-8 pt-4" refreshControl={<RefreshControl refreshing={me.isRefetching} onRefresh={() => void Promise.all([me.refetch(), syncNow(), agreements.refetch(), mentoring.refetch(), offers.refetch(), documents.refetch(), courses.refetch(), dash.refetch()])} />}>
         {tenant ? <Brand name={tenant.name} primary={tenant.branding.primary} /> : null}
 
         <View className="mt-2">
@@ -75,6 +77,30 @@ export default function Home() {
           </Card>
         ) : null}
 
+        {(dash.data?.today ?? []).map((s) => (
+          <Card key={s.id} className="gap-2">
+            <Text className="font-sans text-small text-muted dark:text-night-muted">{t('home.today')}</Text>
+            <Text className="font-semibold text-body text-ink dark:text-night-ink">{s.starts_at.slice(11, 16)}–{s.ends_at.slice(11, 16)} · {s.title ?? t('timetable.class')}</Text>
+            <Text className="font-sans text-small text-muted">{[s.room?.name ?? s.venue, s.facilitator?.name].filter(Boolean).join(' · ')}</Text>
+            {s.status === 'cancelled' ? <Text className="font-medium text-small text-danger">{t('timetable.cancelled')}{s.cancel_reason ? `: ${s.cancel_reason}` : ''}</Text> : null}
+            {s.status === 'scheduled' && !s.teaching ? <Button title={t('home.checkIn')} icon={<Feather name="maximize" size={18} color="#fff" />} onPress={() => router.push('/check-in' as never)} /> : null}
+          </Card>
+        ))}
+        {(dash.data?.courses ?? []).map((c) => (
+          <Pressable key={c.enrolment_id} accessibilityRole="button" onPress={() => router.push({ pathname: '/course/[id]', params: { id: c.enrolment_id } } as never)}>
+            <Card className="gap-2">
+              <Text className="font-semibold text-body text-ink dark:text-night-ink">{c.title ?? c.cohort}</Text>
+              <View className="flex-row gap-3">
+                <View className="flex-1"><Text className={`font-bold text-title ${c.attendance.at_risk ? 'text-danger' : 'text-ink dark:text-night-ink'}`}>{c.attendance.pct ?? '–'}{c.attendance.pct !== null ? '%' : ''}</Text><Text className="font-sans text-caption text-muted">{t('home.attendance')}</Text></View>
+                <View className="flex-1"><Text className="font-bold text-title text-ink dark:text-night-ink">{c.materials.done}/{c.materials.total}</Text><Text className="font-sans text-caption text-muted">{t('home.materials')}</Text></View>
+                <View className="flex-1"><Text className="font-bold text-title text-ink dark:text-night-ink">{c.tasks.passed}/{c.tasks.total}</Text><Text className="font-sans text-caption text-muted">{t('home.tasks')}</Text></View>
+              </View>
+              {c.attendance.at_risk ? <Text className="font-sans text-small text-danger">{t('home.atRisk')}</Text> : null}
+            </Card>
+          </Pressable>
+        ))}
+        {dash.data?.registers_to_sign ? card('edit', 'bg-warning-bg', '#8a5a0b', t('home.registers'), t('home.registersBody', { n: dash.data.registers_to_sign }), '/registers') : null}
+        {learner ? card('calendar', 'bg-info-bg', '#2d68a8', t('timetable.title'), t('home.timetableBody'), '/timetable') : null}
         {openOffers ? card('gift', 'bg-success-bg', '#166c52', t('home.offers'), t('home.offersBody', { n: openOffers }), '/offers') : null}
         {docsNeeded ? card('file-plus', 'bg-warning-bg', '#8a5a0b', t('home.documents'), t('home.documentsBody', { n: docsNeeded }), '/documents') : null}
 

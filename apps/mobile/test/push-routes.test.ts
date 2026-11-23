@@ -11,6 +11,12 @@ describe('notification routes', () => {
     expect(routeFor({ type: 'offer', offer_id: '../x' })).toBeNull();
   });
 
+  it('opens registers, the timetable and the course', () => {
+    expect(routeFor({ type: 'register', register_id: '01JDEMO0000000000000000000' })).toBe('/registers/01JDEMO0000000000000000000');
+    expect(routeFor({ type: 'timetable', session_id: 'x' })).toBe('/timetable');
+    expect(routeFor({ type: 'task', task_id: 'x' })).toBe('/learn');
+  });
+
   it('ignores anything else, including a malformed id', () => {
     expect(routeFor({ type: 'agreement', signer_id: '../settings' })).toBeNull();
     expect(routeFor({ type: 'agreement', signer_id: 42 })).toBeNull();

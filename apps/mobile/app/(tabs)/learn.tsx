@@ -1,6 +1,6 @@
 import Feather from '@expo/vector-icons/Feather';
 import { useRouter } from 'expo-router';
-import { RefreshControl, ScrollView, Text, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { Pill } from '@/components/BackHeader';
 import { Body, Button, Card, Screen, Title } from '@/components/ui';
 import { useApp } from '@/lib/app';
@@ -18,15 +18,17 @@ export default function Learn() {
       <ScrollView contentContainerClassName="gap-4 pb-12 pt-4" refreshControl={<RefreshControl refreshing={q.isRefetching} onRefresh={() => void q.refetch()} />}>
         <Title>{t('learn.myCourse')}</Title>
         {courses.length ? courses.map((c) => (
-          <Card key={c.enrolment_id} className="gap-2">
+          <Pressable key={c.enrolment_id} accessibilityRole="button" disabled={c.status !== 'active'} onPress={() => router.push({ pathname: '/course/[id]', params: { id: c.enrolment_id } } as never)}>
+          <Card className="gap-2">
             <View className="h-12 w-12 items-center justify-center rounded-2xl bg-primary-50">
               <Feather name="book-open" size={22} color="#4338ca" />
             </View>
             <Text className="font-semibold text-title text-ink dark:text-night-ink">{c.qualification?.title ?? c.cohort}</Text>
             <Body>{[c.cohort, c.starts_on && c.ends_on ? `${c.starts_on} – ${c.ends_on}` : null].filter(Boolean).join(' · ')}</Body>
             <Pill text={c.status === 'active' ? t('learn.enrolled') : c.status} tone={c.status === 'active' ? 'success' : 'neutral'} />
-            <Body>{t('learn.soon')}</Body>
+            {c.status === 'active' ? <Text className="font-semibold text-body text-primary-700">{t('learn.open')}</Text> : null}
           </Card>
+          </Pressable>
         )) : (
           <View className="items-center gap-3 pt-10">
             <View className="h-14 w-14 items-center justify-center rounded-2xl bg-primary-50">
