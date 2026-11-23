@@ -18,6 +18,7 @@ use Modules\Tenancy\Concerns\BelongsToTenant;
  * @property string|null $mentor_id
  * @property Carbon $starts_on
  * @property Carbon|null $ends_on
+ * @property Carbon|null $nudged_at
  */
 final class LearnerPlacement extends Model
 {
@@ -28,7 +29,7 @@ final class LearnerPlacement extends Model
 
     protected function casts(): array
     {
-        return ['starts_on' => 'date', 'ends_on' => 'date'];
+        return ['starts_on' => 'date', 'ends_on' => 'date', 'nudged_at' => 'datetime'];
     }
 
     public function covers(string $date): bool

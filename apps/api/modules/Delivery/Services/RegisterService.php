@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Modules\Audit\AuditLogger;
 use Modules\Cohorts\Models\Cohort;
+use Modules\Delivery\Contracts\WorkplaceDays;
 use Modules\Delivery\Models\Attendance;
 use Modules\Delivery\Models\AttendanceRegister;
 use Modules\Delivery\Models\ClassSession;
@@ -53,8 +54,8 @@ final class RegisterService
             throw ValidationException::withMessages(['month' => 'This register was already sent to the SETA.']);
         }
         $grid = $this->grid($cohort, $start);
-        if ($grid['sessions'] === []) {
-            throw ValidationException::withMessages(['month' => 'There were no classes in that month.']);
+        if ($grid['sessions'] === [] && $grid['mentors'] === []) {
+            throw ValidationException::withMessages(['month' => 'There were no classes or workplace days in that month.']);
         }
 
         $register = DB::transaction(function () use ($cohort, $start, $grid, $by, $existing): AttendanceRegister {
@@ -67,6 +68,9 @@ final class RegisterService
             }
             foreach (array_unique(array_filter(array_column($grid['sessions'], 'facilitator_id'))) as $f) {
                 RegisterSignature::query()->create(['register_id' => $r->id, 'user_id' => $f, 'role' => 'facilitator']);
+            }
+            foreach ($grid['mentors'] as $m) {
+                RegisterSignature::query()->create(['register_id' => $r->id, 'user_id' => $m, 'role' => 'mentor']); // confirms the workplace days
             }
 
             return $r;
@@ -131,7 +135,8 @@ final class RegisterService
             'status' => $r->status, 'submitted_on' => $r->submitted_on?->toDateString(), 'submitted_note' => $r->submitted_note,
             'counts' => ['learners' => $sigs->where('role', 'learner')->count(), 'signed' => $sigs->where('role', 'learner')->where('status', 'signed')->count(),
                 'disputed' => $sigs->where('status', 'disputed')->count(), 'facilitators_signed' => $sigs->where('role', 'facilitator')->where('status', 'signed')->count(),
-                'facilitators' => $sigs->where('role', 'facilitator')->count()],
+                'facilitators' => $sigs->where('role', 'facilitator')->count(),
+                'mentors' => $sigs->where('role', 'mentor')->count(), 'mentors_signed' => $sigs->where('role', 'mentor')->where('status', 'signed')->count()],
             'signatures' => $sigs->map(fn (RegisterSignature $s) => ['id' => $s->id, 'user_id' => $s->user_id, 'name' => $names->get($s->user_id)?->fullName(), 'role' => $s->role,
                 'status' => $s->status, 'dispute' => $s->dispute, 'signed_at' => $s->signed_at?->toIso8601String()])->values()->all(),
         ] + ($withGrid ? ['grid' => $r->grid] : []);
@@ -164,7 +169,7 @@ final class RegisterService
     }
 
     /**
-     * @return array{sessions: list<array<string, mixed>>, learners: list<array<string, mixed>>}
+     * @return array{sessions: list<array<string, mixed>>, learners: list<array<string, mixed>>, mentors: list<string>}
      */
     private function grid(Cohort $cohort, CarbonImmutable $start): array
     {
@@ -176,6 +181,7 @@ final class RegisterService
             ->whereDate('enrolled_on', '<=', $end->toDateString())->where(fn ($q) => $q->whereNull('ended_on')->orWhereDate('ended_on', '>=', $start->toDateString()))->get();
         $people = $this->context->runAsPlatform(fn () => User::query()->whereIn('id', $enrolments->pluck('user_id'))->get()->keyBy('id'));
         $marks = Attendance::query()->whereIn('session_id', $sessions->pluck('id'))->get()->groupBy('user_id');
+        $workplace = app(WorkplaceDays::class)->forCohort($cohort->id, $start->toDateString(), $end->toDateString());
 
         $rows = [];
         foreach ($enrolments as $e) {
@@ -200,8 +206,11 @@ final class RegisterService
                 $excused += $status === 'excused' ? 1 : 0;
             }
             $counted = $held - $excused;
+            $days = $workplace[$u->id]['days'] ?? [];
             $rows[] = ['user_id' => $u->id, 'name' => $u->fullName(), 'id_number' => $u->maskedIdNumber(), 'marks' => $cells, 'held' => $held, 'attended' => $attended,
-                'excused' => $excused, 'pct' => $counted > 0 ? (int) round($attended * 100 / $counted) : null];
+                'excused' => $excused, 'pct' => $counted > 0 ? (int) round($attended * 100 / $counted) : null,
+                'workplace_days' => count($days), 'workplace_hours' => round(array_sum($days) / 60, 1), 'workplace' => $days,
+                'workplace_mentors' => $workplace[$u->id]['mentors'] ?? []];
         }
         usort($rows, fn ($a, $b) => strcmp($a['name'], $b['name']));
 
@@ -214,6 +223,7 @@ final class RegisterService
                     'kind' => $s->kind, 'module' => $modules->get($s->module_id), 'facilitator_id' => $s->facilitator_id];
             })->all()),
             'learners' => $rows,
+            'mentors' => array_values(array_unique(array_merge([], ...array_values(array_map(fn (array $w) => $w['mentors'], $workplace))))),
         ];
     }
 
@@ -230,7 +240,7 @@ final class RegisterService
     /** Complete once every facilitator who taught has signed. */
     private function settle(AttendanceRegister $register): void
     {
-        $open = RegisterSignature::query()->where('register_id', $register->id)->where('role', 'facilitator')->where('status', '!=', 'signed')->exists();
+        $open = RegisterSignature::query()->where('register_id', $register->id)->whereIn('role', ['facilitator', 'mentor'])->where('status', '!=', 'signed')->exists();
         if (! $open && $register->status === 'signing') {
             $register->forceFill(['status' => 'complete'])->save();
         }

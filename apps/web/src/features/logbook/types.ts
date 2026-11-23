@@ -56,3 +56,22 @@ export function duration(minutes: number): string {
   const m = minutes % 60;
   return m ? `${h} h ${String(m).padStart(2, '0')}` : `${h} h`;
 }
+
+export interface Signoff {
+  id: string;
+  enrolment_id: string;
+  user_id: string;
+  module_id: string;
+  status: 'signed' | 'checked' | 'queried';
+  hours: number;
+  signed_at: string;
+  mentor_comment: string | null;
+  checked_at: string | null;
+  check_comment: string | null;
+}
+
+export const signoffState = {
+  signed: { label: 'Signed off, to check', tone: 'warning' },
+  checked: { label: 'Checked', tone: 'success' },
+  queried: { label: 'Queried', tone: 'danger' },
+} as const;

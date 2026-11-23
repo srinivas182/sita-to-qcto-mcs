@@ -29,6 +29,14 @@ Occupational qualifications include work experience (WM) modules done on site. T
 13. **A signed week is closed**: no new entries for it, and its entries cannot be corrected by the learner.
 14. The learner gets a push notice when a week is signed or sent back. The provider sees unsigned past weeks per learner.
 
+## Final sign-off, assessor check, registers and reminders (Sprint 6c)
+
+15. **Final sign-off** (`logbook_signoffs`, one per enrolment and WM module): the placement's mentor signs off once every entry for the module is signed and the signed hours reach the hours needed. They tick the authenticity statement (versioned, `v1`): *"I confirm that the learner did the work in this logbook at our workplace, under my supervision, and that the entries are true."* The sign-off records the hours and a signature over the module's signed entry hashes.
+16. **Assessor check**: a provider assessor (`assessment.conduct`, scoped to the cohort's centre) confirms the sign-off, or queries it with a comment. Confirming is refused if the logbook changed after the sign-off. After a query, the mentor can sign off again.
+17. **Statement of Work Experience data** (`GET /enrolments/{id}/work-experience`): workplaces with approval numbers and mentors, hours per module against what is needed, sign-offs and the chain check. A module is complete once its sign-off is checked. Sprint 8 turns this into the Statement of Results.
+18. **Monthly register**: Delivery asks for workplace days through a `WorkplaceDays` contract, which the Logbook module provides (so Delivery does not depend on Logbook). Each learner's line shows the days and hours logged at the workplace. The placement's mentor signs the register as `mentor`. A month with only workplace days can have a register. A mentor sees only their learners' workplace days, not their classes.
+19. **Reminders** (`logbook:watch`, daily at 17:40): mentors get one message listing weeks still unsigned 7 days after the week ended, then weekly. Learners on a placement who have logged nothing for 14 days get a nudge, then every 14 days. Push first; SMS or WhatsApp when the person has no app.
+
 ## Consequences
 
 - Weekly mentor sign-off (6b) and final sign-off with the authenticity statement (6c) build on these entries.

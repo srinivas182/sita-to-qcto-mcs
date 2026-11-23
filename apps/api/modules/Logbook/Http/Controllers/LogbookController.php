@@ -19,10 +19,12 @@ use Modules\Identity\Models\User;
 use Modules\Logbook\Models\LearnerPlacement;
 use Modules\Logbook\Models\LogbookEntry;
 use Modules\Logbook\Models\LogbookRule;
+use Modules\Logbook\Models\LogbookSignoff;
 use Modules\Logbook\Models\LogbookWeek;
 use Modules\Logbook\Services\LogbookService;
 use Modules\Logbook\Services\SignOffService;
 use Modules\Qualifications\Models\QualificationModule;
+use Modules\Tenancy\Context\TenantContext;
 
 /** Logbook rules, learners' placements, the learner's own logbook, and the provider's view. */
 final class LogbookController
@@ -151,9 +153,12 @@ final class LogbookController
         $thisWeek = CarbonImmutable::now(LogbookService::TZ)->startOfWeek()->toDateString();
         $weeks = LogbookWeek::query()->whereIn('learner_placement_id', LearnerPlacement::query()->where('cohort_id', $c->id)->pluck('id'))->get()->groupBy('user_id');
         $signOff = app(SignOffService::class);
+        $signoffs = LogbookSignoff::query()->whereIn('enrolment_id', $enrolments->pluck('id'))->get();
 
         return response()->json(['data' => $enrolments->map(fn (Enrolment $e) => ['user_id' => $e->user_id, 'name' => $people->get($e->user_id)?->fullName(),
             'hours' => $this->logbook()->hours($e->user_id, $c->qualification_id), 'last_entry' => $lastDates->get($e->user_id),
+            'enrolment_id' => $e->id,
+            'signoffs' => $signoffs->where('enrolment_id', $e->id)->map(fn (LogbookSignoff $s) => SignOffService::presentSignoff($s))->values()->all(),
             'unsigned_weeks' => ($weeks->get($e->user_id) ?? collect())->filter(fn (LogbookWeek $w) => $w->status !== 'signed' && $w->week_start->toDateString() < $thisWeek)->count(),
             'chain' => $this->logbook()->verify($e->user_id) + ['signatures_ok' => ($weeks->get($e->user_id) ?? collect())->every(fn (LogbookWeek $w) => $signOff->intact($w))],
         ])->sortBy('name')->values()->all()]);
@@ -170,6 +175,53 @@ final class LogbookController
             'weeks' => LogbookWeek::query()->where('user_id', $user)->orderByDesc('week_start')->get()->map(fn (LogbookWeek $w) => SignOffService::present($w))->values()->all(),
             'entries' => LogbookEntry::query()->where('user_id', $user)->orderByDesc('seq')->limit(500)->get()->map(fn (LogbookEntry $e) => LogbookService::present($e))->values()->all(),
             'hours' => $this->logbook()->hours($user, $c->qualification_id), 'chain' => $this->logbook()->verify($user),
+        ]]);
+    }
+
+    /** The provider's assessor confirms a mentor's final sign-off, or queries it. */
+    public function check(Request $request, string $signoff): JsonResponse
+    {
+        Gate::authorize('assessment.conduct');
+        $s = LogbookSignoff::query()->whereKey($signoff)->firstOrFail();
+        $e = Enrolment::query()->whereKey($s->enrolment_id)->firstOrFail();
+        $this->cohort($request, $e->cohort_id, 'assessment.conduct');
+        /** @var User $me */
+        $me = $request->user();
+
+        return response()->json(['data' => SignOffService::presentSignoff(app(SignOffService::class)->check($s, $me, $request->all()))]);
+    }
+
+    /**
+     * Statement of Work Experience data for an enrolment: the workplaces, mentors, hours per
+     * work experience module and the sign-offs. It feeds the Statement of Results (Sprint 8).
+     */
+    public function statement(Request $request, string $enrolment): JsonResponse
+    {
+        $e = Enrolment::query()->whereKey($enrolment)->firstOrFail();
+        /** @var User $me */
+        $me = $request->user();
+        if ($e->user_id !== $me->id) {
+            Gate::authorize('cohorts.view');
+            $this->cohort($request, $e->cohort_id, 'cohorts.view');
+        }
+        $c = Cohort::query()->whereKey($e->cohort_id)->firstOrFail();
+        $placements = LearnerPlacement::query()->where('enrolment_id', $e->id)->orderBy('starts_on')->get();
+        $sites = EmployerSite::query()->whereIn('id', $placements->pluck('site_id'))->get()->keyBy('id');
+        $employers = Employer::query()->whereIn('id', $sites->pluck('employer_id'))->get()->keyBy('id');
+        $mentors = Mentor::query()->whereIn('id', $placements->pluck('mentor_id')->filter())->get()->keyBy('id');
+        $signoffs = LogbookSignoff::query()->where('enrolment_id', $e->id)->get()->keyBy('module_id');
+        $learner = app(TenantContext::class)->runAsPlatform(fn () => User::query()->whereKey($e->user_id)->first());
+
+        return response()->json(['data' => [
+            'learner' => ['name' => $learner?->fullName(), 'id_number' => $learner?->maskedIdNumber()],
+            'cohort' => $c->name,
+            'workplaces' => $placements->map(fn (LearnerPlacement $p) => ['site' => $sites->get($p->site_id)?->name,
+                'employer' => $employers->get($sites->get($p->site_id)->employer_id ?? '')?->legal_name, 'approval_number' => $sites->get($p->site_id)?->approval_number,
+                'mentor' => $mentors->get($p->mentor_id)?->name, 'starts_on' => $p->starts_on->toDateString(), 'ends_on' => $p->ends_on?->toDateString()])->values()->all(),
+            'modules' => array_map(fn (array $h) => $h + ['signoff' => ($s = $signoffs->get($h['module_id'])) ? SignOffService::presentSignoff($s) + [
+                'mentor' => $mentors->get($s->mentor_id)?->name, 'statement' => LogbookSignoff::STATEMENT] : null,
+                'complete' => ($s = $signoffs->get($h['module_id'])) !== null && $s->status === 'checked'], $this->logbook()->hours($e->user_id, $c->qualification_id)),
+            'chain' => $this->logbook()->verify($e->user_id),
         ]]);
     }
 

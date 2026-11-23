@@ -28,7 +28,7 @@
     @foreach($register->grid['sessions'] as $s)
       <th>{{ \Carbon\CarbonImmutable::parse($s['date'])->format('d M') }}<br>{{ $s['start'] }}<br>{{ $s['module'] ?? ($s['kind'] === 'practical' ? 'PR' : 'KN') }}</th>
     @endforeach
-    <th>Held</th><th>Att.</th><th>Exc.</th><th>%</th><th>Learner signature</th>
+    <th>Held</th><th>Att.</th><th>Exc.</th><th>%</th>@if(!empty($register->grid['mentors']))<th>Work­place days (h)</th>@endif<th>Learner signature</th>
   </tr>
   @php $sigs = collect($data['signatures'])->where('role', 'learner')->keyBy('user_id'); @endphp
   @foreach($register->grid['learners'] as $l)
@@ -39,6 +39,7 @@
       <td class="{{ $m === 'absent' ? 'A' : ($m === 'excused' ? 'E' : ($m === 'late' || $m === 'left_early' ? 'L' : '')) }}">{{ $m === null ? '–' : ['present' => 'P', 'late' => 'L', 'left_early' => 'LE', 'absent' => 'A', 'excused' => 'E'][$m] }}</td>
     @endforeach
     <td>{{ $l['held'] }}</td><td>{{ $l['attended'] }}</td><td>{{ $l['excused'] }}</td><td>{{ $l['pct'] ?? '–' }}</td>
+    @if(!empty($register->grid['mentors']))<td>{{ $l['workplace_days'] ?? 0 }} ({{ $l['workplace_hours'] ?? 0 }})</td>@endif
     @php $sg = $sigs->get($l['user_id']); @endphp
     <td style="text-align:left">
       @if($sg && $sg['status'] === 'signed') Signed in the app {{ \Carbon\CarbonImmutable::parse($sg['signed_at'])->timezone('Africa/Johannesburg')->format('j M Y H:i') }}
@@ -51,8 +52,8 @@
 <div class="key muted">P present · L late · LE left early · A absent · E excused (left out of the percentage) · – not enrolled then. KN knowledge, PR practical. Check-ins were by a changing QR code at the centre or marked by the facilitator with a reason.</div>
 <br>
 <table class="sig">
-  @foreach(collect($data['signatures'])->where('role', 'facilitator') as $f)
-  <tr><td style="width:30%"><strong>{{ $f['name'] }}</strong><br><span class="muted">Facilitator</span></td>
+  @foreach(collect($data['signatures'])->whereIn('role', ['facilitator', 'mentor']) as $f)
+  <tr><td style="width:30%"><strong>{{ $f['name'] }}</strong><br><span class="muted">{{ $f['role'] === 'mentor' ? 'Workplace mentor (workplace days)' : 'Facilitator' }}</span></td>
   <td>@if($f['status'] === 'signed') Signed in the app {{ \Carbon\CarbonImmutable::parse($f['signed_at'])->timezone('Africa/Johannesburg')->format('j F Y, H:i') }} SAST @else <span class="muted">Not signed yet</span> @endif</td></tr>
   @endforeach
 </table>
