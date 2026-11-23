@@ -13,6 +13,7 @@ use Modules\Employers\EmployersServiceProvider;
 use Modules\Enrolment\EnrolmentServiceProvider;
 use Modules\Files\FilesServiceProvider;
 use Modules\Identity\IdentityServiceProvider;
+use Modules\Logbook\LogbookServiceProvider;
 use Modules\Messaging\MessagingServiceProvider;
 use Modules\Onboarding\OnboardingServiceProvider;
 use Modules\People\PeopleServiceProvider;
@@ -40,4 +41,5 @@ return [
     CohortsServiceProvider::class,
     EnrolmentServiceProvider::class,
     DeliveryServiceProvider::class,
+    LogbookServiceProvider::class,
 ];

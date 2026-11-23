@@ -73,6 +73,15 @@ return [
             'variants' => [],
             'public_variants' => false,
         ],
+        'logbook_photo' => [
+            'scope' => 'tenant',
+            'permission' => 'self',
+            'viewers' => 'learners.view',
+            'max_kb' => 10240,
+            'mimes' => ['image/jpeg', 'image/png'],
+            'variants' => [],
+            'public_variants' => false,
+        ],
         'task_evidence' => [
             'scope' => 'tenant',
             'permission' => 'self',
