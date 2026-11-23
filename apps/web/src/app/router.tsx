@@ -311,6 +311,11 @@ const stipendRun = createRoute({
   path: '/stipend-runs/$id',
   component: lazyRouteComponent(() => import('@/features/funding/StipendRunPage'), 'StipendRunPage'),
 });
+const grantClaim = createRoute({
+  getParentRoute: () => app,
+  path: '/grant-claims/$id',
+  component: lazyRouteComponent(() => import('@/features/funding/ClaimPage'), 'ClaimPage'),
+});
 const cohortEisa = createRoute({
   getParentRoute: () => app,
   path: '/cohorts/$id/eisa',
@@ -479,6 +484,7 @@ const routeTree = root.addChildren([
     cohortFunding,
     grantAgreement,
     stipendRun,
+    grantClaim,
     moderation,
     cohortModeration,
     marking,

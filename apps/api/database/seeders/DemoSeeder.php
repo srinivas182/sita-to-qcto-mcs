@@ -49,6 +49,8 @@ use Modules\Files\Storage\StoreFactory;
 use Modules\Files\Support\FileStatus;
 use Modules\Funding\Models\Funder;
 use Modules\Funding\Models\GrantAgreement;
+use Modules\Funding\Models\GrantTranche;
+use Modules\Funding\Services\ClaimService;
 use Modules\Funding\Services\GrantService;
 use Modules\Funding\Services\StipendService;
 use Modules\Identity\Models\MfaFactor;
@@ -457,7 +459,7 @@ final class DemoSeeder extends Seeder
             'funder_id' => $ceta->id, 'reference' => 'CETA/DG/2026-27/0142', 'learners' => 20, 'amount_per_learner' => 45500, 'funding_kind' => 'full',
             'starts_on' => now()->subMonth()->toDateString(), 'ends_on' => now()->addYear()->toDateString(), 'enrolment_ids' => $enrolments,
             'tranches' => [
-                ['share_pct' => 30, 'milestones' => [['key' => 'enrolled'], ['key' => 'qcto_submitted']], 'evidence' => [['title' => 'CETA learner registration letter']]],
+                ['share_pct' => 30, 'milestones' => [['key' => 'enrolled']]],
                 ['share_pct' => 40, 'milestones' => [['key' => 'registers', 'months' => 3], ['key' => 'logbook']]],
                 ['share_pct' => 30, 'milestones' => [['key' => 'sor'], ['key' => 'eisa']], 'evidence' => [['title' => 'Close-out report signed by the employer']]],
             ],
@@ -469,7 +471,10 @@ final class DemoSeeder extends Seeder
         $month = now()->subMonth()->startOfMonth();
         $users = Enrolment::query()->whereIn('id', $enrolments)->pluck('user_id')->values();
         $pcts = [92, 71, 45, 100, 88];
-        $rows = $users->map(fn (string $u, int $i) => ['user_id' => $u, 'name' => '', 'pct' => $pcts[$i % 5], 'workplace_days' => 0])->all();
+        $people = $this->peopleNames($users->all());
+        $rows = $users->map(fn (string $u, int $i) => ['user_id' => $u, 'name' => $people[$u] ?? '', 'id_number' => null, 'marks' => [], 'held' => 20,
+            'attended' => (int) round(20 * $pcts[$i % 5] / 100), 'excused' => 0, 'pct' => $pcts[$i % 5], 'workplace_days' => 0, 'workplace_hours' => 0,
+            'workplace' => [], 'workplace_mentors' => []])->all();
         $register = AttendanceRegister::query()->create(['cohort_id' => $cohort->id, 'month' => $month->toDateString(), 'grid' => ['sessions' => [], 'learners' => $rows],
             'grid_sha256' => hash('sha256', (string) json_encode($rows)), 'created_by' => $by->id]);
         $register->forceFill(['status' => 'complete'])->save();
@@ -482,6 +487,25 @@ final class DemoSeeder extends Seeder
             }
         }
         $stipends->propose($agreement, $month->format('Y-m'), $by);
+
+        // Tranche 1 claimed, sent and queried by CETA (demo).
+        $first = GrantTranche::query()->where('agreement_id', $agreement->id)->where('number', 1)->first();
+        if ($first !== null) {
+            $claims = app(ClaimService::class);
+            $claim = $claims->create($first, $by, []);
+            $claims->sent($claim, ['sent_on' => now()->subDays(10)->toDateString()]);
+            $claims->query($claim, $by, ['problem' => 'Certified copy of the learner’s ID is not legible', 'enrolment_id' => $claim->learners[0]['enrolment_id'],
+                'raised_on' => now()->subDays(3)->toDateString()]);
+        }
+    }
+
+    /**
+     * @param  list<string>  $ids
+     * @return array<string, string>
+     */
+    private function peopleNames(array $ids): array
+    {
+        return app(TenantContext::class)->runAsPlatform(fn () => User::query()->whereIn('id', $ids)->get()->mapWithKeys(fn (User $u) => [$u->id => $u->fullName()])->all());
     }
 
     /**

@@ -9,6 +9,7 @@ import { useCan } from '@/lib/session';
 import { uploadFile } from '@/lib/upload';
 import { AgreementDialog } from './AgreementDialog';
 import { BankDialog } from './BankDialog';
+import { ClaimsCard } from './ClaimsCard';
 import { StipendsCard } from './StipendsCard';
 import { TrancheTable } from './FundingPage';
 import type { AgreementDetail } from './types';
@@ -86,6 +87,7 @@ export function AgreementPage() {
             )
           : null}
       </Card>
+      <ClaimsCard agreement={a} tranches={d.tranches} manage={manage} />
       <StipendsCard agreementId={a.id} manage={manage} />
       <Card>
         <CardHeader title="Learners" />
