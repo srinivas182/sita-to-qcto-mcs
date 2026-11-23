@@ -1,10 +1,10 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { RefreshControl, ScrollView, Text, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { BackHeader, Pill } from '@/components/BackHeader';
 import { Body, Button, Card, Field, Notice, Screen, Title } from '@/components/ui';
 import { ApiError, errorMessage } from '@/lib/api';
-import { type Latest, appeal, shareStatement, useMyResults, useMyStatements } from '@/lib/assess';
+import { type Latest, appeal, declareEisa, shareStatement, useMyEisa, useMyResults, useMyStatements } from '@/lib/assess';
 import { useApp } from '@/lib/app';
 
 const tone = { competent: 'success', nyc: 'danger', in_progress: 'warning', not_assessed: 'neutral', no_assessment: 'neutral' } as const;
@@ -15,6 +15,9 @@ export default function ResultsScreen() {
   const qc = useQueryClient();
   const q = useMyResults();
   const sors = useMyStatements();
+  const eisa = useMyEisa();
+  const [agree, setAgree] = useState(false);
+  const [signName, setSignName] = useState('');
   const [appealing, setAppealing] = useState<string | null>(null);
   const [reason, setReason] = useState('');
   const [busy, setBusy] = useState(false);
@@ -29,6 +32,19 @@ export default function ResultsScreen() {
       setReason('');
       setMessage({ tone: 'success', text: t('results.appealSent') });
       void qc.invalidateQueries({ queryKey: ['my-results'] });
+    } catch (e) {
+      setMessage({ tone: 'danger', text: e instanceof ApiError ? (Object.values(e.fields)[0]?.[0] ?? e.message) : errorMessage(e) });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const sign = async (id: string) => {
+    setBusy(true);
+    try {
+      await declareEisa(id, signName);
+      setMessage({ tone: 'success', text: t('eisa.signed') });
+      void qc.invalidateQueries({ queryKey: ['my-eisa'] });
     } catch (e) {
       setMessage({ tone: 'danger', text: e instanceof ApiError ? (Object.values(e.fields)[0]?.[0] ?? e.message) : errorMessage(e) });
     } finally {
@@ -65,11 +81,32 @@ export default function ResultsScreen() {
   return (
     <Screen scroll>
       <ScrollView contentContainerClassName="gap-4 pb-10 pt-4" keyboardShouldPersistTaps="handled"
-        refreshControl={<RefreshControl refreshing={q.isRefetching} onRefresh={() => void Promise.all([q.refetch(), sors.refetch()])} />}>
+        refreshControl={<RefreshControl refreshing={q.isRefetching} onRefresh={() => void Promise.all([q.refetch(), sors.refetch(), eisa.refetch()])} />}>
         <BackHeader />
         <Title>{t('results.title')}</Title>
         <Body>{t('results.body')}</Body>
         {message ? <Notice tone={message.tone}>{message.text}</Notice> : null}
+        {eisa.data?.data.map((r) => (
+          <Card key={r.id} className="gap-2">
+            <Text className="font-semibold text-body text-ink dark:text-night-ink">{t('eisa.title', { date: d(r.eisa_on) })}</Text>
+            <Text className="font-sans text-small text-muted dark:text-night-muted">
+              {r.assessment_centre_name ?? r.assessment_centre ?? t('eisa.centreTbc')} · {r.status === 'registered' ? t('eisa.registered') : t('eisa.pending')}
+            </Text>
+            {r.declared_at ? (
+              <Text className="font-sans text-small text-success">{t('eisa.declared', { date: d(r.declared_at) })}</Text>
+            ) : r.status === 'draft' ? (
+              <View className="gap-2">
+                <Text className="font-sans text-small text-ink dark:text-night-ink">{eisa.data.declaration}</Text>
+                <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: agree }} onPress={() => setAgree(!agree)} className="flex-row items-center gap-3 py-1">
+                  <View className={`h-6 w-6 rounded-md border ${agree ? 'border-primary-700 bg-primary-700' : 'border-line dark:border-night-line'}`} />
+                  <Text className="flex-1 font-sans text-body text-ink dark:text-night-ink">{t('eisa.agree')}</Text>
+                </Pressable>
+                <Field label={t('eisa.name', { name: eisa.data.name })} value={signName} onChangeText={setSignName} autoComplete="name" />
+                <Button title={t('eisa.sign')} loading={busy} disabled={!agree || !signName.trim()} onPress={() => void sign(r.id)} />
+              </View>
+            ) : null}
+          </Card>
+        ))}
         {sors.data?.filter((s) => s.status === 'issued').map((s) => (
           <Card key={s.id} className="gap-2">
             <Text className="font-semibold text-body text-ink dark:text-night-ink">{t('results.sor', { number: s.number })}</Text>
