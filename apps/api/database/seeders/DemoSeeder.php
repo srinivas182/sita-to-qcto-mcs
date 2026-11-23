@@ -22,7 +22,11 @@ use Modules\Employers\Models\Employer;
 use Modules\Employers\Models\EmployerSite;
 use Modules\Employers\Models\Mentor;
 use Modules\Enrolment\Models\Application as LearnerApplication;
+use Modules\Enrolment\Services\DocumentService;
 use Modules\Enrolment\Services\IntakeService;
+use Modules\Files\Models\File;
+use Modules\Files\Storage\StoreFactory;
+use Modules\Files\Support\FileStatus;
 use Modules\Identity\Models\MfaFactor;
 use Modules\Identity\Models\User;
 use Modules\Identity\Models\UserTenant;
@@ -323,7 +327,7 @@ final class DemoSeeder extends Seeder
             $intakes = app(IntakeService::class);
             $intake = $intakes->publish($intakes->save([
                 'cohort_id' => $cohort->id, 'title' => 'Bricklayer, December 2026', 'opens_on' => now()->toDateString(),
-                'closes_on' => $intakeOn->copy()->subDays(5)->toDateString(), 'min_age' => 18,
+                'closes_on' => $intakeOn->copy()->subDays(5)->toDateString(), 'min_age' => 18, 'document_types' => ['id_document', 'highest_qualification'],
                 'description' => "A year of bricklaying at our Soweto campus and on building sites, ending in the NAMB trade test.\nBring your ID and your highest school certificate.",
                 'questions' => [['key' => 'employed', 'label' => 'Are you employed at the moment?', 'type' => 'yesno', 'required' => true],
                     ['key' => 'transport', 'label' => 'How will you get to class?', 'type' => 'choice', 'options' => ['Walk', 'Taxi', 'Own transport'], 'required' => false]],
@@ -333,6 +337,12 @@ final class DemoSeeder extends Seeder
                 UserTenant::query()->firstOrCreate(['user_id' => $person->id], ['status' => MembershipStatus::Active, 'joined_at' => now(), 'centre_id' => $soweto->id]);
                 $a = LearnerApplication::query()->create(['intake_id' => $intake->id, 'user_id' => $person->id, 'reference' => 'APP-DEMO0'.($n + 1),
                     'answers' => ['employed' => $n === 1, 'transport' => ['Taxi', 'Walk', 'Taxi'][$n]], 'source' => $n === 2 ? 'app' : 'web', 'submitted_at' => now()->subDays(3 - $n)]);
+                // Thando's ID is accepted and his certificate waits to be checked; Kagiso's
+                // certificate was certified too long ago; Nomsa has added nothing yet.
+                if ($n < 2) {
+                    $this->demoDocument($person, 'id_document', now()->subDays(12), $n === 0 ? 'accepted' : 'pending', $sekal);
+                    $this->demoDocument($person, 'highest_qualification', now()->subDays($n === 0 ? 20 : 130), 'pending', $sekal);
+                }
                 if ($n === 0) {
                     $a->forceFill(['status' => 'shortlisted', 'decided_at' => now()->subDay(), 'decided_by' => $sekal->id])->save();
                 } elseif ($n === 1) {
@@ -342,6 +352,33 @@ final class DemoSeeder extends Seeder
         });
 
         $this->command?->info('Demo ready. Password: '.self::PASSWORD.' · TOTP secret: '.self::TOTP_SECRET);
+    }
+
+    /** Demo only: a drawn "document" photo stored as the person's upload, checked like a real one. */
+    private function demoDocument(User $person, string $type, Carbon $certified, string $status, User $by): void
+    {
+        $img = imagecreatetruecolor(1400, 900);
+        imagefill($img, 0, 0, imagecolorallocate($img, 240, 236, 226));
+        $ink = imagecolorallocate($img, 30, 32, 40);
+        mt_srand(crc32($person->id.$type));
+        imagestring($img, 5, 60, 40, strtoupper(str_replace('_', ' ', $type)).' - DEMO COPY', $ink);
+        for ($y = 100; $y < 840; $y += 30) {
+            for ($x = 60; $x < 1340; $x += mt_rand(9, 16)) {
+                imagefilledrectangle($img, $x, $y, $x + mt_rand(3, 8), $y + mt_rand(8, 14), $ink);
+            }
+        }
+        ob_start();
+        imagejpeg($img, null, 85);
+        $bytes = (string) ob_get_clean();
+        $path = $person->id.'/learner_document/demo-'.$type.'.jpg';
+        app(StoreFactory::class)->current()[0]->disk()->put($path, $bytes);
+        $file = File::query()->create(['owner_id' => $person->id, 'purpose' => 'learner_document', 'original_name' => $type.'.jpg', 'mime' => 'image/jpeg',
+            'size' => strlen($bytes), 'sha256' => hash('sha256', $bytes), 'store_driver' => 'local', 'path' => $path, 'status' => FileStatus::Ready, 'uploaded_at' => now(), 'scanned_at' => now()]);
+        $doc = app(DocumentService::class)->add($person, ['type' => $type, 'file_id' => $file->id, 'certified' => true,
+            'certified_on' => $certified->toDateString(), 'certified_by' => 'SAPS Orlando']);
+        if ($status === 'accepted') {
+            app(DocumentService::class)->review($doc, 'accept', null, true, $by);
+        }
     }
 
     /** Demo only: record a signature as if it had been made with a PIN. */

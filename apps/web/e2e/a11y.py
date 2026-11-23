@@ -78,6 +78,11 @@ with sync_playwright() as p:
     page.get_by_role('link', name='Bricklayer, December 2026').first.click(); page.get_by_text('Thando Mokoena').first.wait_for(); audit(page, '/intakes/:id')
     page.get_by_role('button', name='Decline Kagiso Molefe').first.click(); page.get_by_role('dialog').wait_for(); audit(page, '/intakes decline dialog')
     page.keyboard.press('Escape')
+    page.get_by_role('link', name='Thando Mokoena').first.click(); page.get_by_text('Checked automatically when added').wait_for(); page.wait_for_timeout(500); audit(page, '/applications/:id')
+    page.get_by_role('button', name='Check this document').first.click(); page.get_by_role('dialog').wait_for(); audit(page, '/applications review dialog')
+    page.keyboard.press('Escape')
+    page.goto(f'http://tym.platform.test:{PORT}/intakes'); page.get_by_role('button', name='Document rules').click(); page.get_by_role('dialog').get_by_text('Proof of address').wait_for(); audit(page, '/intakes rules dialog')
+    page.keyboard.press('Escape')
 
     # Cohorts: the list, and a cohort being planned with its readiness check.
     page.goto(f'http://tym.platform.test:{PORT}/cohorts'); page.get_by_text('GETC: Construction, February 2027').first.wait_for(); audit(page, '/cohorts')

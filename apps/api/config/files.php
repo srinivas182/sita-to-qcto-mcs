@@ -64,6 +64,15 @@ return [
             'variants' => [],
             'public_variants' => false,
         ],
+        'learner_document' => [
+            'scope' => 'tenant',
+            'permission' => 'self',
+            'viewers' => 'applications.view',
+            'max_kb' => 10240,
+            'mimes' => ['application/pdf', 'image/jpeg', 'image/png'],
+            'variants' => [],
+            'public_variants' => false,
+        ],
         'agreement_document' => [
             'scope' => 'tenant',
             'permission' => 'agreements.view',

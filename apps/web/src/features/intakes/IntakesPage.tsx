@@ -6,12 +6,14 @@ import { Badge, Button, Card, Dialog, EmptyState, Field, PageHeader, Select, Ske
 import { ApiError, call } from '@/lib/api';
 import { useCan } from '@/lib/session';
 import type { CohortRow } from '@/features/cohorts/types';
+import { DOCUMENT_TYPES, type DocumentRule } from './documents';
 import { day, intakeState, type Intake, type Question } from './types';
 
 /** Intakes: a cohort opened for applications, with a link and QR code to share. */
 export function IntakesPage() {
   const can = useCan();
   const [adding, setAdding] = useState(false);
+  const [rules, setRules] = useState(false);
   const q = useQuery({ queryKey: ['intakes'], queryFn: () => call<{ data: Intake[] }>('GET', '/intakes') });
 
   return (
@@ -22,9 +24,14 @@ export function IntakesPage() {
         description="Open a cohort for applications and share the link by WhatsApp or a QR poster. Applicants prove their phone with a PIN, their ID number is checked as they type, and you move them from new to shortlisted, waiting list or offered."
         actions={
           can('applications.manage') ? (
-            <Button icon={<Plus className="size-4" />} onClick={() => setAdding(true)}>
-              Open an intake
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="secondary" onClick={() => setRules(true)}>
+                Document rules
+              </Button>
+              <Button icon={<Plus className="size-4" />} onClick={() => setAdding(true)}>
+                Open an intake
+              </Button>
+            </div>
           ) : null
         }
       />
@@ -91,6 +98,7 @@ export function IntakesPage() {
         )}
       </Card>
       {adding ? <IntakeDialog intake={null} onClose={() => setAdding(false)} /> : null}
+      {rules ? <RulesDialog onClose={() => setRules(false)} /> : null}
     </>
   );
 }
@@ -110,6 +118,7 @@ export function IntakeDialog({ intake, onClose }: { intake: Intake | null; onClo
     max_age: String(intake?.max_age ?? ''),
   });
   const [questions, setQuestions] = useState<Question[]>(intake?.questions ?? []);
+  const [docs, setDocs] = useState<string[]>(intake?.document_types ?? ['id_document', 'highest_qualification']);
   const cohorts = useQuery({
     queryKey: ['cohorts'],
     queryFn: () => call<{ data: CohortRow[] }>('GET', '/cohorts'),
@@ -130,6 +139,7 @@ export function IntakeDialog({ intake, onClose }: { intake: Intake | null; onClo
         min_age: num(form.min_age),
         max_age: num(form.max_age),
         questions,
+        document_types: docs,
       };
       return intake
         ? call<{ data: Intake }>('PATCH', `/intakes/${intake.id}`, body)
@@ -236,6 +246,19 @@ export function IntakeDialog({ intake, onClose }: { intake: Intake | null; onClo
             error={err('max_age')}
           />
         </div>
+        <fieldset className="grid gap-1.5 rounded-lg border border-line p-3 text-small">
+          <legend className="px-1 font-medium">Documents applicants must add</legend>
+          {Object.entries(DOCUMENT_TYPES).map(([type, label]) => (
+            <label key={type} className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={docs.includes(type)}
+                onChange={(e) => setDocs(e.target.checked ? [...docs, type] : docs.filter((d) => d !== type))}
+              />
+              {label}
+            </label>
+          ))}
+        </fieldset>
         <fieldset className="grid gap-2 rounded-lg border border-line p-3">
           <legend className="px-1 text-small font-medium">Questions (optional)</legend>
           {questions.map((q, i) => (
@@ -318,6 +341,70 @@ export function IntakeDialog({ intake, onClose }: { intake: Intake | null; onClo
           </Button>
         </div>
       </form>
+    </Dialog>
+  );
+}
+
+/** How old a certified copy may be, per document type: 90 days unless the provider chooses otherwise. */
+function RulesDialog({ onClose }: { onClose: () => void }) {
+  const qc = useQueryClient();
+  const q = useQuery({
+    queryKey: ['enrolment-settings'],
+    queryFn: () => call<{ data: DocumentRule[] }>('GET', '/enrolment-settings').then((r) => r.data),
+  });
+  const [draft, setDraft] = useState<Record<string, { certified: boolean; max_age_days: number | null }>>({});
+  const value = (r: DocumentRule) => draft[r.type] ?? { certified: r.certified, max_age_days: r.max_age_days };
+  const save = useMutation({
+    mutationFn: () => call('PATCH', '/enrolment-settings', { document_rules: draft }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['enrolment-settings'] });
+      onClose();
+    },
+  });
+  return (
+    <Dialog
+      open
+      onOpenChange={(o) => !o && onClose()}
+      title="Document rules"
+      description="Most institutions accept copies certified in the last 3 months; government accepts 6 months. Choose per document."
+    >
+      <div className="grid gap-3">
+        {(q.data ?? []).map((r) => (
+          <div key={r.type} className="grid items-end gap-2 sm:grid-cols-[1fr_8rem_8rem]">
+            <span className="text-small font-medium text-ink">{r.label}</span>
+            <label className="flex items-center gap-2 text-small">
+              <input
+                type="checkbox"
+                checked={value(r).certified}
+                onChange={(e) => setDraft({ ...draft, [r.type]: { ...value(r), certified: e.target.checked } })}
+              />
+              Certified copy
+            </label>
+            <Field
+              label="Days old, at most"
+              type="number"
+              min={7}
+              max={730}
+              disabled={!value(r).certified}
+              value={value(r).max_age_days ?? ''}
+              onChange={(e) =>
+                setDraft({
+                  ...draft,
+                  [r.type]: { ...value(r), max_age_days: e.target.value === '' ? null : Number(e.target.value) },
+                })
+              }
+            />
+          </div>
+        ))}
+        <div className="flex justify-end gap-2">
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button loading={save.isPending} disabled={!Object.keys(draft).length} onClick={() => save.mutate()}>
+            Save
+          </Button>
+        </div>
+      </div>
     </Dialog>
   );
 }
