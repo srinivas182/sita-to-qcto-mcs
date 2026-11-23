@@ -64,6 +64,15 @@ return [
             'variants' => [],
             'public_variants' => false,
         ],
+        // Course materials: learners reach them only through the enrolment check, never by file id.
+        'learning_material' => [
+            'scope' => 'tenant',
+            'permission' => 'materials.manage',
+            'max_kb' => 512000,
+            'mimes' => ['application/pdf', 'image/jpeg', 'image/png', 'video/mp4', 'video/quicktime', 'video/webm'],
+            'variants' => [],
+            'public_variants' => false,
+        ],
         'attendance_note' => [
             'scope' => 'tenant',
             'permission' => 'self',

@@ -73,6 +73,7 @@ const provider: NavItem[] = [
   { to: '/intakes', label: 'nav.intakes', icon: Inbox, group: 'main', permission: 'applications.view' },
   { to: '/cohorts', label: 'nav.cohorts', icon: CalendarRange, group: 'main', permission: 'cohorts.view' },
   { to: '/classes', label: 'nav.classes', icon: ClipboardCheck, group: 'main', permission: 'learning.deliver' },
+  { to: '/my-course', label: 'nav.myCourse', icon: BookOpen, group: 'main', permission: 'learning.self' },
   { to: '/agreements', label: 'nav.agreements', icon: FileSignature, group: 'main', permission: 'agreements.view' },
   { to: '/employers', label: 'nav.employers', icon: Factory, group: 'main', permission: 'employers.view' },
   { to: '/centres', label: 'nav.centres', icon: MapPin, group: 'main', permission: 'centres.view' },

@@ -1,5 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BookOpen, MessageSquarePlus, Plus, Sparkles } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
 import { useDeferredValue, useState } from 'react';
 import {
   Alert,
@@ -35,6 +36,7 @@ const MODES = ['contact', 'blended', 'online', 'workplace'] as const;
 /** What the provider offers, picked from the shared catalogue. */
 export function ProgrammesPage() {
   const can = useCan();
+  const materials = can('materials.manage');
   const manage = can('programmes.manage');
   const [browsing, setBrowsing] = useState(false);
   const [suggesting, setSuggesting] = useState(false);
@@ -148,6 +150,23 @@ export function ProgrammesPage() {
               },
               { key: 'price', header: 'Price', cell: (p) => (p.price_cents !== null ? money(p.price_cents) : '—') },
               { key: 'enrolment', header: 'Enrolment', cell: (p) => <EnrolmentBadge q={p.qualification} /> },
+              ...(materials
+                ? [
+                    {
+                      key: 'materials',
+                      header: <span className="sr-only">Materials</span>,
+                      cell: (p: ProgrammeRow) => (
+                        <Link
+                          to="/programmes/$id/materials"
+                          params={{ id: p.qualification.id }}
+                          className="text-small font-medium text-primary-700 hover:underline"
+                        >
+                          Materials<span className="sr-only"> for {p.qualification.title}</span>
+                        </Link>
+                      ),
+                    },
+                  ]
+                : []),
             ]}
           />
         )}

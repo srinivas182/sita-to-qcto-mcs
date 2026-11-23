@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use Carbon\CarbonImmutable;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Hash;
 use Modules\Access\Models\CustomRole;
 use Modules\Access\Services\AccessService;
 use Modules\Agreements\Models\Agreement;
@@ -21,6 +24,7 @@ use Modules\Cohorts\Models\Cohort;
 use Modules\Cohorts\Models\CohortStaff;
 use Modules\Cohorts\Services\CohortService;
 use Modules\Delivery\Models\Room;
+use Modules\Delivery\Services\MaterialService;
 use Modules\Delivery\Services\TimetableService;
 use Modules\Employers\Models\Employer;
 use Modules\Employers\Models\EmployerSite;
@@ -382,6 +386,7 @@ final class DemoSeeder extends Seeder
                 }
             }
             $this->demoTimetable($cohort, $soweto, $bricklayer->id, $sekal);
+            $this->demoMaterials($bricklayer->id, $sekal);
         });
 
         $this->command?->info('Demo ready. Password: '.self::PASSWORD.' · TOTP secret: '.self::TOTP_SECRET);
@@ -409,6 +414,29 @@ final class DemoSeeder extends Seeder
             'room_id' => $room->id, 'facilitator_id' => $lindiwe->id, 'repeat' => ['days' => [1, 3], 'until' => $until]], $by);
         $timetable->create($cohort, ['kind' => 'practical', 'title' => 'Mixing mortar and laying a course', 'date' => $start->toDateString(), 'start' => '12:00', 'end' => '15:30',
             'room_id' => $yard->id, 'facilitator_id' => $lindiwe->id, 'repeat' => ['days' => [2, 4], 'until' => $until]], $by);
+    }
+
+    /** Demo only: course notes (a small PDF) and a link for Bricklayer, published; Bongani can sign in with a password. */
+    private function demoMaterials(string $qualificationId, User $by): void
+    {
+        $context = app(TenantContext::class);
+        $context->runAsPlatform(fn () => User::query()->where('phone_e164', '+27831110005')->update(['email' => 'bongani@demo.test', 'password' => Hash::make(self::PASSWORD), 'email_verified_at' => now()]));
+        $options = new Options;
+        $options->setDefaultFont('DejaVu Sans');
+        $pdf = new Dompdf($options);
+        $pdf->loadHtml('<h1>Safety on a building site</h1><p>Personal protective equipment, scaffolding checks, and keeping the site tidy. Demo notes.</p>');
+        $pdf->render();
+        $bytes = (string) $pdf->output();
+        [$store, $integration] = app(StoreFactory::class)->current();
+        $path = $context->tenantId().'/learning_material/demo/safety-notes.pdf';
+        $store->disk()->put($path, $bytes);
+        $file = File::query()->create(['owner_id' => $by->id, 'purpose' => 'learning_material', 'original_name' => 'safety-notes.pdf', 'mime' => 'application/pdf',
+            'size' => strlen($bytes), 'store_driver' => $store->driver(), 'integration_id' => $integration?->id, 'path' => $path, 'status' => 'ready', 'uploaded_at' => now(), 'scanned_at' => now()]);
+        $materials = app(MaterialService::class);
+        $materials->publish($materials->save(null, ['qualification_id' => $qualificationId, 'title' => 'Safety on a building site: notes', 'kind' => 'document', 'file_id' => $file->id], $by), true);
+        $materials->publish($materials->save(null, ['qualification_id' => $qualificationId, 'title' => 'Bricklayer qualification on SAQA', 'kind' => 'link',
+            'url' => 'https://regqs.saqa.org.za/viewQualification.php?id=93627'], $by), true);
+        $materials->save(null, ['qualification_id' => $qualificationId, 'title' => 'Mortar mixes (draft)', 'kind' => 'link', 'url' => 'https://example.org/mortar'], $by);
     }
 
     /** Demo only: a drawn "document" photo stored as the person's upload, checked like a real one. */
