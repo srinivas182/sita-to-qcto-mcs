@@ -117,6 +117,10 @@ with sync_playwright() as p:
     page.get_by_role('link', name='Monthly registers').click(); page.get_by_text('No registers yet').wait_for(); audit(page, '/cohorts/:id/registers')
     page.get_by_role('button', name='Make a register').click(); page.get_by_role('dialog').get_by_label('Month').wait_for(); audit(page, '/registers make dialog')
     page.keyboard.press('Escape')
+    page.goto(f'http://tym.platform.test:{PORT}/programmes'); page.get_by_role('link', name='Materials for Occupational Certificate: Bricklayer').click()
+    page.get_by_text('Safety on a building site: notes', exact=True).first.wait_for(); audit(page, '/programmes/:id/materials')
+    page.get_by_role('button', name='Add material').click(); page.get_by_role('dialog').get_by_label('Title').wait_for(); audit(page, '/materials dialog')
+    page.keyboard.press('Escape')
     page.goto(f'http://tym.platform.test:{PORT}/c/01jdemo0000000000000000000.1.0123456789abcdef0123'); page.get_by_role('button', name='Check in now').wait_for(); audit(page, '/c/:token')
     page.goto(f'http://tym.platform.test:{PORT}/cohorts'); page.get_by_role('button', name='Plan a cohort').click(); page.get_by_role('dialog').wait_for(); audit(page, '/cohorts plan dialog')
     page.keyboard.press('Escape')
@@ -173,6 +177,12 @@ with sync_playwright() as p:
     admin.get_by_role('tab', name='packages').click(); admin.get_by_text('Starter').first.wait_for(); audit(admin, '/billing packages')
     admin.click('nav a[href="/messages"]'); admin.get_by_text('By provider').wait_for(); audit(admin, '/messages')
     admin.click('nav a[href="/settings"]'); admin.get_by_role('tab', name='SMS').click(); admin.get_by_text('Clickatell').first.wait_for(); audit(admin, '/settings sms')
+    # A learner (no second factor for learners): only their enrolled course.
+    ln = b.new_context(viewport={'width': 390, 'height': 844}).new_page()
+    ln.goto(f'http://tym.platform.test:{PORT}/sign-in'); ln.get_by_label('Email').wait_for()
+    ln.get_by_label('Email').fill('bongani@demo.test'); ln.get_by_label('Password').fill('demo passphrase 2026')
+    ln.get_by_role('button', name='Sign in', exact=True).click(); ln.get_by_text('Good ').first.wait_for()
+    ln.goto(f'http://tym.platform.test:{PORT}/my-course'); ln.get_by_text('Safety on a building site: notes').first.wait_for(); audit(ln, '/my-course (learner, phone)')
     b.close()
 
 sys.exit(1 if failed else 0)

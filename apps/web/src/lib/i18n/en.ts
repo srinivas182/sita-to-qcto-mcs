@@ -62,6 +62,7 @@ export const en = {
   'nav.agreements': 'Agreements',
   'nav.cohorts': 'Cohorts',
   'nav.classes': 'My classes',
+  'nav.myCourse': 'My course',
   'nav.intakes': 'Applications',
   'nav.profile': 'My profile',
   'nav.tenants': 'Training providers',

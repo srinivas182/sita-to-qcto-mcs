@@ -59,6 +59,7 @@ return [
         'programmes.manage' => 'Add qualifications from the catalogue, set centre scope, suggest catalogue changes',
         'learners.view' => 'See learner records',
         'learning.deliver' => 'Deliver learning sessions',
+        'materials.manage' => 'Add and publish course materials and tasks',
         'assessment.conduct' => 'Conduct assessments',
         'assessment.moderate' => 'Moderate assessments',
         'assessment.external' => 'Run external integrated summative assessments',
@@ -93,7 +94,7 @@ return [
             'tenant.audit.view', 'tenant.support.approve', 'centres.view', 'centres.manage', 'learners.view',
             'tenant.billing.manage', 'programmes.view', 'programmes.manage',
             'tenant.roles.manage', 'credentials.view', 'credentials.manage', 'people.manage',
-            'employers.view', 'employers.manage', 'agreements.view', 'agreements.manage', 'cohorts.view', 'cohorts.manage', 'applications.view', 'applications.manage',
+            'employers.view', 'employers.manage', 'agreements.view', 'agreements.manage', 'cohorts.view', 'cohorts.manage', 'applications.view', 'applications.manage', 'materials.manage',
         ]],
         'host-employer' => ['label' => 'Host employer', 'scope' => 'tenant', 'mfa' => false, 'permissions' => [
             'workplace.placements.manage', 'learners.view',
@@ -105,9 +106,9 @@ return [
         'centre-manager' => ['label' => 'Centre manager', 'scope' => 'centre', 'mfa' => false, 'permissions' => [
             'tenant.users.view', 'tenant.users.invite', 'tenant.roles.assign', 'tenant.audit.view', 'centres.view', 'learners.view',
             'programmes.view', 'credentials.view', 'credentials.manage', 'people.manage',
-            'employers.view', 'employers.manage', 'agreements.view', 'agreements.manage', 'cohorts.view', 'cohorts.manage', 'applications.view', 'applications.manage',
+            'employers.view', 'employers.manage', 'agreements.view', 'agreements.manage', 'cohorts.view', 'cohorts.manage', 'applications.view', 'applications.manage', 'materials.manage',
         ]],
-        'facilitator' => ['label' => 'Facilitator', 'scope' => 'centre', 'mfa' => false, 'permissions' => ['learners.view', 'learning.deliver', 'programmes.view']],
+        'facilitator' => ['label' => 'Facilitator', 'scope' => 'centre', 'mfa' => false, 'permissions' => ['learners.view', 'learning.deliver', 'programmes.view', 'materials.manage']],
         'assessor' => ['label' => 'Assessor', 'scope' => 'centre', 'mfa' => false, 'permissions' => ['learners.view', 'assessment.conduct', 'programmes.view']],
         'moderator' => ['label' => 'Moderator', 'scope' => 'centre', 'mfa' => false, 'permissions' => ['learners.view', 'assessment.moderate', 'programmes.view']],
         'site-supervisor' => ['label' => 'Site supervisor', 'scope' => 'centre', 'mfa' => false, 'permissions' => ['learners.view', 'workplace.logbook.sign']],

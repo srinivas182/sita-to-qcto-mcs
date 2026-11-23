@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use Modules\Delivery\Http\Controllers\AttendanceController;
+use Modules\Delivery\Http\Controllers\MaterialController;
 use Modules\Delivery\Http\Controllers\RegisterController;
 use Modules\Delivery\Http\Controllers\TimetableController;
 use Modules\Identity\Http\Middleware\EnsureAccess;
@@ -36,5 +37,16 @@ Route::middleware(['auth:sanctum', EnsureAccess::class, RequireMfaEnrolment::cla
     Route::post('registers/{register}/submitted', [RegisterController::class, 'submitted'])->whereUlid('register');
     Route::post('registers/{register}/remind', [RegisterController::class, 'remind'])->whereUlid('register')->middleware('throttle:10,60');
     Route::get('me/registers', [RegisterController::class, 'mine']);
+
+    Route::get('materials', [MaterialController::class, 'index']);
+    Route::post('materials', [MaterialController::class, 'store']);
+    Route::patch('materials/{material}', [MaterialController::class, 'update'])->whereUlid('material');
+    Route::post('materials/{material}/publish', [MaterialController::class, 'publish'])->whereUlid('material');
+    Route::delete('materials/{material}', [MaterialController::class, 'destroy'])->whereUlid('material');
+    Route::get('me/courses/{enrolment}/materials', [MaterialController::class, 'forCourse'])->whereUlid('enrolment');
+    Route::get('me/courses/{enrolment}/offline-pack', [MaterialController::class, 'offlinePack'])->whereUlid('enrolment');
+    Route::get('me/materials/{material}/download', [MaterialController::class, 'download'])->whereUlid('material')->middleware('throttle:120,1');
+    Route::get('me/materials/{material}/content', [MaterialController::class, 'content'])->whereUlid('material')->middleware('throttle:120,1');
+    Route::post('me/materials/{material}/progress', [MaterialController::class, 'progress'])->whereUlid('material');
     Route::post('me/class-sessions/{session}/note', [AttendanceController::class, 'note'])->whereUlid('session')->middleware('throttle:20,60');
 });

@@ -220,6 +220,16 @@ const myRegister = createRoute({
   path: '/my-registers/$id',
   component: lazyRouteComponent(() => import('@/features/delivery/MyRegisterPage'), 'MyRegisterPage'),
 });
+const programmeMaterials = createRoute({
+  getParentRoute: () => app,
+  path: '/programmes/$id/materials',
+  component: lazyRouteComponent(() => import('@/features/delivery/MaterialsPage'), 'MaterialsPage'),
+});
+const myCourse = createRoute({
+  getParentRoute: () => app,
+  path: '/my-course',
+  component: lazyRouteComponent(() => import('@/features/delivery/MyCoursePage'), 'MyCoursePage'),
+});
 const classes = createRoute({
   getParentRoute: () => app,
   path: '/classes',
@@ -355,6 +365,8 @@ const routeTree = root.addChildren([
     cohortAttendance,
     cohortRegisters,
     myRegister,
+    programmeMaterials,
+    myCourse,
     classes,
     classSession,
     checkIn,
