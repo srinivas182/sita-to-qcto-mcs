@@ -21,6 +21,11 @@ The QCTO makes internal summative assessment the provider's responsibility: resu
 7. **Idempotent sends:** a `client_id` from the app's queue makes a retry return the same result.
 8. **Learners** see outcomes, scores, feedback and remediation, not the assessor's identity or the integrity check.
 
+## The app (Sprint 7d)
+
+9. **Assessors observe on site, offline.** The app keeps the last copy of the assessor's cohorts, results grid and each learner's instruments, so a practical can be observed with no signal. The decision (criteria, comments, score, feedback, remediation, photos) waits on the phone in its own queue and is sent oldest first, photos before the decision, with a `client_id` so a retry can't duplicate it. The server applies every check when it arrives, including the assessor's registration on the date assessed. Refusals are kept with the reason.
+10. **Learners** see results, feedback and what to work on, appeal within the window, and download their Statement of Results to share.
+
 ## Consequences
 
 - Moderation (sampling, decisions, report), appeals and the Statement of Results build on these results (7b, 7c).

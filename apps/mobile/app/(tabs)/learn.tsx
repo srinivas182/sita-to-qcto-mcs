@@ -30,6 +30,20 @@ export default function Learn() {
           </Card>
           </Pressable>
         )) : null}
+        {courses.length ? (
+          <Pressable accessibilityRole="button" onPress={() => router.push('/results' as never)}>
+            <Card className="flex-row items-center gap-3">
+              <View className="h-12 w-12 items-center justify-center rounded-2xl bg-success-bg">
+                <Feather name="award" size={22} color="#166c52" />
+              </View>
+              <View className="flex-1">
+                <Text className="font-semibold text-body text-ink dark:text-night-ink">{t('learn.results')}</Text>
+                <Text className="font-sans text-small text-muted dark:text-night-muted">{t('learn.resultsBody')}</Text>
+              </View>
+              <Feather name="chevron-right" size={18} color="#64748b" />
+            </Card>
+          </Pressable>
+        ) : null}
         {courses.some((c) => c.status === 'active') ? (
           <Pressable accessibilityRole="button" onPress={() => router.push('/logbook' as never)}>
             <Card className="flex-row items-center gap-3">
