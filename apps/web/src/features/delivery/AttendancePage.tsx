@@ -61,11 +61,20 @@ export function AttendancePage() {
         title="Attendance"
         description={`Classes that have started, from ${r.from} to ${r.to}. Excused absences are left out of the percentage. Below ${r.threshold_pct}% is at risk.`}
         actions={
-          manage ? (
-            <Button variant="secondary" onClick={() => setSettings(true)}>
-              Attendance rules
-            </Button>
-          ) : null
+          <div className="flex flex-wrap gap-2">
+            <Link
+              to="/cohorts/$id/registers"
+              params={{ id }}
+              className="inline-flex h-10 items-center rounded-lg border border-line bg-surface px-4 text-small font-medium text-ink hover:border-primary-200"
+            >
+              Monthly registers
+            </Link>
+            {manage ? (
+              <Button variant="secondary" onClick={() => setSettings(true)}>
+                Attendance rules
+              </Button>
+            ) : null}
+          </div>
         }
       />
       <div className="mb-4 flex flex-wrap items-end gap-3">

@@ -21,6 +21,7 @@ use Modules\Tenancy\Concerns\BelongsToTenant;
  * @property Carbon $enrolled_on
  * @property Carbon|null $ended_on
  * @property string|null $reason
+ * @property Carbon|null $attendance_alerted_at
  */
 final class Enrolment extends Model
 {
@@ -33,6 +34,6 @@ final class Enrolment extends Model
 
     protected function casts(): array
     {
-        return ['enrolled_on' => 'date', 'ended_on' => 'date'];
+        return ['enrolled_on' => 'date', 'ended_on' => 'date', 'attendance_alerted_at' => 'datetime'];
     }
 }

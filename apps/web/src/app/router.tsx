@@ -210,6 +210,16 @@ const cohortAttendance = createRoute({
   path: '/cohorts/$id/attendance',
   component: lazyRouteComponent(() => import('@/features/delivery/AttendancePage'), 'AttendancePage'),
 });
+const cohortRegisters = createRoute({
+  getParentRoute: () => app,
+  path: '/cohorts/$id/registers',
+  component: lazyRouteComponent(() => import('@/features/delivery/RegistersPage'), 'RegistersPage'),
+});
+const myRegister = createRoute({
+  getParentRoute: () => app,
+  path: '/my-registers/$id',
+  component: lazyRouteComponent(() => import('@/features/delivery/MyRegisterPage'), 'MyRegisterPage'),
+});
 const classes = createRoute({
   getParentRoute: () => app,
   path: '/classes',
@@ -343,6 +353,8 @@ const routeTree = root.addChildren([
     cohortQcto,
     cohortTimetable,
     cohortAttendance,
+    cohortRegisters,
+    myRegister,
     classes,
     classSession,
     checkIn,
