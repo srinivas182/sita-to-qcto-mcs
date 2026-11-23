@@ -16,6 +16,8 @@ use Modules\Assessment\Models\Result;
 use Modules\Assessment\Support\ResultHash;
 use Modules\Audit\AuditLogger;
 use Modules\Cohorts\Models\Cohort;
+use Modules\Delivery\Models\Task;
+use Modules\Delivery\Models\TaskAttempt;
 use Modules\Enrolment\Models\Enrolment;
 use Modules\Files\Models\File;
 use Modules\Identity\Models\User;
@@ -57,6 +59,7 @@ final class AssessmentService
             'instruments.*.criteria.*.key' => ['nullable', 'string', 'max:40'],
             'instruments.*.pass_mark' => ['nullable', 'integer', 'between:1,100'],
             'instruments.*.instructions' => ['nullable', 'string', 'max:3000'],
+            'instruments.*.task_id' => ['nullable', 'ulid'],
         ], ['instruments.*.method.in' => 'Choose a method that suits a '.$module->kind.' module.'])->validate();
 
         return DB::transaction(function () use ($module, $data): Collection {
@@ -73,12 +76,23 @@ final class AssessmentService
                 if (count(array_unique(array_column($criteria, 'key'))) !== count($criteria)) {
                     throw ValidationException::withMessages(["instruments.{$i}.criteria" => 'Each criterion needs its own key.']);
                 }
+                $taskId = $row['task_id'] ?? null;
+                if ($taskId !== null) {
+                    if (! in_array($row['method'], ['test', 'assignment'], true)) {
+                        throw ValidationException::withMessages(["instruments.{$i}.task_id" => 'Only a test or an assignment can be taken online.']);
+                    }
+                    $ok = Task::query()->whereKey($taskId)->where('qualification_id', $module->qualification_id)->where('status', 'published')
+                        ->where(fn ($q) => $q->whereNull('module_id')->orWhere('module_id', $module->id))->exists();
+                    if (! $ok) {
+                        throw ValidationException::withMessages(["instruments.{$i}.task_id" => 'Choose a published online task for this module.']);
+                    }
+                }
                 $inst = (isset($row['id']) ? $existing->get($row['id']) : null) ?? new Instrument(['module_id' => $module->id]);
                 if ($inst->exists && $inst->method !== $row['method'] && Result::query()->where('instrument_id', $inst->id)->exists()) {
                     throw ValidationException::withMessages(["instruments.{$i}.method" => 'This instrument has results; add a new one instead of changing its method.']);
                 }
                 $inst->fill(['method' => $row['method'], 'title' => trim((string) $row['title']), 'criteria' => $criteria, 'pass_mark' => $row['pass_mark'] ?? null,
-                    'instructions' => $row['instructions'] ?? null, 'active' => true, 'sort' => $i])->save();
+                    'instructions' => $row['instructions'] ?? null, 'active' => true, 'sort' => $i, 'task_id' => $taskId])->save();
                 $kept[] = $inst->id;
             }
             foreach ($existing->except($kept) as $old) {
@@ -198,6 +212,41 @@ final class AssessmentService
         app(ResultNotifier::class)->decided($result, $module);
 
         return ['result' => $result, 'created' => true];
+    }
+
+    /**
+     * The learner's online attempts at each linked task, for the assessor's decision.
+     *
+     * @param  iterable<Instrument>  $instruments
+     * @return array<string, array{task_title: string, attempts: int, pass_pct: int, latest: array{number: int, score_pct: int|null, status: string, submitted_at: string}|null}>
+     */
+    public function online(Enrolment $e, iterable $instruments): array
+    {
+        $linked = [];
+        foreach ($instruments as $i) {
+            if ($i->task_id !== null) {
+                $linked[$i->id] = $i->task_id;
+            }
+        }
+        if ($linked === []) {
+            return [];
+        }
+        $tasks = Task::query()->whereIn('id', array_values($linked))->get()->keyBy('id');
+        $attempts = TaskAttempt::query()->where('enrolment_id', $e->id)->whereIn('task_id', array_values($linked))->orderBy('number')->get()->groupBy('task_id');
+        $out = [];
+        foreach ($linked as $instrumentId => $taskId) {
+            $task = $tasks->get($taskId);
+            if ($task === null) {
+                continue;
+            }
+            $mine = $attempts->get($taskId);
+            $latest = $mine?->last();
+            $out[$instrumentId] = ['task_title' => $task->title, 'attempts' => $mine?->count() ?? 0, 'pass_pct' => $task->pass_pct,
+                'latest' => $latest === null ? null : ['number' => $latest->number, 'score_pct' => $latest->score_pct, 'status' => $latest->status,
+                    'submitted_at' => $latest->submitted_at->toIso8601String()]];
+        }
+
+        return $out;
     }
 
     /**

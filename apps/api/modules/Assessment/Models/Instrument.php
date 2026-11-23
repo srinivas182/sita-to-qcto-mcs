@@ -18,6 +18,7 @@ use Modules\Tenancy\Concerns\BelongsToTenant;
  * @property string|null $instructions
  * @property bool $active
  * @property int $sort
+ * @property string|null $task_id
  */
 final class Instrument extends Model
 {
@@ -30,7 +31,7 @@ final class Instrument extends Model
 
     protected $attributes = ['active' => true, 'sort' => 0];
 
-    protected $fillable = ['module_id', 'method', 'title', 'criteria', 'pass_mark', 'instructions', 'active', 'sort'];
+    protected $fillable = ['module_id', 'method', 'title', 'criteria', 'pass_mark', 'instructions', 'active', 'sort', 'task_id'];
 
     protected function casts(): array
     {

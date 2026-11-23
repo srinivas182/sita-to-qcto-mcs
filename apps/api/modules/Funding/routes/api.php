@@ -10,6 +10,8 @@ use Modules\Identity\Http\Middleware\EnsureAccess;
 use Modules\Identity\Http\Middleware\RequireMfaEnrolment;
 
 Route::middleware(['auth:sanctum', EnsureAccess::class, RequireMfaEnrolment::class])->group(function (): void {
+    Route::get('fix-inbox', [FundingController::class, 'inbox']);
+    Route::get('me/todo', [FundingController::class, 'todo']);
     Route::get('funders', [FundingController::class, 'funders']);
     Route::post('funders', [FundingController::class, 'saveFunder']);
     Route::put('funders/{funder}', [FundingController::class, 'saveFunder'])->whereUlid('funder');

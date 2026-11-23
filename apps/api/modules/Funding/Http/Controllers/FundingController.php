@@ -17,8 +17,10 @@ use Modules\Funding\Models\Funder;
 use Modules\Funding\Models\GrantAgreement;
 use Modules\Funding\Models\GrantLearner;
 use Modules\Funding\Models\GrantTranche;
+use Modules\Funding\Services\FixInbox;
 use Modules\Funding\Services\GrantProgress;
 use Modules\Funding\Services\GrantService;
+use Modules\Funding\Services\LearnerTodo;
 use Modules\Funding\Services\Milestones;
 use Modules\Identity\Models\User;
 use Modules\Tenancy\Context\TenantContext;
@@ -127,6 +129,24 @@ final class FundingController
         app(AuditLogger::class)->record('grant.evidence', $t, [], ['item' => $evidence[$data['index']]['title'], 'attached' => ! empty($data['file_id'])]);
 
         return response()->json(['data' => ['evidence' => $evidence]]);
+    }
+
+    /** The provider's "To fix" list and funding numbers for the home page. */
+    public function inbox(Request $request): JsonResponse
+    {
+        /** @var User $me */
+        $me = $request->user();
+
+        return response()->json(['data' => app(FixInbox::class)->for($me)]);
+    }
+
+    /** The learner's own one-tap fixes. */
+    public function todo(Request $request): JsonResponse
+    {
+        /** @var User $me */
+        $me = $request->user();
+
+        return response()->json(['data' => app(LearnerTodo::class)->for($me)]);
     }
 
     private function cohortFor(Request $request, string $id, string $permission): Cohort

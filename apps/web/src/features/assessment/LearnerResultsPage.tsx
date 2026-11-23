@@ -7,7 +7,14 @@ import { ApiError, call, errorMessage } from '@/lib/api';
 import { shortDate } from '@/lib/money';
 import { useCan } from '@/lib/session';
 import { uploadFile } from '@/lib/upload';
-import { type Instrument, type ModuleResults, type ResultRow, methodLabel, stateBadge } from './types';
+import {
+  type Instrument,
+  type ModuleResults,
+  type OnlineAttempt,
+  type ResultRow,
+  methodLabel,
+  stateBadge,
+} from './types';
 
 interface Detail {
   enrolment_id: string;
@@ -16,6 +23,7 @@ interface Detail {
   instruments: (Instrument & { module_id: string })[];
   history: ResultRow[];
   max_attempts: number;
+  online: Record<string, OnlineAttempt>;
 }
 
 const today = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Johannesburg' });
@@ -121,6 +129,7 @@ export function LearnerResultsPage() {
         <DecisionDialog
           enrolmentId={d.enrolment_id}
           instrument={d.instruments.find((i) => i.id === deciding)!}
+          online={d.online[deciding]}
           onClose={() => setDeciding(null)}
         />
       ) : null}
@@ -131,17 +140,19 @@ export function LearnerResultsPage() {
 function DecisionDialog({
   enrolmentId,
   instrument,
+  online,
   onClose,
 }: {
   enrolmentId: string;
   instrument: Instrument;
+  online?: OnlineAttempt;
   onClose: () => void;
 }) {
   const qc = useQueryClient();
   const toast = useToast();
   const [met, setMet] = useState<Record<string, boolean>>({});
   const [comments, setComments] = useState<Record<string, string>>({});
-  const [score, setScore] = useState('');
+  const [score, setScore] = useState(online?.latest?.score_pct != null ? String(online.latest.score_pct) : '');
   const [date, setDate] = useState(today());
   const [feedback, setFeedback] = useState('');
   const [remediation, setRemediation] = useState('');
@@ -207,6 +218,13 @@ function DecisionDialog({
     >
       <div className="grid gap-3">
         {error ? <Alert tone="danger">{error}</Alert> : null}
+        {online ? (
+          <Alert tone="info">
+            {online.latest
+              ? `Online: ${online.task_title}, attempt ${online.latest.number} on ${shortDate(online.latest.submitted_at)}: ${online.latest.score_pct ?? '—'}% (${online.latest.status === 'submitted' ? 'still to be marked' : online.latest.status === 'passed' ? 'passed' : 'not yet passed'}). The score below is filled from it; you decide.`
+              : `Online: ${online.task_title}. The learner hasn't taken it yet.`}
+          </Alert>
+        ) : null}
         <Field label="Date assessed" type="date" value={date} max={today()} onChange={(e) => setDate(e.target.value)} />
         {test ? (
           <Field

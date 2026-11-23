@@ -15,6 +15,7 @@ use Modules\Assessment\Models\Instrument;
 use Modules\Assessment\Models\Result;
 use Modules\Assessment\Services\AssessmentService;
 use Modules\Cohorts\Models\Cohort;
+use Modules\Delivery\Models\Task;
 use Modules\Enrolment\Models\Enrolment;
 use Modules\Identity\Models\User;
 use Modules\Qualifications\Models\QualificationModule;
@@ -33,7 +34,9 @@ final class AssessmentController
 
         return response()->json(['data' => ['module' => $m->only(['id', 'code', 'title', 'kind', 'credits']), 'methods' => AssessmentService::METHODS_FOR[$m->kind] ?? [],
             'instruments' => Instrument::query()->where('module_id', $m->id)->where('active', true)->orderBy('sort')->get()
-                ->map(fn (Instrument $i) => $i->only(['id', 'method', 'title', 'criteria', 'pass_mark', 'instructions']))->values()->all()]]);
+                ->map(fn (Instrument $i) => $i->only(['id', 'method', 'title', 'criteria', 'pass_mark', 'instructions', 'task_id']))->values()->all(),
+            'tasks' => Task::query()->where('qualification_id', $m->qualification_id)->where('status', 'published')
+                ->where(fn ($q) => $q->whereNull('module_id')->orWhere('module_id', $m->id))->orderBy('title')->get(['id', 'title', 'pass_pct'])->values()->all()]]);
     }
 
     public function saveInstruments(Request $request, string $module): JsonResponse
@@ -107,7 +110,8 @@ final class AssessmentController
         return response()->json(['data' => [
             'enrolment_id' => $e->id, 'name' => $learner?->fullName(),
             'modules' => app(AssessmentService::class)->modules($e, $c->qualification_id),
-            'instruments' => $instruments->map(fn (Instrument $i) => $i->only(['id', 'module_id', 'method', 'title', 'criteria', 'pass_mark', 'instructions']))->values()->all(),
+            'instruments' => $instruments->map(fn (Instrument $i) => $i->only(['id', 'module_id', 'method', 'title', 'criteria', 'pass_mark', 'instructions', 'task_id']))->values()->all(),
+            'online' => (object) app(AssessmentService::class)->online($e, $instruments),
             'history' => Result::query()->where('enrolment_id', $e->id)->orderByDesc('decided_at')->get()->map(fn (Result $r) => AssessmentService::present($r))->values()->all(),
             'max_attempts' => AssessmentSettings::current()->max_attempts,
         ]]);

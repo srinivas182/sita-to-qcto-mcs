@@ -54,6 +54,8 @@ export interface LearnerDetail {
   modules: ModuleResults[];
   instruments: Instrument[];
   max_attempts: number;
+  /** The learner's attempts at the online task linked to an instrument, by instrument id. */
+  online?: Record<string, { task_title: string; attempts: number; pass_pct: number; latest: { number: number; score_pct: number | null; status: string } | null }>;
 }
 
 export interface Statement {

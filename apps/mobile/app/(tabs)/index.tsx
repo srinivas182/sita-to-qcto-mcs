@@ -10,6 +10,7 @@ import { useMe } from '@/lib/me';
 import { useMentoring } from '@/lib/mentoring';
 import { useMyCourses, useMyDocuments, useMyOffers } from '@/lib/enrolment';
 import { useDashboard } from '@/lib/delivery';
+import { useTodo } from '@/lib/stipends';
 import { outbox } from '@/lib/outbox';
 
 export default function Home() {
@@ -27,7 +28,8 @@ export default function Home() {
   const learner = (courses.data ?? []).length > 0;
   const assessor = (me.data?.roles ?? []).some((r) => r.role === 'assessor' || r.role === 'moderator');
   const dash = useDashboard(online && learner);
-  const card = (icon: 'gift' | 'file-plus' | 'search' | 'edit' | 'calendar' | 'check-square', tone: string, color: string, title: string, body: string, to: string) => (
+  const todo = useTodo(online && learner);
+  const card = (icon: 'gift' | 'file-plus' | 'search' | 'edit' | 'calendar' | 'check-square' | 'credit-card' | 'pen-tool' | 'user-check', tone: string, color: string, title: string, body: string, to: string) => (
     <Pressable accessibilityRole="button" onPress={() => router.push(to as never)}>
       <Card className="flex-row items-center gap-3">
         <View className={`h-10 w-10 items-center justify-center rounded-xl ${tone}`}>
@@ -45,7 +47,7 @@ export default function Home() {
 
   return (
     <Screen scroll>
-      <ScrollView contentContainerClassName="gap-4 pb-8 pt-4" refreshControl={<RefreshControl refreshing={me.isRefetching} onRefresh={() => void Promise.all([me.refetch(), syncNow(), agreements.refetch(), mentoring.refetch(), offers.refetch(), documents.refetch(), courses.refetch(), dash.refetch()])} />}>
+      <ScrollView contentContainerClassName="gap-4 pb-8 pt-4" refreshControl={<RefreshControl refreshing={me.isRefetching} onRefresh={() => void Promise.all([me.refetch(), syncNow(), agreements.refetch(), mentoring.refetch(), offers.refetch(), documents.refetch(), courses.refetch(), dash.refetch(), todo.refetch()])} />}>
         {tenant ? <Brand name={tenant.name} primary={tenant.branding.primary} /> : null}
 
         <View className="mt-2">
@@ -100,6 +102,9 @@ export default function Home() {
             </Card>
           </Pressable>
         ))}
+        {todo.data?.eisa_to_sign ? card('pen-tool', 'bg-warning-bg', '#8a5a0b', t('home.eisaSign'), t('home.eisaSignBody'), '/results') : null}
+        {todo.data?.bank_missing ? card('credit-card', 'bg-danger-bg', '#b42318', t('home.bank'), t('home.bankBody'), '/stipends') : null}
+        {todo.data?.profile_problems ? card('user-check', 'bg-warning-bg', '#8a5a0b', t('home.profileFix'), t('home.profileFixBody', { n: todo.data.profile_problems }), '/profile') : null}
         {dash.data?.registers_to_sign ? card('edit', 'bg-warning-bg', '#8a5a0b', t('home.registers'), t('home.registersBody', { n: dash.data.registers_to_sign }), '/registers') : null}
         {learner ? card('calendar', 'bg-info-bg', '#2d68a8', t('timetable.title'), t('home.timetableBody'), '/timetable') : null}
         {assessor ? card('check-square', 'bg-primary-50', '#4338ca', t('home.assess'), t('home.assessBody'), '/assess') : null}
