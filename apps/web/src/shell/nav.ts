@@ -1,5 +1,6 @@
 import {
   Building2,
+  CalendarRange,
   Factory,
   FileSignature,
   CreditCard,
@@ -68,6 +69,7 @@ const provider: NavItem[] = [
     group: 'main',
     permission: 'credentials.view',
   },
+  { to: '/cohorts', label: 'nav.cohorts', icon: CalendarRange, group: 'main', permission: 'cohorts.view' },
   { to: '/agreements', label: 'nav.agreements', icon: FileSignature, group: 'main', permission: 'agreements.view' },
   { to: '/employers', label: 'nav.employers', icon: Factory, group: 'main', permission: 'employers.view' },
   { to: '/centres', label: 'nav.centres', icon: MapPin, group: 'main', permission: 'centres.view' },

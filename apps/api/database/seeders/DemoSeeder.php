@@ -15,6 +15,8 @@ use Modules\Billing\Models\BillingProfile;
 use Modules\Billing\Models\Package;
 use Modules\Billing\Models\Subscription;
 use Modules\Billing\Support\SubscriptionStatus;
+use Modules\Cohorts\Models\Cohort;
+use Modules\Cohorts\Services\CohortService;
 use Modules\Employers\Models\Employer;
 use Modules\Employers\Models\EmployerSite;
 use Modules\Employers\Models\Mentor;
@@ -25,6 +27,7 @@ use Modules\Identity\Support\IdType;
 use Modules\Identity\Support\MembershipStatus;
 use Modules\Onboarding\Models\Application;
 use Modules\People\Models\StaffCredential;
+use Modules\Qualifications\Models\CentreQualification;
 use Modules\Qualifications\Models\Programme;
 use Modules\Qualifications\Models\Qualification;
 use Modules\Settings\Models\PlatformSetting;
@@ -155,6 +158,10 @@ final class DemoSeeder extends Seeder
             $getc = Qualification::query()->where('saqa_id', '49411')->first();
             if ($getc !== null) {
                 Programme::query()->firstOrCreate(['qualification_id' => $getc->id], ['modes' => ['contact', 'workplace']]);
+                $soweto = Centre::query()->where('name', 'Soweto Campus')->first();
+                if ($soweto !== null) {
+                    CentreQualification::query()->firstOrCreate(['centre_id' => $soweto->id, 'qualification_id' => $getc->id], ['expires_on' => $soweto->accreditation_expires_on]);
+                }
             }
         });
 
@@ -244,6 +251,23 @@ final class DemoSeeder extends Seeder
             }
             $done->forceFill(['verify_code' => self::VERIFY_CODE])->save();
             app(AgreementService::class)->complete($done);
+        });
+
+        // A cohort being planned for the legacy GETC: the readiness check shows what blocks it
+        // (enrolment closed, a registration not yet verified, no moderator) and what is fine.
+        $context->runAs($tym, function () use ($staff): void {
+            [$sipho, $lindiwe] = $staff;
+            $getc = Qualification::query()->where('saqa_id', '49411')->first();
+            if ($getc === null || Cohort::query()->exists()) {
+                return;
+            }
+            $cohorts = app(CohortService::class);
+            $cohort = $cohorts->save(['name' => 'GETC: Construction, February 2027', 'qualification_id' => $getc->id,
+                'centre_id' => Centre::query()->where('name', 'Soweto Campus')->value('id'), 'mode' => 'contact',
+                'intake_on' => now()->addMonths(3)->startOfMonth()->toDateString(), 'planned_end_on' => now()->addMonths(15)->endOfMonth()->toDateString(), 'capacity' => 20], null, null);
+            $cohorts->setStaff($cohort, [['user_id' => $lindiwe->id, 'role' => 'facilitator'], ['user_id' => $sipho->id, 'role' => 'assessor']]);
+            $yard = EmployerSite::query()->where('name', 'Soweto yard')->firstOrFail();
+            $cohorts->setPlacements($cohort, [['site_id' => $yard->id, 'planned_learners' => 20]]);
         });
 
         $this->command?->info('Demo ready. Password: '.self::PASSWORD.' · TOTP secret: '.self::TOTP_SECRET);

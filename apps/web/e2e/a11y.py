@@ -71,6 +71,12 @@ with sync_playwright() as p:
     page.get_by_role('button', name='Add mentor').first.click(); page.get_by_role('dialog').wait_for(); audit(page, '/employers mentor dialog')
     page.keyboard.press('Escape')
 
+    # Cohorts: the list, and a cohort being planned with its readiness check.
+    page.goto(f'http://tym.platform.test:{PORT}/cohorts'); page.get_by_text('GETC: Construction, February 2027').first.wait_for(); audit(page, '/cohorts')
+    page.get_by_role('link', name='GETC: Construction, February 2027').first.click(); page.get_by_text('Enrolment closed').wait_for(); audit(page, '/cohorts/:id')
+    page.goto(f'http://tym.platform.test:{PORT}/cohorts'); page.get_by_role('button', name='Plan a cohort').click(); page.get_by_role('dialog').wait_for(); audit(page, '/cohorts plan dialog')
+    page.keyboard.press('Escape')
+
     # Agreements: the list, one agreement, the send dialog, the wording and its editor.
     page.click('nav a[href="/agreements"]'); page.get_by_text('Lerato Nkosi').first.wait_for(); audit(page, '/agreements')
     page.get_by_role('button', name='Send agreement').click(); page.get_by_role('dialog').wait_for(); audit(page, '/agreements send dialog')

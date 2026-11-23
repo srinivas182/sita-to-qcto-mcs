@@ -16,3 +16,4 @@
 - [ADR-015 Staff credentials, provider roles and personal data](ADR-015-people-credentials-roles.md)
 - [ADR-016 Host employers, workplace approvals and capacity](ADR-016-employers-workplaces.md)
 - [ADR-017 Agreements and electronic signatures](ADR-017-agreements-esignature.md)
+- [ADR-018 Cohorts and the readiness check](ADR-018-cohorts-readiness.md)

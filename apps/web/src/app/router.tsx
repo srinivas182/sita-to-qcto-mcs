@@ -156,6 +156,16 @@ const employer = createRoute({
   path: '/employers/$id',
   component: lazyRouteComponent(() => import('@/features/employers/EmployerPage'), 'EmployerPage'),
 });
+const cohorts = createRoute({
+  getParentRoute: () => app,
+  path: '/cohorts',
+  component: lazyRouteComponent(() => import('@/features/cohorts/CohortsPage'), 'CohortsPage'),
+});
+const cohort = createRoute({
+  getParentRoute: () => app,
+  path: '/cohorts/$id',
+  component: lazyRouteComponent(() => import('@/features/cohorts/CohortPage'), 'CohortPage'),
+});
 const agreements = createRoute({
   getParentRoute: () => app,
   path: '/agreements',
@@ -263,6 +273,8 @@ const routeTree = root.addChildren([
     programmes,
     employers,
     employer,
+    cohorts,
+    cohort,
     agreements,
     agreementTemplates,
     agreementTemplate,

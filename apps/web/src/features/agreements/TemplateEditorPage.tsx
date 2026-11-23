@@ -186,7 +186,7 @@ function Editor({ template: t, fields }: { template: Template; fields: Record<st
                   {ROLE_LABEL[r]}
                 </label>
               ))}
-              {err('parties') ? <span className="text-danger-700">{err('parties')}</span> : null}
+              {err('parties') ? <span className="text-danger">{err('parties')}</span> : null}
               <label className="mt-2 flex items-start gap-2 border-t border-line pt-3">
                 <input
                   type="checkbox"

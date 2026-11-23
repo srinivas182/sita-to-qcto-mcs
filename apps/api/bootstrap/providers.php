@@ -7,6 +7,7 @@ use Modules\Access\AccessServiceProvider;
 use Modules\Agreements\AgreementsServiceProvider;
 use Modules\Audit\AuditServiceProvider;
 use Modules\Billing\BillingServiceProvider;
+use Modules\Cohorts\CohortsServiceProvider;
 use Modules\Employers\EmployersServiceProvider;
 use Modules\Files\FilesServiceProvider;
 use Modules\Identity\IdentityServiceProvider;
@@ -34,4 +35,5 @@ return [
     PeopleServiceProvider::class,
     EmployersServiceProvider::class,
     AgreementsServiceProvider::class,
+    CohortsServiceProvider::class,
 ];
