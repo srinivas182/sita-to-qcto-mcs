@@ -13,6 +13,7 @@ use Modules\Delivery\DeliveryServiceProvider;
 use Modules\Employers\EmployersServiceProvider;
 use Modules\Enrolment\EnrolmentServiceProvider;
 use Modules\Files\FilesServiceProvider;
+use Modules\Funding\FundingServiceProvider;
 use Modules\Identity\IdentityServiceProvider;
 use Modules\Logbook\LogbookServiceProvider;
 use Modules\Messaging\MessagingServiceProvider;
@@ -44,4 +45,5 @@ return [
     DeliveryServiceProvider::class,
     LogbookServiceProvider::class,
     AssessmentServiceProvider::class,
+    FundingServiceProvider::class,
 ];

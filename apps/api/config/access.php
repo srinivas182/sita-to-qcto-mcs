@@ -66,6 +66,8 @@ return [
         'workplace.logbook.sign' => 'Sign workplace logbooks',
         'workplace.placements.manage' => 'Manage workplace placements',
         'learning.self' => 'Learn: content, simulators, mock tests',
+        'funding.view' => 'See grant agreements, tranches and claims',
+        'funding.manage' => 'Manage grant agreements, stipends, bank files and claims',
     ],
 
     'roles' => [
@@ -95,6 +97,7 @@ return [
             'tenant.billing.manage', 'programmes.view', 'programmes.manage',
             'tenant.roles.manage', 'credentials.view', 'credentials.manage', 'people.manage',
             'employers.view', 'employers.manage', 'agreements.view', 'agreements.manage', 'cohorts.view', 'cohorts.manage', 'applications.view', 'applications.manage', 'materials.manage',
+            'funding.view', 'funding.manage',
         ]],
         'host-employer' => ['label' => 'Host employer', 'scope' => 'tenant', 'mfa' => false, 'permissions' => [
             'workplace.placements.manage', 'learners.view',
@@ -107,6 +110,7 @@ return [
             'tenant.users.view', 'tenant.users.invite', 'tenant.roles.assign', 'tenant.audit.view', 'centres.view', 'learners.view',
             'programmes.view', 'credentials.view', 'credentials.manage', 'people.manage',
             'employers.view', 'employers.manage', 'agreements.view', 'agreements.manage', 'cohorts.view', 'cohorts.manage', 'applications.view', 'applications.manage', 'materials.manage',
+            'funding.view',
         ]],
         'facilitator' => ['label' => 'Facilitator', 'scope' => 'centre', 'mfa' => false, 'permissions' => ['learners.view', 'learning.deliver', 'programmes.view', 'materials.manage']],
         'assessor' => ['label' => 'Assessor', 'scope' => 'centre', 'mfa' => false, 'permissions' => ['learners.view', 'assessment.conduct', 'programmes.view']],

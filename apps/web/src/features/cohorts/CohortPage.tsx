@@ -29,7 +29,9 @@ const FIX: Record<string, { to: string; label: string }> = {
 /** One cohort: details, staff and workplaces on the left, the live readiness check on the right. */
 export function CohortPage() {
   const { id } = useParams({ from: '/app/cohorts/$id' });
-  const manage = useCan()('cohorts.manage');
+  const can = useCan();
+  const manage = can('cohorts.manage');
+  const canFunding = can('funding.view');
   const qc = useQueryClient();
   const toast = useToast();
   const [problem, setProblem] = useState<string | null>(null);
@@ -145,6 +147,15 @@ export function CohortPage() {
             >
               EISA
             </Link>
+            {canFunding ? (
+              <Link
+                to="/cohorts/$id/funding"
+                params={{ id: c.id }}
+                className="inline-flex h-10 items-center rounded-lg border border-line bg-surface px-4 text-small font-medium text-ink hover:border-primary-200"
+              >
+                Funding
+              </Link>
+            ) : null}
             <Link
               to="/cohorts/$id/qcto"
               params={{ id: c.id }}

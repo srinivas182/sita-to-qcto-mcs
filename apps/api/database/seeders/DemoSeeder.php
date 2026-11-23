@@ -45,6 +45,9 @@ use Modules\Enrolment\Services\OfferService;
 use Modules\Files\Models\File;
 use Modules\Files\Storage\StoreFactory;
 use Modules\Files\Support\FileStatus;
+use Modules\Funding\Models\Funder;
+use Modules\Funding\Models\GrantAgreement;
+use Modules\Funding\Services\GrantService;
 use Modules\Identity\Models\MfaFactor;
 use Modules\Identity\Models\User;
 use Modules\Identity\Models\UserTenant;
@@ -408,6 +411,7 @@ final class DemoSeeder extends Seeder
             $this->demoMaterials($bricklayer->id, $sekal);
             $this->demoLogbook($cohort, $bricklayer->id, $sekal);
             $this->demoAssessment($cohort, $bricklayer->id);
+            $this->demoFunding($cohort, $sekal);
         });
 
         $this->command?->info('Demo ready. Password: '.self::PASSWORD.' · TOTP secret: '.self::TOTP_SECRET);
@@ -435,6 +439,26 @@ final class DemoSeeder extends Seeder
             'room_id' => $room->id, 'facilitator_id' => $lindiwe->id, 'repeat' => ['days' => [1, 3], 'until' => $until]], $by);
         $timetable->create($cohort, ['kind' => 'practical', 'title' => 'Mixing mortar and laying a course', 'date' => $start->toDateString(), 'start' => '12:00', 'end' => '15:30',
             'room_id' => $yard->id, 'facilitator_id' => $lindiwe->id, 'repeat' => ['days' => [2, 4], 'until' => $until]], $by);
+    }
+
+    /** Demo only: a CETA discretionary grant for the cohort with three tranches. */
+    private function demoFunding(Cohort $cohort, User $by): void
+    {
+        $svc = app(GrantService::class);
+        $ceta = Funder::query()->where('name', 'CETA')->first() ?? $svc->saveFunder(null, ['name' => 'CETA', 'kind' => 'seta', 'seta_code' => 'CETA', 'template' => 'ceta']);
+        $enrolments = Enrolment::query()->where('cohort_id', $cohort->id)->whereIn('status', ['active', 'suspended', 'completed'])->pluck('id')->all();
+        if (GrantAgreement::query()->where('reference', 'CETA/DG/2026-27/0142')->exists()) {
+            return;
+        }
+        $svc->saveAgreement($cohort, null, $by, [
+            'funder_id' => $ceta->id, 'reference' => 'CETA/DG/2026-27/0142', 'learners' => 20, 'amount_per_learner' => 45500, 'funding_kind' => 'full',
+            'starts_on' => now()->subMonth()->toDateString(), 'ends_on' => now()->addYear()->toDateString(), 'enrolment_ids' => $enrolments,
+            'tranches' => [
+                ['share_pct' => 30, 'milestones' => [['key' => 'enrolled'], ['key' => 'qcto_submitted']], 'evidence' => [['title' => 'CETA learner registration letter']]],
+                ['share_pct' => 40, 'milestones' => [['key' => 'registers', 'months' => 3], ['key' => 'logbook']]],
+                ['share_pct' => 30, 'milestones' => [['key' => 'sor'], ['key' => 'eisa']], 'evidence' => [['title' => 'Close-out report signed by the employer']]],
+            ],
+        ]);
     }
 
     /**
