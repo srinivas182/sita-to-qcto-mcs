@@ -76,18 +76,18 @@ it('moves applications along the board, with a waiting list', function (): void 
     applyPublic($this, $intake, ['first_name' => 'Lerato', 'last_name' => 'Nkosi', 'id_number' => '9001014800089'], '0827776666')->assertCreated();
 
     signInOwner($this, $this->tym, 'owner2@tym.test');
-    $board = $this->getJson(TYM_V1."/applications?intake_id={$intake->id}")->assertOk()->json();
+    $board = $this->getJson(TYM_V1."/learner-applications?intake_id={$intake->id}")->assertOk()->json();
     expect($board['data'])->toHaveCount(2)->and($board['places'])->toBe(['total' => 20, 'taken' => 0])
         ->and($board['data'][0]['applicant'])->toMatchArray(['name' => 'Ayanda Zulu', 'id_number' => '920220•••••83'])
         ->and($board['data'][0]['answers'])->toBe(['employed' => false, 'transport' => 'Taxi']);
     [$a, $b] = array_column($board['data'], 'id');
 
-    $this->postJson(TYM_V1."/applications/{$a}/shortlist")->assertOk()->assertJsonPath('data.status', 'shortlisted');
-    $this->postJson(TYM_V1."/applications/{$b}/waitlist")->assertOk()->assertJsonPath('data.waitlist_position', 1);
-    $this->postJson(TYM_V1."/applications/{$a}/decline")->assertStatus(422)->assertJsonValidationErrors('reason');
-    $this->postJson(TYM_V1."/applications/{$a}/decline", ['reason' => 'No matric certificate'])->assertOk()->assertJsonPath('data.status', 'declined');
-    $this->postJson(TYM_V1."/applications/{$a}/waitlist")->assertStatus(422);
-    $this->postJson(TYM_V1."/applications/{$a}/reopen")->assertOk()->assertJsonPath('data.status', 'submitted');
+    $this->postJson(TYM_V1."/learner-applications/{$a}/shortlist")->assertOk()->assertJsonPath('data.status', 'shortlisted');
+    $this->postJson(TYM_V1."/learner-applications/{$b}/waitlist")->assertOk()->assertJsonPath('data.waitlist_position', 1);
+    $this->postJson(TYM_V1."/learner-applications/{$a}/decline")->assertStatus(422)->assertJsonValidationErrors('reason');
+    $this->postJson(TYM_V1."/learner-applications/{$a}/decline", ['reason' => 'No matric certificate'])->assertOk()->assertJsonPath('data.status', 'declined');
+    $this->postJson(TYM_V1."/learner-applications/{$a}/waitlist")->assertStatus(422);
+    $this->postJson(TYM_V1."/learner-applications/{$a}/reopen")->assertOk()->assertJsonPath('data.status', 'submitted');
 });
 
 it('lets members apply and withdraw in the app, and keeps applications private', function (): void {
@@ -105,7 +105,7 @@ it('lets members apply and withdraw in the app, and keeps applications private',
     $this->postJson(TYM_V1."/me/applications/{$id}/withdraw")->assertOk()->assertJsonPath('data.status', 'withdrawn');
 
     // Not visible to people without application rights, nor to another provider.
-    $this->getJson(TYM_V1."/applications?intake_id={$intake->id}")->assertForbidden();
+    $this->getJson(TYM_V1."/learner-applications?intake_id={$intake->id}")->assertForbidden();
     expect(asTenant(makeProvider('other'), fn () => Application::query()->count()))->toBe(0);
     makeMember($this->tym, ['host-employer'], ['email' => 'host@tym.test', 'password' => 'correct horse battery staple']);
     signInAs($this, 'host@tym.test');
@@ -135,6 +135,6 @@ it('shows ages in whole years', function (): void {
     $intake = openIntake($this);
     applyPublic($this, $intake)->assertCreated();
     signInOwner($this, $this->tym, 'owner3@tym.test');
-    $age = $this->getJson(TYM_V1."/applications?intake_id={$intake->id}")->json('data.0.applicant.age');
+    $age = $this->getJson(TYM_V1."/learner-applications?intake_id={$intake->id}")->json('data.0.applicant.age');
     expect($age)->toBeInt()->toBe((int) floor(CarbonImmutable::parse('1992-02-20')->diffInYears(now())));
 });

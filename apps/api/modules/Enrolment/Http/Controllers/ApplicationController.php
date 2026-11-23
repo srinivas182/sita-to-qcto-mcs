@@ -12,6 +12,7 @@ use Modules\Access\Services\AccessService;
 use Modules\Cohorts\Models\Cohort;
 use Modules\Enrolment\Models\Application;
 use Modules\Enrolment\Models\Intake;
+use Modules\Enrolment\Models\LearnerDocument;
 use Modules\Enrolment\Services\ApplicationService;
 use Modules\Identity\Models\User;
 
@@ -29,13 +30,17 @@ final class ApplicationController
         }
         $rows = $query->limit(2000)->get();
         $people = User::query()->whereIn('id', $rows->pluck('user_id'))->get()->keyBy('id');
+        $required = $intake->document_types ?? [];
+        $accepted = LearnerDocument::query()->whereIn('user_id', $rows->pluck('user_id'))->where('status', 'accepted')->whereIn('type', $required)
+            ->get(['user_id', 'type'])->groupBy('user_id')->map(fn ($d) => $d->pluck('type')->unique()->count());
         $taken = Application::query()->where('intake_id', $intake->id)->whereIn('status', ['offered', 'accepted', 'enrolled'])->count();
 
         return response()->json([
-            'data' => $rows->map(function (Application $a) use ($people): array {
+            'data' => $rows->map(function (Application $a) use ($people, $accepted, $required): array {
                 $u = $people->get($a->user_id);
 
                 return $a->only(['id', 'reference', 'status', 'answers', 'reason', 'waitlist_position', 'source']) + [
+                    'documents' => ['accepted' => (int) $accepted->get($a->user_id, 0), 'required' => count($required)],
                     'submitted_at' => $a->submitted_at->toIso8601String(),
                     'applicant' => $u === null ? null : [
                         'id' => $u->id, 'name' => $u->fullName(), 'phone' => $u->phone_e164, 'email' => $u->email,

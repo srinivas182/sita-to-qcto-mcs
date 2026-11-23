@@ -24,6 +24,7 @@ use Modules\Tenancy\Concerns\BelongsToTenant;
  * @property Carbon $submitted_at
  * @property Carbon|null $decided_at
  * @property string|null $decided_by
+ * @property Carbon|null $documents_requested_at
  */
 final class Application extends Model
 {
@@ -40,7 +41,7 @@ final class Application extends Model
 
     protected function casts(): array
     {
-        return ['answers' => 'array', 'submitted_at' => 'datetime', 'decided_at' => 'datetime', 'waitlist_position' => 'integer'];
+        return ['answers' => 'array', 'submitted_at' => 'datetime', 'decided_at' => 'datetime', 'waitlist_position' => 'integer', 'documents_requested_at' => 'datetime'];
     }
 
     /** @return BelongsTo<Intake, $this> */

@@ -18,6 +18,7 @@ export interface Intake {
   min_age: number | null;
   max_age: number | null;
   questions: Question[] | null;
+  document_types: string[] | null;
   status: 'draft' | 'open' | 'closed';
   opens_on: string;
   closes_on: string;
@@ -41,6 +42,7 @@ export interface ApplicationRow {
   waitlist_position: number | null;
   source: string;
   submitted_at: string;
+  documents?: { accepted: number; required: number };
   applicant: {
     id: string;
     name: string;

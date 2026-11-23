@@ -173,6 +173,11 @@ const intake = createRoute({
   path: '/intakes/$id',
   component: lazyRouteComponent(() => import('@/features/intakes/IntakePage'), 'IntakePage'),
 });
+const applicant = createRoute({
+  getParentRoute: () => app,
+  path: '/applicants/$id',
+  component: lazyRouteComponent(() => import('@/features/intakes/ApplicantPage'), 'ApplicantPage'),
+});
 const cohorts = createRoute({
   getParentRoute: () => app,
   path: '/cohorts',
@@ -293,6 +298,7 @@ const routeTree = root.addChildren([
     employer,
     intakes,
     intake,
+    applicant,
     cohorts,
     cohort,
     agreements,

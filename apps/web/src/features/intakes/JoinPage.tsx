@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Alert, Button, Card, Field, Select, Skeleton } from '@/components/ui';
 import { ApiError, call, errorMessage } from '@/lib/api';
 import { PublicLayout } from '@/features/agreements/PublicLayout';
+import { DocumentsStep } from './DocumentsStep';
 import { day, type Question } from './types';
 
 interface PublicIntake {
@@ -67,7 +68,7 @@ export function JoinPage() {
   });
   const [answers, setAnswers] = useState<Record<string, string | boolean>>({});
   const [errors, setErrors] = useState<Record<string, string[]>>({});
-  const [done, setDone] = useState<string | null>(null);
+  const [done, setDone] = useState<{ id: string; reference: string; signed_in: boolean } | null>(null);
   const fail = (e: unknown) => setErrors(e instanceof ApiError ? e.fields : { form: [errorMessage(e)] });
   const code = useMutation({
     mutationFn: () => call<{ data: { challenge_id: string } }>('POST', `/public/intakes/${slug}/code`, { phone }),
@@ -79,7 +80,7 @@ export function JoinPage() {
   });
   const apply = useMutation({
     mutationFn: () =>
-      call<{ data: { reference: string } }>('POST', `/public/intakes/${slug}/apply`, {
+      call<{ data: { id: string; reference: string; signed_in: boolean } }>('POST', `/public/intakes/${slug}/apply`, {
         ...form,
         challenge_id: challenge,
         id_country: form.id_type === 'passport' ? form.id_country.toUpperCase() : null,
@@ -87,7 +88,7 @@ export function JoinPage() {
         email: form.email || null,
         answers,
       }),
-    onSuccess: (r) => setDone(r.data.reference),
+    onSuccess: (r) => setDone(r.data),
     onError: fail,
   });
   const set = (k: keyof typeof form) => (e: { target: { value: string } }) => setForm({ ...form, [k]: e.target.value });
@@ -160,18 +161,21 @@ export function JoinPage() {
       </Card>
 
       {done ? (
-        <Card>
-          <div className="flex items-start gap-3">
-            <CheckCircle2 className="mt-0.5 size-6 shrink-0 text-success" />
-            <div>
-              <h2 className="font-semibold text-ink">Application received</h2>
-              <p className="text-muted">
-                Your reference is <strong className="text-ink">{done}</strong>. {i.provider} will tell you about the
-                next step by WhatsApp or SMS.
-              </p>
+        <>
+          <Card>
+            <div className="flex items-start gap-3">
+              <CheckCircle2 className="mt-0.5 size-6 shrink-0 text-success" />
+              <div>
+                <h2 className="font-semibold text-ink">Application received</h2>
+                <p className="text-muted">
+                  Your reference is <strong className="text-ink">{done.reference}</strong>. {i.provider} will tell you
+                  about the next step by WhatsApp or SMS.
+                </p>
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+          {done.signed_in ? <DocumentsStep applicationId={done.id} /> : null}
+        </>
       ) : !i.accepting ? (
         <Alert tone="info">This intake is not taking applications now.</Alert>
       ) : (

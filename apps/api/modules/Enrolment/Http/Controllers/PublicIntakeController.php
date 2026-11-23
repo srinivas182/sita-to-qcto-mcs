@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Modules\Cohorts\Models\Cohort;
 use Modules\Enrolment\Models\Intake;
 use Modules\Enrolment\Services\ApplicationService;
+use Modules\Identity\Models\User;
+use Modules\Identity\Services\SignIn;
 use Modules\Qualifications\Models\Qualification;
 use Modules\Tenancy\Context\TenantContext;
 use Modules\Tenancy\Models\Centre;
@@ -43,8 +45,16 @@ final class PublicIntakeController
             return response()->json(['data' => ['reference' => 'APP-'.strtoupper(substr(md5((string) $request->ip()), 0, 6))]], 201);
         }
         $application = app(ApplicationService::class)->applyPublic($this->open($slug), $request->all(), $request->ip());
+        // The PIN proved the phone, as at sign-in: in a browser, sign them in so they can add
+        // their documents now. (The app signs in its own way.)
+        $signedIn = false;
+        if ($request->hasSession()) {
+            $user = User::query()->whereKey($application->user_id)->firstOrFail();
+            app(SignIn::class)->complete($request, $user, 'otp');
+            $signedIn = true;
+        }
 
-        return response()->json(['data' => ['reference' => $application->reference, 'status' => $application->status]], 201);
+        return response()->json(['data' => ['id' => $application->id, 'reference' => $application->reference, 'status' => $application->status, 'signed_in' => $signedIn]], 201);
     }
 
     private function open(string $slug): Intake

@@ -44,9 +44,14 @@ export function IntakePage() {
   const board = useQuery({
     queryKey: ['applications', id],
     queryFn: () =>
-      call<{ data: ApplicationRow[]; places: { total: number; taken: number } }>('GET', '/applications', undefined, {
-        intake_id: id,
-      }),
+      call<{ data: ApplicationRow[]; places: { total: number; taken: number } }>(
+        'GET',
+        '/learner-applications',
+        undefined,
+        {
+          intake_id: id,
+        },
+      ),
   });
   const refresh = () => {
     void qc.invalidateQueries({ queryKey: ['applications', id] });
@@ -54,7 +59,7 @@ export function IntakePage() {
   };
   const decide = useMutation({
     mutationFn: ({ app, action, reason }: { app: string; action: string; reason?: string }) =>
-      call('POST', `/applications/${app}/${action}`, reason ? { reason } : {}),
+      call('POST', `/learner-applications/${app}/${action}`, reason ? { reason } : {}),
     onSuccess: () => {
       setDeclining(null);
       refresh();
@@ -145,7 +150,9 @@ export function IntakePage() {
                   header: 'Applicant',
                   cell: (a) => (
                     <div className="min-w-0">
-                      <div className="font-medium text-ink">{a.applicant?.name}</div>
+                      <Link to="/applicants/$id" params={{ id: a.id }} className="font-medium text-ink hover:underline">
+                        {a.applicant?.name}
+                      </Link>
                       <div className="text-small text-muted">
                         {[
                           a.reference,

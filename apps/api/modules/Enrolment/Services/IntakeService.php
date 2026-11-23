@@ -12,6 +12,7 @@ use Illuminate\Validation\ValidationException;
 use Modules\Audit\AuditLogger;
 use Modules\Cohorts\Models\Cohort;
 use Modules\Enrolment\Models\Intake;
+use Modules\Enrolment\Support\DocumentTypes;
 use Modules\Enrolment\Support\Questions;
 use Modules\Identity\Models\User;
 use Modules\Qualifications\Models\Qualification;
@@ -38,7 +39,7 @@ final class IntakeService
             'min_age' => ['nullable', 'integer', 'between:14,80'],
             'max_age' => ['nullable', 'integer', 'between:14,99', 'gte:min_age'],
             'document_types' => ['nullable', 'array', 'max:10'],
-            'document_types.*' => ['string', 'distinct', 'max:40'],
+            'document_types.*' => ['string', 'distinct', Rule::in(array_keys(DocumentTypes::ALL))],
             'questions' => ['nullable', 'array', 'max:15'],
             'questions.*.key' => ['required', 'regex:/^[a-z][a-z0-9_]{1,30}$/', 'distinct'],
             'questions.*.label' => ['required', 'string', 'min:3', 'max:200'],

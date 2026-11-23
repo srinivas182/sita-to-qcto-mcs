@@ -18,3 +18,4 @@
 - [ADR-017 Agreements and electronic signatures](ADR-017-agreements-esignature.md)
 - [ADR-018 Cohorts and the readiness check](ADR-018-cohorts-readiness.md)
 - [ADR-019 Applicants, intakes and applications](ADR-019-applicants.md)
+- [ADR-020 Learner documents and their checks](ADR-020-learner-documents.md)
