@@ -73,6 +73,15 @@ return [
             'variants' => [],
             'public_variants' => false,
         ],
+        'assessment_evidence' => [
+            'scope' => 'tenant',
+            'permission' => 'assessment.conduct',
+            'viewers' => 'learners.view',
+            'max_kb' => 204800,
+            'mimes' => ['image/jpeg', 'image/png', 'application/pdf', 'video/mp4', 'video/quicktime'],
+            'variants' => [],
+            'public_variants' => false,
+        ],
         'logbook_photo' => [
             'scope' => 'tenant',
             'permission' => 'self',

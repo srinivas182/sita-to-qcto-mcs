@@ -255,6 +255,31 @@ const mentorLogbooks = createRoute({
   path: '/logbooks',
   component: lazyRouteComponent(() => import('@/features/logbook/MentorWeeksPage'), 'MentorWeeksPage'),
 });
+const programmeAssessments = createRoute({
+  getParentRoute: () => app,
+  path: '/programmes/$id/assessments',
+  component: lazyRouteComponent(() => import('@/features/assessment/AssessmentPlanPage'), 'AssessmentPlanPage'),
+});
+const assessing = createRoute({
+  getParentRoute: () => app,
+  path: '/assessing',
+  component: lazyRouteComponent(() => import('@/features/assessment/AssessingPage'), 'AssessingPage'),
+});
+const cohortResults = createRoute({
+  getParentRoute: () => app,
+  path: '/cohorts/$id/results',
+  component: lazyRouteComponent(() => import('@/features/assessment/CohortResultsPage'), 'CohortResultsPage'),
+});
+const learnerResults = createRoute({
+  getParentRoute: () => app,
+  path: '/cohorts/$id/results/$enrolment',
+  component: lazyRouteComponent(() => import('@/features/assessment/LearnerResultsPage'), 'LearnerResultsPage'),
+});
+const myResults = createRoute({
+  getParentRoute: () => app,
+  path: '/my-results',
+  component: lazyRouteComponent(() => import('@/features/assessment/MyResultsPage'), 'MyResultsPage'),
+});
 const marking = createRoute({
   getParentRoute: () => app,
   path: '/marking',
@@ -402,6 +427,11 @@ const routeTree = root.addChildren([
     programmeLogbook,
     cohortLogbook,
     mentorLogbooks,
+    programmeAssessments,
+    assessing,
+    cohortResults,
+    learnerResults,
+    myResults,
     marking,
     classes,
     classSession,
