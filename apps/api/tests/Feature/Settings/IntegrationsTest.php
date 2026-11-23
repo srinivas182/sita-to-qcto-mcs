@@ -17,11 +17,12 @@ it('lists every type and the South African providers', function (): void {
     $types = collect($this->getJson($this->base)->assertOk()->json('data'))->keyBy('type');
     $drivers = fn (string $type) => collect($types[$type]['drivers'])->pluck('driver')->all();
 
-    expect($types->keys()->all())->toBe(['payment', 'sms', 'whatsapp', 'email', 'storage'])
+    expect($types->keys()->all())->toBe(['payment', 'sms', 'whatsapp', 'email', 'storage', 'esign'])
         ->and($drivers('payment'))->toContain('payment.paystack', 'payment.payfast', 'payment.peach', 'payment.ozow', 'payment.yoco', 'payment.stitch', 'payment.ikhokha')
         ->and($drivers('sms'))->toContain('sms.clickatell', 'sms.bulksms', 'sms.smsportal', 'sms.panacea', 'sms.infobip', 'sms.twilio')
         ->and($drivers('whatsapp'))->toBe(['whatsapp.meta'])
         ->and($drivers('storage'))->toBe(['storage.local', 'storage.s3', 'storage.azure'])
+        ->and($drivers('esign'))->toBe(['esign.lawtrust'])
         ->and($types['payment']['modes'])->toBeTrue()
         ->and($types['storage']['single'])->toBeTrue();
 });

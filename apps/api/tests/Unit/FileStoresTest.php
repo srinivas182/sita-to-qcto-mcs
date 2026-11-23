@@ -12,14 +12,16 @@ use Tests\TestCase;
 uses(TestCase::class);
 
 it('signs direct uploads to S3 for one object, type and size', function (): void {
-    $this->freezeTime(); // the signed expiry is measured in whole seconds from now
     $store = new S3Store(['key' => 'AKIAEXAMPLE', 'secret' => 'secret', 'region' => 'af-south-1', 'bucket' => 'skills-files', 'prefix' => 'prod/']);
     $target = $store->uploadTarget('t1/tenant_logo/2026/12/abc', 'image/png', 1234, now()->addMinutes(15));
 
     expect($target?->method)->toBe('PUT')
         ->and($target?->url)->toStartWith('https://skills-files.s3.af-south-1.amazonaws.com/prod/t1/tenant_logo/2026/12/abc?')
-        ->toContain('X-Amz-Signature=')->toContain('X-Amz-Expires=900&')
+        ->toContain('X-Amz-Signature=')
         ->and($target?->headers['Content-Type'])->toBe('image/png');
+    // The SDK counts the expiry from its own clock, so a slow run can lose a few seconds.
+    parse_str((string) parse_url((string) $target?->url, PHP_URL_QUERY), $query);
+    expect((int) $query['X-Amz-Expires'])->toBeGreaterThan(880)->toBeLessThanOrEqual(900);
 
     $download = $store->downloadUrl('x/y', 'Report ü.pdf', 'application/pdf', now()->addMinutes(10));
     expect(urldecode((string) $download))->toContain('response-content-disposition=attachment');

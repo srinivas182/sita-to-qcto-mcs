@@ -64,6 +64,15 @@ return [
             'variants' => [],
             'public_variants' => false,
         ],
+        'agreement_document' => [
+            'scope' => 'tenant',
+            'permission' => 'agreements.view',
+            'max_kb' => 20480,
+            'mimes' => ['application/pdf'],
+            'variants' => [],
+            'public_variants' => false,
+            'uploadable' => false,
+        ],
         'workplace_approval' => [
             'scope' => 'tenant',
             'permission' => 'employers.manage',

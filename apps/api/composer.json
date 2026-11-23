@@ -11,6 +11,7 @@
     "require": {
         "php": "^8.3",
         "azure-oss/storage-blob-flysystem": "^2.2",
+        "chillerlan/php-qrcode": "^5.0",
         "dedoc/scramble": "^0.13.55",
         "dompdf/dompdf": "^3.1",
         "laravel/framework": "^13.17",

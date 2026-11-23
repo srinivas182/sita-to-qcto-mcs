@@ -7,6 +7,10 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Modules\Access\Models\CustomRole;
 use Modules\Access\Services\AccessService;
+use Modules\Agreements\Models\Agreement;
+use Modules\Agreements\Models\Signer;
+use Modules\Agreements\Services\AgreementService;
+use Modules\Agreements\Services\TemplateService;
 use Modules\Billing\Models\BillingProfile;
 use Modules\Billing\Models\Package;
 use Modules\Billing\Models\Subscription;
@@ -42,6 +46,11 @@ final class DemoSeeder extends Seeder
     public const PASSWORD = 'demo passphrase 2026';
 
     public const TOTP_SECRET = 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP';
+
+    /** Demo only: the learner's signing link (/sign/…) and the signed agreement's check code (/verify/…). */
+    public const SIGN_TOKEN = 'DemoSigningLinkForAyandaZulu00000000000000000000';
+
+    public const VERIFY_CODE = 'demosigned';
 
     public function run(TenantContext $context, TenantService $tenants, AccessService $access): void
     {
@@ -200,7 +209,55 @@ final class DemoSeeder extends Seeder
                 'highest_qualification' => 'National Diploma: Building', 'qualification_nqf_level' => 6, 'site_ids' => [$midrand->id]]);
         });
 
+        // Agreements: the standard workplace agreement published; one waiting for the learner,
+        // and one signed by everyone and sealed (its verification page works).
+        $sekal = $context->runAsPlatform(fn () => User::query()->where('email', 'sekal@demo.test')->firstOrFail());
+        $context->runAs($tym, function () use ($sekal): void {
+            if (Agreement::query()->exists()) {
+                return;
+            }
+            $templates = app(TemplateService::class);
+            $template = $templates->publish($templates->fromStarter('workplace'), $sekal);
+            $templates->publish($templates->fromStarter('employer_mou'), $sekal);
+            $mabaso = Employer::query()->where('registration_number', '2015/123456/07')->firstOrFail();
+            $yard = EmployerSite::query()->where('employer_id', $mabaso->id)->where('name', 'Soweto yard')->firstOrFail();
+            $bheki = Mentor::query()->where('employer_id', $mabaso->id)->where('name', 'Bheki Mabaso')->firstOrFail();
+            $getc = Qualification::query()->where('saqa_id', '49411')->firstOrFail();
+            $send = fn (string $learner, string $phone) => app(AgreementService::class)->send([
+                'template_id' => $template->id, 'employer_id' => $mabaso->id, 'site_id' => $yard->id, 'mentor_id' => $bheki->id, 'qualification_id' => $getc->id,
+                'start_date' => now()->addMonth()->startOfMonth()->toDateString(), 'end_date' => now()->addMonths(10)->endOfMonth()->toDateString(),
+                'signers' => [
+                    ['role' => 'learner', 'name' => $learner, 'phone' => $phone],
+                    ['role' => 'employer', 'name' => 'Bheki Mabaso', 'email' => 'bheki@mabaso.test'],
+                    ['role' => 'provider', 'name' => 'Sekal Moyo', 'email' => 'sekal@demo.test', 'user_id' => $sekal->id],
+                ],
+            ], $sekal);
+
+            $waiting = $send('Ayanda Zulu', '+27821234567');
+            Signer::query()->where('agreement_id', $waiting->id)->where('role', 'learner')->update(['token_hash' => hash('sha256', self::SIGN_TOKEN)]);
+            foreach (Signer::query()->where('agreement_id', $waiting->id)->whereIn('role', ['employer', 'provider'])->get() as $s) {
+                $this->signed($s, $waiting);
+            }
+            $done = $send('Lerato Nkosi', '+27829876543');
+            foreach (Signer::query()->where('agreement_id', $done->id)->get() as $s) {
+                $this->signed($s, $done);
+            }
+            $done->forceFill(['verify_code' => self::VERIFY_CODE])->save();
+            app(AgreementService::class)->complete($done);
+        });
+
         $this->command?->info('Demo ready. Password: '.self::PASSWORD.' · TOTP secret: '.self::TOTP_SECRET);
+    }
+
+    /** Demo only: record a signature as if it had been made with a PIN. */
+    private function signed(Signer $signer, Agreement $agreement): void
+    {
+        $signer->forceFill([
+            'status' => 'signed', 'signed_at' => now()->subHours(3), 'signed_name' => $signer->name, 'ip' => '196.21.45.10',
+            'user_agent' => 'Mozilla/5.0 (Linux; Android 14; SM-A155F) Chrome/131.0 Mobile Safari/537.36',
+            'evidence' => ['channel' => $signer->phone ? 'whatsapp' : 'email', 'destination' => $signer->maskedPhone() ?? $signer->maskedEmail(),
+                'method' => 'one-time PIN', 'document_sha256' => $agreement->body_sha256],
+        ])->save();
     }
 
     private function person(string $first, string $last, ?string $email, bool $withTotp = false, ?string $phone = null): User

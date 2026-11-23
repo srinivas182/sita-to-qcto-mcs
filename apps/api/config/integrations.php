@@ -29,6 +29,7 @@ return [
         'whatsapp' => ['label' => 'WhatsApp', 'single' => false, 'modes' => false],
         'email' => ['label' => 'Email', 'single' => false, 'modes' => false],
         'storage' => ['label' => 'File storage', 'single' => true, 'modes' => false],
+        'esign' => ['label' => 'Advanced e-signature', 'single' => true, 'modes' => true],
     ],
 
     'drivers' => [
@@ -247,6 +248,20 @@ return [
                 'prefix' => ['label' => 'Folder prefix', 'help' => 'Optional, e.g. production/'],
                 'endpoint' => ['label' => 'Custom endpoint', 'type' => 'url', 'help' => 'Only for S3-compatible stores such as MinIO.'],
                 'path_style' => ['label' => 'Path-style URLs', 'type' => 'bool', 'default' => false],
+            ],
+        ],
+        // ── Advanced electronic signature (ECTA s13, accredited by SAAA) ─────
+        'esign.lawtrust' => [
+            'label' => 'LAWtrust SigningHub',
+            'description' => 'Advanced electronic signatures from an accredited South African provider, for agreements where a SETA or a law requires one.',
+            'capabilities' => ['advanced_signature'],
+            'note' => 'Ask LAWtrust for an API application on SigningHub. Try it in sandbox before going live.',
+            'fields' => [
+                'base_url' => ['label' => 'SigningHub API address', 'type' => 'url', 'required' => true, 'help' => 'As given by LAWtrust, without a trailing slash.'],
+                'client_id' => ['label' => 'Client ID', 'required' => true],
+                'client_secret' => ['label' => 'Client secret', 'secret' => true, 'required' => true],
+                'username' => ['label' => 'API user email', 'required' => true],
+                'password' => ['label' => 'API user password', 'secret' => true, 'required' => true],
             ],
         ],
         'storage.azure' => [
