@@ -73,3 +73,36 @@ export const intakeState: Record<Intake['status'], { label: string; tone: Tone }
 
 export const day = (iso: string) =>
   new Date(iso).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' });
+
+export interface OfferView {
+  id: string;
+  status: 'open' | 'accepted' | 'declined' | 'lapsed' | 'withdrawn';
+  expires_at: string;
+  funding: string | null;
+  reference: string;
+  provider: string;
+  learner: string;
+  course: { title: string; cohort: string; starts_on: string; ends_on: string };
+  needs_guardian: boolean;
+  guardian: { name: string; phone: string; relationship: string } | null;
+  consent: { version: number; text: string };
+  agreement_id: string | null;
+  link?: string;
+}
+
+export const offerState: Record<OfferView['status'], { label: string; tone: Tone }> = {
+  open: { label: 'Waiting for a reply', tone: 'primary' },
+  accepted: { label: 'Accepted', tone: 'success' },
+  declined: { label: 'Declined', tone: 'neutral' },
+  lapsed: { label: 'Lapsed', tone: 'neutral' },
+  withdrawn: { label: 'Withdrawn', tone: 'neutral' },
+};
+
+export const FUNDING: Record<string, string> = {
+  seta_grant: 'SETA grant',
+  employer: 'Employer',
+  self: 'Self-funded',
+  bursary: 'Bursary',
+  government: 'Government programme',
+  other: 'Other',
+};

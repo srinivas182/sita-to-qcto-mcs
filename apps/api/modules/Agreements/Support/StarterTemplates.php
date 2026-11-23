@@ -124,6 +124,10 @@ Between {{learner.name}} (the learner) and {{provider.legal_name}} (the training
 ## 3. Personal information
 
 3.1 The learner agrees that the provider may share their information with the QCTO, the SETA and the assessment body as needed to register, assess and certificate them.
+
+## 4. Learners under 18
+
+4.1 If the learner is under 18, their parent or guardian also signs this agreement and gives consent for the learner's personal information to be used as set out above.
 TXT,
             ],
         ];

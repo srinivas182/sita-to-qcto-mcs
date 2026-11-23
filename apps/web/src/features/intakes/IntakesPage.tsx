@@ -3,7 +3,7 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { Inbox, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Badge, Button, Card, Dialog, EmptyState, Field, PageHeader, Select, Skeleton, Table } from '@/components/ui';
-import { ApiError, call } from '@/lib/api';
+import { ApiError, call, errorMessage } from '@/lib/api';
 import { useCan } from '@/lib/session';
 import type { CohortRow } from '@/features/cohorts/types';
 import { DOCUMENT_TYPES, type DocumentRule } from './documents';
@@ -14,6 +14,7 @@ export function IntakesPage() {
   const can = useCan();
   const [adding, setAdding] = useState(false);
   const [rules, setRules] = useState(false);
+  const [consent, setConsent] = useState(false);
   const q = useQuery({ queryKey: ['intakes'], queryFn: () => call<{ data: Intake[] }>('GET', '/intakes') });
 
   return (
@@ -27,6 +28,9 @@ export function IntakesPage() {
             <div className="flex gap-2">
               <Button variant="secondary" onClick={() => setRules(true)}>
                 Document rules
+              </Button>
+              <Button variant="secondary" onClick={() => setConsent(true)}>
+                Consent wording
               </Button>
               <Button icon={<Plus className="size-4" />} onClick={() => setAdding(true)}>
                 Open an intake
@@ -99,6 +103,7 @@ export function IntakesPage() {
       </Card>
       {adding ? <IntakeDialog intake={null} onClose={() => setAdding(false)} /> : null}
       {rules ? <RulesDialog onClose={() => setRules(false)} /> : null}
+      {consent ? <ConsentDialog onClose={() => setConsent(false)} /> : null}
     </>
   );
 }
@@ -403,6 +408,60 @@ function RulesDialog({ onClose }: { onClose: () => void }) {
           <Button loading={save.isPending} disabled={!Object.keys(draft).length} onClick={() => save.mutate()}>
             Save
           </Button>
+        </div>
+      </div>
+    </Dialog>
+  );
+}
+
+/** The POPIA consent learners agree to when accepting a place. Changing it makes a new version; earlier consents keep theirs. */
+function ConsentDialog({ onClose }: { onClose: () => void }) {
+  const qc = useQueryClient();
+  const q = useQuery({
+    queryKey: ['consent-text'],
+    queryFn: () =>
+      call<{ data: { version: number; text: string; default: string } }>('GET', '/consent-text').then((r) => r.data),
+  });
+  const [text, setText] = useState<string | null>(null);
+  const save = useMutation({
+    mutationFn: () => call('PUT', '/consent-text', { text }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['consent-text'] });
+      onClose();
+    },
+  });
+  const value = text ?? q.data?.text ?? '';
+  return (
+    <Dialog
+      open
+      onOpenChange={(o) => !o && onClose()}
+      title="Consent wording"
+      description="Learners (and a parent or guardian, for those under 18) agree to this when they accept a place. {provider} is replaced with your trading name."
+    >
+      <div className="grid gap-3">
+        <label htmlFor="consent-text" className="text-small font-medium text-ink">
+          Wording{q.data ? ` (version ${q.data.version})` : ''}
+        </label>
+        <textarea
+          id="consent-text"
+          rows={10}
+          className="w-full rounded-lg border border-line bg-surface p-3 text-small text-ink focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-100"
+          value={value}
+          onChange={(e) => setText(e.target.value)}
+        />
+        {save.isError ? <p className="text-small text-danger">{errorMessage(save.error)}</p> : null}
+        <div className="flex flex-wrap justify-between gap-2">
+          <Button variant="ghost" onClick={() => setText(q.data?.default ?? '')}>
+            Use the standard wording
+          </Button>
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button loading={save.isPending} disabled={text === null} onClick={() => save.mutate()}>
+              Save as a new version
+            </Button>
+          </div>
         </div>
       </div>
     </Dialog>

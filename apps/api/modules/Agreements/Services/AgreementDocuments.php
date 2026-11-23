@@ -21,7 +21,7 @@ use Modules\Tenancy\Models\Tenant;
 /** The agreement PDF: the frozen text, then a page of signatures and evidence with a QR code. */
 final class AgreementDocuments
 {
-    public const ROLES = ['learner' => 'Learner', 'employer' => 'Host employer', 'provider' => 'Training provider'];
+    public const ROLES = ['learner' => 'Learner', 'employer' => 'Host employer', 'provider' => 'Training provider', 'guardian' => 'Parent or guardian'];
 
     public function __construct(private readonly StoreFactory $stores, private readonly TenantContext $context) {}
 

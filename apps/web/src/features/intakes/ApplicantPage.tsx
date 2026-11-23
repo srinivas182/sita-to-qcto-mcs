@@ -2,11 +2,23 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from '@tanstack/react-router';
 import { AlertTriangle, ArrowLeft, CheckCircle2, ExternalLink, XCircle } from 'lucide-react';
 import { useState } from 'react';
-import { Alert, Badge, Button, Card, CardHeader, Dialog, PageHeader, Skeleton, useToast } from '@/components/ui';
+import {
+  Alert,
+  Badge,
+  Button,
+  Card,
+  CardHeader,
+  Dialog,
+  Field,
+  PageHeader,
+  Select,
+  Skeleton,
+  useToast,
+} from '@/components/ui';
 import { ApiError, call, errorMessage } from '@/lib/api';
 import { useCan } from '@/lib/session';
 import { reqState, type LearnerDocument, type Requirement } from './documents';
-import { appState, day, type ApplicationRow, type Question } from './types';
+import { appState, day, FUNDING, offerState, type ApplicationRow, type OfferView, type Question } from './types';
 
 interface Detail extends Omit<ApplicationRow, 'applicant' | 'documents'> {
   documents_requested_at: string | null;
@@ -23,6 +35,8 @@ interface Detail extends Omit<ApplicationRow, 'applicant' | 'documents'> {
   };
   requirements: { complete: boolean; items: Requirement[] };
   documents: LearnerDocument[];
+  offer: OfferView | null;
+  places_left: number;
 }
 
 /** One applicant: who they are, their answers, and each document with its checks, to accept or reject. */
@@ -120,6 +134,7 @@ export function ApplicantPage() {
           )}
         </Card>
         <div className="grid content-start gap-4">
+          <OfferCard detail={a} manage={manage} />
           <Card>
             <CardHeader title="Required" />
             <ul className="grid gap-2">
@@ -331,5 +346,154 @@ function ReviewDialog({
         </div>
       </div>
     </Dialog>
+  );
+}
+
+/** The offer: make one (documents in, a place free), see its state, or take it back. */
+function OfferCard({ detail: a, manage }: { detail: Detail; manage: boolean }) {
+  const qc = useQueryClient();
+  const toast = useToast();
+  const [making, setMaking] = useState(false);
+  const [form, setForm] = useState({ days: '7', funding: '' });
+  const [withdrawing, setWithdrawing] = useState(false);
+  const [reason, setReason] = useState('');
+  const refresh = () => void qc.invalidateQueries({ queryKey: ['applications'] });
+  const make = useMutation({
+    mutationFn: () =>
+      call<{ data: OfferView }>('POST', `/learner-applications/${a.id}/offer`, {
+        days: Number(form.days),
+        funding: form.funding || null,
+      }),
+    onSuccess: () => {
+      toast('Offer sent by WhatsApp or SMS');
+      setMaking(false);
+      refresh();
+    },
+    onError: (e) => toast(errorMessage(e), 'error'),
+  });
+  const withdraw = useMutation({
+    mutationFn: (id: string) => call('POST', `/offers/${id}/withdraw`, { reason }),
+    onSuccess: () => {
+      toast('Offer withdrawn');
+      setWithdrawing(false);
+      refresh();
+    },
+    onError: (e) => toast(errorMessage(e), 'error'),
+  });
+  const o = a.offer;
+  const canOffer = ['submitted', 'shortlisted', 'waitlisted'].includes(a.status);
+
+  return (
+    <Card>
+      <CardHeader title="Offer" />
+      {o && !(canOffer && o.status !== 'open') ? (
+        <div className="grid gap-1.5 text-small">
+          <Badge tone={offerState[o.status].tone} dot>
+            {offerState[o.status].label}
+          </Badge>
+          <p className="text-muted">
+            {o.status === 'open' ? `Reply by ${day(o.expires_at)}` : null}
+            {o.funding ? `${o.status === 'open' ? ' · ' : ''}Funding: ${FUNDING[o.funding] ?? o.funding}` : null}
+          </p>
+          {o.guardian ? (
+            <p className="text-muted">
+              Parent or guardian: {o.guardian.name} ({o.guardian.relationship})
+            </p>
+          ) : null}
+          {o.status === 'accepted' && o.agreement_id ? (
+            <Link to="/agreements/$id" params={{ id: o.agreement_id }} className="text-primary-700 underline">
+              {a.status === 'enrolled' ? 'Signed learner agreement' : 'Learner agreement: waiting for signatures'}
+            </Link>
+          ) : null}
+          {manage && o.status === 'open' ? (
+            <Button size="sm" variant="secondary" className="mt-1" onClick={() => setWithdrawing(true)}>
+              Withdraw the offer
+            </Button>
+          ) : null}
+        </div>
+      ) : canOffer ? (
+        <div className="grid gap-2 text-small">
+          <p className="text-muted">
+            {a.places_left} {a.places_left === 1 ? 'place' : 'places'} left.{' '}
+            {a.requirements.complete ? null : 'An offer can be made once every required document is accepted.'}
+          </p>
+          {manage ? (
+            <Button
+              disabled={!a.requirements.complete || a.places_left < 1}
+              onClick={() => setMaking(true)}
+              className="w-full"
+            >
+              Make an offer
+            </Button>
+          ) : null}
+        </div>
+      ) : (
+        <p className="text-small text-muted">No offer.</p>
+      )}
+      {making ? (
+        <Dialog
+          open
+          onOpenChange={(v) => !v && setMaking(false)}
+          title={`Offer ${a.applicant.name} a place`}
+          description="Sent by WhatsApp or SMS with a link to accept. Accepting records consent and sends the learner agreement; signing it enrols them."
+        >
+          <div className="grid gap-3">
+            <Field
+              label="Days to reply"
+              type="number"
+              min={1}
+              max={30}
+              value={form.days}
+              onChange={(e) => setForm({ ...form, days: e.target.value })}
+            />
+            <Select
+              label="Funding"
+              value={form.funding}
+              onChange={(e) => setForm({ ...form, funding: e.target.value })}
+            >
+              <option value="">Not known yet</option>
+              {Object.entries(FUNDING).map(([k, v]) => (
+                <option key={k} value={k}>
+                  {v}
+                </option>
+              ))}
+            </Select>
+            <div className="flex justify-end gap-2">
+              <Button variant="secondary" onClick={() => setMaking(false)}>
+                Cancel
+              </Button>
+              <Button loading={make.isPending} onClick={() => make.mutate()}>
+                Send the offer
+              </Button>
+            </div>
+          </div>
+        </Dialog>
+      ) : null}
+      {withdrawing && o ? (
+        <Dialog
+          open
+          onOpenChange={(v) => !v && setWithdrawing(false)}
+          title="Withdraw the offer"
+          description="The applicant is told and goes back to the shortlist."
+        >
+          <div className="grid gap-3">
+            <Field label="Reason" required value={reason} onChange={(e) => setReason(e.target.value)} />
+            <div className="flex justify-end gap-2">
+              <Button variant="secondary" onClick={() => setWithdrawing(false)}>
+                Cancel
+              </Button>
+              <Button
+                variant="danger"
+                loading={withdraw.isPending}
+                disabled={reason.trim().length < 3}
+                onClick={() => withdraw.mutate(o.id)}
+              >
+                Withdraw
+              </Button>
+            </div>
+          </div>
+        </Dialog>
+      ) : null}
+    </Card>
   );
 }

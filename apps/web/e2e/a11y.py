@@ -83,6 +83,11 @@ with sync_playwright() as p:
     page.keyboard.press('Escape')
     page.goto(f'http://tym.platform.test:{PORT}/intakes'); page.get_by_role('button', name='Document rules').click(); page.get_by_role('dialog').get_by_text('Proof of address').wait_for(); audit(page, '/intakes rules dialog')
     page.keyboard.press('Escape')
+    page.get_by_role('button', name='Consent wording').click(); page.get_by_role('textbox', name='Wording').wait_for(); page.wait_for_timeout(300); audit(page, '/intakes consent dialog')
+    page.keyboard.press('Escape')
+    page.get_by_role('link', name='Bricklayer, December 2026').first.click(); page.get_by_role('link', name='Lerato Ndlovu').first.click()
+    page.get_by_text('Waiting for a reply').wait_for(); audit(page, '/applicants/:id offer')
+    page.get_by_role('link', name='Bricklayer, December 2026').first.click(); page.get_by_role('link', name='Nomsa Dube').first.click(); page.get_by_role('button', name='Make an offer').wait_for(); audit(page, '/applicants/:id no offer')
 
     # Cohorts: the list, and a cohort being planned with its readiness check.
     page.goto(f'http://tym.platform.test:{PORT}/cohorts'); page.get_by_text('GETC: Construction, February 2027').first.wait_for(); audit(page, '/cohorts')
@@ -110,6 +115,8 @@ with sync_playwright() as p:
     pub.get_by_label('Your mobile number').fill('0849990000'); pub.get_by_role('button', name='Send me a PIN').click(); pub.get_by_label('PIN', exact=True).wait_for(); audit(pub, '/join/:slug form')
 
     # Signing and checking agreements: public pages on the provider's address.
+    pub.goto(f'http://tym.platform.test:{PORT}/offer/DemoOfferLinkForLeratoNdlovu00000000000000000000'); pub.get_by_role('button', name='Accept the place').wait_for(); audit(pub, '/offer/:token')
+    pub.get_by_role('button', name='Decline').click(); pub.get_by_label('Reason (optional)').wait_for(); audit(pub, '/offer/:token decline')
     pub.goto(f'http://tym.platform.test:{PORT}/sign/DemoSigningLinkForAyandaZulu00000000000000000000'); pub.get_by_role('button', name='Send me a PIN').wait_for(); audit(pub, '/sign/:token')
     pub.get_by_role('button', name='Send me a PIN').click(); pub.get_by_label('PIN', exact=True).wait_for(); audit(pub, '/sign/:token pin')
     pub.goto(f'http://tym.platform.test:{PORT}/verify/demosigned'); pub.get_by_text('Check a copy').wait_for(); audit(pub, '/verify/:code')

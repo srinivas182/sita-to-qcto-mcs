@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Alert, Badge, Card, Skeleton } from '@/components/ui';
 import { call } from '@/lib/api';
 import { PublicLayout } from './PublicLayout';
-import { agreementState, ROLE_LABEL, signerState, when, type AgreementStatus, type Role } from './types';
+import { agreementState, ROLE_LABEL, signerState, when, type AgreementStatus, type SignerRole } from './types';
 
 interface Verification {
   title: string;
@@ -16,7 +16,7 @@ interface Verification {
   completed_at: string | null;
   text_sha256: string;
   document_sha256: string | null;
-  signers: { role: Role; name: string; status: string; signed_at: string | null }[];
+  signers: { role: SignerRole; name: string; status: string; signed_at: string | null }[];
 }
 
 async function sha256(file: File): Promise<string> {

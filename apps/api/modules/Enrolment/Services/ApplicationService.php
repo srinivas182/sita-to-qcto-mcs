@@ -16,6 +16,7 @@ use Illuminate\Validation\ValidationException;
 use Modules\Audit\AuditLogger;
 use Modules\Enrolment\Models\Application;
 use Modules\Enrolment\Models\Intake;
+use Modules\Enrolment\Models\Offer;
 use Modules\Enrolment\Support\Questions;
 use Modules\Identity\Models\User;
 use Modules\Identity\Models\UserTenant;
@@ -162,8 +163,16 @@ final class ApplicationService
         if (! in_array($application->status, ['submitted', 'shortlisted', 'waitlisted', 'offered'], true)) {
             throw ValidationException::withMessages(['status' => 'This application can no longer be withdrawn.']);
         }
-        $application->forceFill(['status' => 'withdrawn', 'waitlist_position' => null])->save();
+        $hadOffer = $application->status === 'offered';
+        DB::transaction(function () use ($application): void {
+            Offer::query()->where('application_id', $application->id)->where('status', 'open')
+                ->update(['status' => 'withdrawn', 'responded_at' => now(), 'reason' => 'The applicant withdrew.']);
+            $application->forceFill(['status' => 'withdrawn', 'waitlist_position' => null])->save();
+        });
         $this->audit->record('application.withdrawn', $application);
+        if ($hadOffer) {
+            app(OfferService::class)->moveWaitlist(Intake::query()->whereKey($application->intake_id)->firstOrFail());
+        }
     }
 
     /** @param  array<string, string|bool>  $answers */

@@ -22,6 +22,9 @@ use Modules\Tenancy\Concerns\BelongsToTenant;
  * @property Carbon $granted_at
  * @property Carbon|null $withdrawn_at
  * @property string|null $ip
+ * @property string|null $consent_text_id
+ * @property string|null $given_by
+ * @property string|null $channel
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -31,7 +34,7 @@ class Consent extends Model
     use BelongsToTenant;
     use HasUlids;
 
-    protected $fillable = ['tenant_id', 'user_id', 'purpose', 'version', 'granted_at', 'withdrawn_at', 'ip'];
+    protected $fillable = ['tenant_id', 'user_id', 'purpose', 'version', 'granted_at', 'withdrawn_at', 'ip', 'consent_text_id', 'given_by', 'channel'];
 
     protected function casts(): array
     {

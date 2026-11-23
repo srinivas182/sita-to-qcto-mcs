@@ -54,6 +54,13 @@ const join = createRoute({
   component: lazyRouteComponent(() => import('@/features/intakes/JoinPage'), 'JoinPage'),
 });
 
+// An offer of a place: accept (with consent) or decline, by link.
+const offer = createRoute({
+  getParentRoute: () => root,
+  path: '/offer/$token',
+  component: lazyRouteComponent(() => import('@/features/intakes/OfferPage'), 'OfferPage'),
+});
+
 // Signing and checking agreements: by link, no account needed.
 const sign = createRoute({
   getParentRoute: () => root,
@@ -282,6 +289,7 @@ const routeTree = root.addChildren([
   reset,
   invite,
   join,
+  offer,
   sign,
   verify,
   pricing,

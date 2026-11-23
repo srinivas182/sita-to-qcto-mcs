@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Modules\Agreements\Events\AgreementCompleted;
 use Modules\Agreements\Models\Agreement;
 use Modules\Agreements\Models\AgreementSettings;
 use Modules\Agreements\Models\Signer;
@@ -56,8 +57,8 @@ final class AgreementService
             'learner_user_id' => ['nullable', 'ulid'],
             'start_date' => ['nullable', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
-            'signers' => ['required', 'array', 'min:2', 'max:3'],
-            'signers.*.role' => ['required', 'distinct', Rule::in(Template::ROLES)],
+            'signers' => ['required', 'array', 'min:2', 'max:4'],
+            'signers.*.role' => ['required', 'distinct', Rule::in([...Template::ROLES, 'guardian'])],
             'signers.*.name' => ['required', 'string', 'min:2', 'max:150'],
             'signers.*.email' => ['nullable', 'email:rfc', 'max:200'],
             'signers.*.phone' => ['nullable', 'string', 'max:20'],
@@ -81,7 +82,11 @@ final class AgreementService
 
         /** @var list<array{role: string, name: string, email?: string|null, phone?: string|null, user_id?: string|null}> $given */
         $given = $data['signers'];
-        $roles = collect($given)->pluck('role')->sort()->values()->all();
+        // A parent or guardian may sign a learner agreement as well, for a learner under 18.
+        if (collect($given)->contains('role', 'guardian') && $template->kind !== 'learner') {
+            throw ValidationException::withMessages(['signers' => 'A parent or guardian signs only a learner agreement.']);
+        }
+        $roles = collect($given)->pluck('role')->reject(fn ($r) => $r === 'guardian')->sort()->values()->all();
         $needed = collect($template->parties)->sort()->values()->all();
         if ($roles !== $needed) {
             throw ValidationException::withMessages(['signers' => 'This agreement is signed by: '.implode(', ', array_map(fn ($r) => AgreementDocuments::ROLES[$r], $template->parties)).'.']);
@@ -101,7 +106,7 @@ final class AgreementService
                 throw ValidationException::withMessages(["signers.{$i}.email" => 'Advanced signatures are sent by email: add an email address.']);
             }
             $signers[] = ['role' => $s['role'], 'name' => trim((string) $s['name']), 'email' => $s['email'] ?? null, 'phone' => $phone,
-                'user_id' => $this->account($s['user_id'] ?? null, $phone, $s['email'] ?? null), 'sort' => array_search($s['role'], $template->parties, true)];
+                'user_id' => $this->account($s['user_id'] ?? null, $phone, $s['email'] ?? null), 'sort' => $s['role'] === 'guardian' ? count($template->parties) : array_search($s['role'], $template->parties, true)];
         }
 
         $tenantId = $this->context->tenantId();
@@ -206,6 +211,7 @@ final class AgreementService
         }
         $this->audit->record('agreement.completed', $agreement, [], ['sha256' => $agreement->sealed_sha256]);
         $this->invitations->completed($agreement);
+        event(new AgreementCompleted($agreement->id, $agreement->tenant_id));
     }
 
     /** Check an advanced agreement's progress with its provider. */
