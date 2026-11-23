@@ -23,6 +23,7 @@ export interface Chain {
   ok: boolean;
   entries: number;
   broken_at: number | null;
+  signatures_ok?: boolean;
 }
 
 export interface Entry {

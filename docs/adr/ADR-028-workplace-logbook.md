@@ -20,6 +20,15 @@ Occupational qualifications include work experience (WM) modules done on site. T
 7. **Chain check:** the provider's report recomputes every learner's chain and shows "Intact" or the first entry that was changed (e.g. by someone editing the database).
 8. Photo hashes in the entry must match the stored files' SHA-256, so a photo cannot be swapped later.
 
+## Weekly sign-off (Sprint 6b)
+
+9. **Weeks** (`logbook_weeks`): one per learner, placement and week (Monday start), created with the first entry. Statuses: open, returned, signed.
+10. **Only the placement's mentor** signs, with their own account (Host employer role, linked to the mentor record). Other mentors at the same employer see nothing. Signing needs a tick: "I confirm the learner did this work at our workplace, as written." A future week cannot be signed.
+11. **The signature** is `sha256("w1|" + the signed entries' hashes in order)`. If an entry changes after signing, the provider's report shows "Changed after signing".
+12. **Send back**: the mentor writes what to fix and picks entries (or the whole week). Those entries become `returned` with the comment and do not count towards hours. The learner corrects them (a new entry, as above); once nothing sent back is left, the week is open to sign again.
+13. **A signed week is closed**: no new entries for it, and its entries cannot be corrected by the learner.
+14. The learner gets a push notice when a week is signed or sent back. The provider sees unsigned past weeks per learner.
+
 ## Consequences
 
 - Weekly mentor sign-off (6b) and final sign-off with the authenticity statement (6c) build on these entries.

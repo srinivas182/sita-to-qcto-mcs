@@ -2,60 +2,15 @@
 
 declare(strict_types=1);
 
-require_once __DIR__.'/../Delivery/helpers.php';
+require_once __DIR__.'/helpers.php';
 
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
-use Modules\Cohorts\Models\Placement;
-use Modules\Employers\Models\Employer;
-use Modules\Employers\Models\EmployerSite;
-use Modules\Employers\Models\Mentor;
-use Modules\Enrolment\Models\Enrolment;
 use Modules\Files\Models\File;
 use Modules\Logbook\Models\LogbookEntry;
 use Modules\Logbook\Support\EntryHash;
 
-beforeEach(function (): void {
-    deliverySetup($this);
-    $this->intake = openIntake($this, ['document_types' => [], 'min_age' => null]);
-    $this->ayanda = enrolLearner($this, '082 123 4567', '9202204720083');
-    asPlatform(fn () => $this->ayanda->forceFill(['email' => 'ayanda@learner.test', 'password' => 'correct horse battery staple'])->save());
-    $this->enrolment = asTenant($this->tym, fn () => Enrolment::query()->where('user_id', $this->ayanda->id)->value('id'));
-    [$this->site, $this->mentor, $this->otherSite] = asTenant($this->tym, function () {
-        $e = Employer::query()->create(['legal_name' => 'Mabaso Builders (Pty) Ltd', 'registration_number' => '2015/123456/07', 'sdl_number' => 'L123456789']);
-        $s = EmployerSite::query()->create(['employer_id' => $e->id, 'name' => 'Soweto yard', 'city' => 'Soweto', 'approval_number' => 'CETA/WPA/1', 'approval_body' => 'CETA',
-            'approved_on' => now()->subYear(), 'approval_expires_on' => now()->addYear(), 'approved_qualification_ids' => [$this->q->id], 'latitude' => '-26.2485', 'longitude' => '27.8540']);
-        $o = EmployerSite::query()->create(['employer_id' => $e->id, 'name' => 'Not on this cohort', 'approval_number' => 'CETA/WPA/2', 'approval_body' => 'CETA',
-            'approved_on' => now()->subYear(), 'approval_expires_on' => now()->addYear(), 'approved_qualification_ids' => [$this->q->id]]);
-        $m = Mentor::query()->create(['employer_id' => $e->id, 'name' => 'Bheki Mabaso', 'designation' => 'Foreman', 'years_experience' => 14, 'site_ids' => [$s->id]]);
-        Placement::query()->create(['cohort_id' => $this->cohort->id, 'employer_id' => $e->id, 'site_id' => $s->id, 'mentor_id' => $m->id, 'planned_learners' => 5]);
-
-        return [$s, $m, $o];
-    });
-    $this->today = CarbonImmutable::now('Africa/Johannesburg')->toDateString();
-    signInOwner($this, $this->tym, 'office@tym.test');
-});
-
-/** Rules on the WM module and the learner placed at the Soweto yard from 30 days ago. */
-function placed(object $test): void
-{
-    $test->putJson(TYM_V1."/modules/{$test->wm->id}/logbook-rules", ['activities' => [
-        ['key' => 'mix', 'title' => 'Mix mortar'], ['key' => 'lay', 'title' => 'Lay a course', 'photo' => true],
-    ]])->assertOk();
-    $test->postJson(TYM_V1."/cohorts/{$test->cohort->id}/learner-placements", ['enrolment_id' => $test->enrolment, 'site_id' => $test->site->id,
-        'mentor_id' => $test->mentor->id, 'starts_on' => CarbonImmutable::now()->subDays(30)->toDateString()])->assertCreated();
-}
-
-/** An entry as the phone would send it, hashed onto $prev. */
-function entry(object $test, ?string $prev, array $over = []): array
-{
-    $e = array_merge(['client_id' => (string) Str::uuid(), 'module_id' => $test->wm->id, 'activity_key' => 'mix', 'work_date' => $test->today, 'minutes' => 240,
-        'note' => 'Mixed mortar for the east wall', 'photo_hashes' => [], 'device_time' => CarbonImmutable::now('Africa/Johannesburg')->format('Y-m-d\TH:i:sP')], $over);
-    $e['prev_hash'] = $prev;
-    $e['hash'] = EntryHash::make($prev, $e['client_id'], $e['module_id'], $e['activity_key'], $e['work_date'], $e['minutes'], $e['note'], $e['photo_hashes'], $e['device_time']);
-
-    return $e;
-}
+beforeEach(fn () => logbookSetup($this));
 
 it('hashes an entry the same way as the phone', function (): void {
     expect(EntryHash::make(null, '6f1c7a0e-9b1e-4f1e-8d63-0a1b2c3d4e5f', '01jdemomodule0000000000000', 'mix', '2027-02-03', 240, 'Mixed mortar | laid 2 courses', ['AB12'], '2027-02-03T14:05:00+02:00'))
@@ -132,7 +87,7 @@ it('corrects an entry with a new one, keeps both in the chain, and the provider 
 
     signInOwner($this, $this->tym, 'office2@tym.test');
     $this->getJson(TYM_V1."/cohorts/{$this->cohort->id}/logbook")->assertOk()->assertJsonPath('data.0.hours.0.hours', 3)
-        ->assertJsonPath('data.0.chain', ['ok' => true, 'entries' => 2, 'broken_at' => null])->assertJsonPath('data.0.last_entry', $this->today);
+        ->assertJsonPath('data.0.chain.ok', true)->assertJsonPath('data.0.chain.entries', 2)->assertJsonPath('data.0.last_entry', $this->today);
 
     // Change a stored entry behind the system's back: the chain check shows it.
     asTenant($this->tym, fn () => LogbookEntry::query()->whereKey($b['id'])->update(['minutes' => 600]));

@@ -201,6 +201,14 @@ with sync_playwright() as p:
     ln.get_by_role('button', name='Sign in', exact=True).click(); ln.get_by_text('Good ').first.wait_for()
     ln.goto(f'http://tym.platform.test:{PORT}/my-course'); ln.get_by_text('Safety on a building site: notes').first.wait_for(); audit(ln, '/my-course (learner, phone)')
     ln.get_by_text('Site safety quiz').wait_for(); audit(ln, '/my-course tasks (learner, phone)')
+    # A workplace mentor (Host employer, no second factor): weeks to sign, on a phone.
+    mn = b.new_context(viewport={'width': 390, 'height': 844}).new_page()
+    mn.goto(f'http://tym.platform.test:{PORT}/sign-in'); mn.get_by_label('Email').wait_for()
+    mn.get_by_label('Email').fill('bheki@demo.test'); mn.get_by_label('Password').fill('demo passphrase 2026')
+    mn.get_by_role('button', name='Sign in', exact=True).click(); mn.get_by_text('Good ').first.wait_for()
+    mn.goto(f'http://tym.platform.test:{PORT}/logbooks'); mn.get_by_text('Weeks to sign').wait_for(); mn.get_by_text('Bongani Khumalo').first.wait_for(); audit(mn, '/logbooks (mentor, phone)')
+    mn.get_by_role('button', name='Check').first.click(); mn.get_by_role('dialog').get_by_text('Laid six courses').wait_for(); audit(mn, '/logbooks week dialog (mentor, phone)')
+    mn.get_by_role('button', name='Send back…').click(); mn.get_by_label('What should the learner fix?').wait_for(); audit(mn, '/logbooks send back (mentor, phone)')
     b.close()
 
 sys.exit(1 if failed else 0)

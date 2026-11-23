@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Logbook\Http\Controllers;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -18,7 +19,9 @@ use Modules\Identity\Models\User;
 use Modules\Logbook\Models\LearnerPlacement;
 use Modules\Logbook\Models\LogbookEntry;
 use Modules\Logbook\Models\LogbookRule;
+use Modules\Logbook\Models\LogbookWeek;
 use Modules\Logbook\Services\LogbookService;
+use Modules\Logbook\Services\SignOffService;
 use Modules\Qualifications\Models\QualificationModule;
 
 /** Logbook rules, learners' placements, the learner's own logbook, and the provider's view. */
@@ -113,6 +116,7 @@ final class LogbookController
                 'activities' => $rules->get($m->id)?->activities, 'hours_needed' => $rules->get($m->id)?->hours_needed, 'evidence_note' => $rules->get($m->id)?->evidence_note])->values()->all(),
             'hours' => $qualification ? $this->logbook()->hours($me->id, $qualification) : [],
             'last_hash' => $last?->hash,
+            'weeks' => LogbookWeek::query()->where('user_id', $me->id)->orderByDesc('week_start')->limit(30)->get()->map(fn (LogbookWeek $w) => SignOffService::present($w))->values()->all(),
             'entries' => LogbookEntry::query()->where('user_id', $me->id)->orderByDesc('seq')->limit(100)->get()->map(fn (LogbookEntry $e) => LogbookService::present($e))->values()->all(),
         ]]);
     }
@@ -144,10 +148,15 @@ final class LogbookController
         $people = User::query()->whereIn('id', $enrolments->pluck('user_id'))->get()->keyBy('id');
         $lastDates = LogbookEntry::query()->whereIn('user_id', $enrolments->pluck('user_id'))->whereIn('status', LogbookEntry::COUNTED)
             ->selectRaw('user_id, max(work_date) as last')->groupBy('user_id')->pluck('last', 'user_id');
+        $thisWeek = CarbonImmutable::now(LogbookService::TZ)->startOfWeek()->toDateString();
+        $weeks = LogbookWeek::query()->whereIn('learner_placement_id', LearnerPlacement::query()->where('cohort_id', $c->id)->pluck('id'))->get()->groupBy('user_id');
+        $signOff = app(SignOffService::class);
 
         return response()->json(['data' => $enrolments->map(fn (Enrolment $e) => ['user_id' => $e->user_id, 'name' => $people->get($e->user_id)?->fullName(),
             'hours' => $this->logbook()->hours($e->user_id, $c->qualification_id), 'last_entry' => $lastDates->get($e->user_id),
-            'chain' => $this->logbook()->verify($e->user_id)])->sortBy('name')->values()->all()]);
+            'unsigned_weeks' => ($weeks->get($e->user_id) ?? collect())->filter(fn (LogbookWeek $w) => $w->status !== 'signed' && $w->week_start->toDateString() < $thisWeek)->count(),
+            'chain' => $this->logbook()->verify($e->user_id) + ['signatures_ok' => ($weeks->get($e->user_id) ?? collect())->every(fn (LogbookWeek $w) => $signOff->intact($w))],
+        ])->sortBy('name')->values()->all()]);
     }
 
     /** One learner's entries, for the provider. */
@@ -158,6 +167,7 @@ final class LogbookController
         abort_unless(Enrolment::query()->where('cohort_id', $c->id)->where('user_id', $user)->exists(), 404);
 
         return response()->json(['data' => [
+            'weeks' => LogbookWeek::query()->where('user_id', $user)->orderByDesc('week_start')->get()->map(fn (LogbookWeek $w) => SignOffService::present($w))->values()->all(),
             'entries' => LogbookEntry::query()->where('user_id', $user)->orderByDesc('seq')->limit(500)->get()->map(fn (LogbookEntry $e) => LogbookService::present($e))->values()->all(),
             'hours' => $this->logbook()->hours($user, $c->qualification_id), 'chain' => $this->logbook()->verify($user),
         ]]);
