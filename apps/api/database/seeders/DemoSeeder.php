@@ -25,6 +25,7 @@ use Modules\Cohorts\Models\CohortStaff;
 use Modules\Cohorts\Services\CohortService;
 use Modules\Delivery\Models\Room;
 use Modules\Delivery\Services\MaterialService;
+use Modules\Delivery\Services\TaskService;
 use Modules\Delivery\Services\TimetableService;
 use Modules\Employers\Models\Employer;
 use Modules\Employers\Models\EmployerSite;
@@ -437,6 +438,24 @@ final class DemoSeeder extends Seeder
         $materials->publish($materials->save(null, ['qualification_id' => $qualificationId, 'title' => 'Bricklayer qualification on SAQA', 'kind' => 'link',
             'url' => 'https://regqs.saqa.org.za/viewQualification.php?id=93627'], $by), true);
         $materials->save(null, ['qualification_id' => $qualificationId, 'title' => 'Mortar mixes (draft)', 'kind' => 'link', 'url' => 'https://example.org/mortar'], $by);
+
+        // Two formative tasks; Bongani has answered the quiz and handed in photos waiting to be marked.
+        $tasks = app(TaskService::class);
+        $quiz = $tasks->publish($tasks->save(null, ['qualification_id' => $qualificationId, 'title' => 'Site safety quiz', 'pass_pct' => 75, 'questions' => [
+            ['type' => 'single', 'text' => 'When must you wear a hard hat on site?', 'options' => ['Only near scaffolding', 'At all times on site', 'When the foreman is there'], 'correct' => [1], 'marks' => 2],
+            ['type' => 'multi', 'text' => 'Which of these are personal protective equipment?', 'options' => ['Safety boots', 'Sunglasses', 'Gloves', 'Reflective vest'], 'correct' => [0, 2, 3], 'marks' => 2],
+        ]], $by), true);
+        $evidence = $tasks->publish($tasks->save(null, ['qualification_id' => $qualificationId, 'title' => 'Mix mortar and lay one course', 'pass_pct' => 60, 'evidence' => true,
+            'evidence_hint' => 'Two photos: your mortar on the board, and the finished course from the side',
+            'questions' => [['type' => 'short', 'text' => 'Why do you wet the bricks before laying them in hot weather?', 'marks' => 4, 'guide' => 'Dry bricks draw water from the mortar, so it cannot cure and bond.']]], $by), true);
+        $bongani = $context->runAsPlatform(fn () => User::query()->where('phone_e164', '+27831110005')->first());
+        if ($bongani !== null) {
+            $tasks->submit($quiz, $bongani, ['answers' => ['q1' => 1, 'q2' => [0, 2, 3]]]);
+            $photo = File::query()->create(['owner_id' => $bongani->id, 'purpose' => 'task_evidence', 'original_name' => 'mortar-board.jpg', 'mime' => 'image/jpeg',
+                'size' => 8, 'store_driver' => $store->driver(), 'integration_id' => $integration?->id, 'path' => $context->tenantId().'/task_evidence/demo/mortar.jpg', 'status' => 'ready', 'uploaded_at' => now(), 'scanned_at' => now()]);
+            $store->disk()->put($photo->path, 'demo jpg');
+            $tasks->submit($evidence, $bongani, ['answers' => ['q1' => 'So the bricks do not dry out the mortar.'], 'file_ids' => [$photo->id]]);
+        }
     }
 
     /** Demo only: a drawn "document" photo stored as the person's upload, checked like a real one. */

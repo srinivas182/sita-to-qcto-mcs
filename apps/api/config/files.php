@@ -73,6 +73,15 @@ return [
             'variants' => [],
             'public_variants' => false,
         ],
+        'task_evidence' => [
+            'scope' => 'tenant',
+            'permission' => 'self',
+            'viewers' => 'learning.deliver',
+            'max_kb' => 102400,
+            'mimes' => ['application/pdf', 'image/jpeg', 'image/png', 'video/mp4', 'video/quicktime'],
+            'variants' => [],
+            'public_variants' => false,
+        ],
         'attendance_note' => [
             'scope' => 'tenant',
             'permission' => 'self',

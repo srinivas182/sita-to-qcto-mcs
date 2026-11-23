@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle2, ExternalLink } from 'lucide-react';
 import { Alert, Badge, Button, Card, EmptyState, PageHeader, Skeleton, useToast } from '@/components/ui';
 import { call, errorMessage } from '@/lib/api';
+import { CourseTasks } from './DoTask';
 import { megabytes } from './MaterialsPage';
 
 interface Course {
@@ -146,6 +147,7 @@ function CourseCard({ course }: { course: Course }) {
             );
           })
         : null}
+      <CourseTasks enrolmentId={course.enrolment_id} />
     </Card>
   );
 }

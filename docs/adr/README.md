@@ -25,3 +25,4 @@
 - [ADR-024 Attendance: rotating QR, centre distance, offline check-in](ADR-024-attendance.md)
 - [ADR-025 Monthly attendance registers and at-risk alerts](ADR-025-attendance-registers.md)
 - [ADR-026 Course materials, offline packs and low-data video](ADR-026-course-materials.md)
+- [ADR-027 Formative tasks and marking](ADR-027-formative-tasks.md)
