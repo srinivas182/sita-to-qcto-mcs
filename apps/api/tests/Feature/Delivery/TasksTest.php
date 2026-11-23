@@ -86,3 +86,13 @@ it('keeps tasks from learners who are not enrolled, and marking from other facil
     $this->postJson(TYM_V1."/me/tasks/{$id}/attempts", ['answers' => ['q1' => 1, 'q2' => [0, 2]]])->assertNotFound();
     expect($this->getJson(TYM_V1.'/task-attempts')->assertOk()->json('data'))->toBe([]);
 });
+
+it('gives the learner their day in one response', function (): void {
+    $id = $this->postJson(TYM_V1.'/tasks', ['qualification_id' => $this->q->id, 'title' => 'Quiz', 'questions' => quiz()])->json('data.id');
+    $this->postJson(TYM_V1."/tasks/{$id}/publish", ['published' => true])->assertOk();
+    signInAs($this, 'ayanda@learner.test');
+    $this->postJson(TYM_V1."/me/tasks/{$id}/attempts", ['answers' => ['q1' => 1, 'q2' => [0, 2]]])->assertCreated();
+    $d = $this->getJson(TYM_V1.'/me/dashboard')->assertOk()->json('data');
+    expect($d['courses'][0])->toMatchArray(['cohort' => 'Bricklayer February 2027', 'tasks' => ['total' => 1, 'passed' => 1, 'waiting' => 0], 'materials' => ['total' => 0, 'done' => 0]])
+        ->and($d['today'])->toBe([])->and($d['registers_to_sign'])->toBe(0);
+});
