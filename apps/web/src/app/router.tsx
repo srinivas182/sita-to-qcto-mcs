@@ -205,6 +205,27 @@ const cohortTimetable = createRoute({
   path: '/cohorts/$id/timetable',
   component: lazyRouteComponent(() => import('@/features/delivery/TimetablePage'), 'TimetablePage'),
 });
+const cohortAttendance = createRoute({
+  getParentRoute: () => app,
+  path: '/cohorts/$id/attendance',
+  component: lazyRouteComponent(() => import('@/features/delivery/AttendancePage'), 'AttendancePage'),
+});
+const classes = createRoute({
+  getParentRoute: () => app,
+  path: '/classes',
+  component: lazyRouteComponent(() => import('@/features/delivery/ClassesPage'), 'ClassesPage'),
+});
+const classSession = createRoute({
+  getParentRoute: () => app,
+  path: '/classes/$id',
+  component: lazyRouteComponent(() => import('@/features/delivery/SessionPage'), 'SessionPage'),
+});
+// The check-in code opens this (signed in; a learner without the app checks in in the browser).
+const checkIn = createRoute({
+  getParentRoute: () => app,
+  path: '/c/$token',
+  component: lazyRouteComponent(() => import('@/features/delivery/CheckInPage'), 'CheckInPage'),
+});
 const agreements = createRoute({
   getParentRoute: () => app,
   path: '/agreements',
@@ -321,6 +342,10 @@ const routeTree = root.addChildren([
     cohort,
     cohortQcto,
     cohortTimetable,
+    cohortAttendance,
+    classes,
+    classSession,
+    checkIn,
     agreements,
     agreementTemplates,
     agreementTemplate,

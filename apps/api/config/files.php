@@ -64,6 +64,15 @@ return [
             'variants' => [],
             'public_variants' => false,
         ],
+        'attendance_note' => [
+            'scope' => 'tenant',
+            'permission' => 'self',
+            'viewers' => 'learning.deliver',
+            'max_kb' => 10240,
+            'mimes' => ['application/pdf', 'image/jpeg', 'image/png'],
+            'variants' => [],
+            'public_variants' => false,
+        ],
         'learner_application' => [
             'scope' => 'tenant',
             'permission' => 'self',

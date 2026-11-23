@@ -440,10 +440,21 @@ function SessionDialog({
           </div>
         ) : (
           <div className="flex flex-wrap justify-between gap-2">
-            {session && session.status === 'scheduled' ? (
-              <Button variant="ghost" onClick={() => setCancelling(true)}>
-                Cancel the class
-              </Button>
+            {session ? (
+              <div className="flex gap-2">
+                <Link
+                  to="/classes/$id"
+                  params={{ id: session.id }}
+                  className="inline-flex h-10 items-center rounded-lg px-3 text-small font-medium text-primary-700 hover:bg-line-soft"
+                >
+                  Attendance
+                </Link>
+                {session.status === 'scheduled' ? (
+                  <Button variant="ghost" onClick={() => setCancelling(true)}>
+                    Cancel the class
+                  </Button>
+                ) : null}
+              </div>
             ) : (
               <span />
             )}
