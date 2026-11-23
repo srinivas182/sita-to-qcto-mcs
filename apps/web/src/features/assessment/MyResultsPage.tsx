@@ -3,11 +3,18 @@ import { useState } from 'react';
 import { Alert, Badge, Button, Card, Dialog, EmptyState, PageHeader, Skeleton, useToast } from '@/components/ui';
 import { ApiError, call, errorMessage } from '@/lib/api';
 import { shortDate } from '@/lib/money';
+import { downloadFrom } from '@/features/delivery/RegistersPage';
+import type { Statement } from './ReadinessPage';
 import { type ModuleResults, type ResultRow, methodLabel, stateBadge } from './types';
 
 /** The learner's results per module, with feedback and what to work on. */
 export function MyResultsPage() {
   const [appealing, setAppealing] = useState<{ result: ResultRow; title: string } | null>(null);
+  const toast = useToast();
+  const sors = useQuery({
+    queryKey: ['my-sors'],
+    queryFn: () => call<{ data: Statement[] }>('GET', '/me/statements-of-results').then((r) => r.data),
+  });
   const q = useQuery({
     queryKey: ['my-results'],
     queryFn: () =>
@@ -22,6 +29,30 @@ export function MyResultsPage() {
         title="My results"
         description="Your summative results per module. If you are not yet competent, read the feedback before your next attempt."
       />
+      {sors.data
+        ?.filter((x) => x.status === 'issued')
+        .map((x) => (
+          <Card key={x.id} className="mb-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p className="font-medium text-ink">Statement of Results {x.number}</p>
+                <p className="text-small text-muted">
+                  Issued {shortDate(x.issued_at)}. You can now be registered for the external assessment.
+                </p>
+              </div>
+              <Button
+                size="sm"
+                onClick={() =>
+                  void downloadFrom(`/statements-of-results/${x.id}/pdf`, `${x.number}.pdf`).catch((e: unknown) =>
+                    toast(errorMessage(e), 'error'),
+                  )
+                }
+              >
+                Download<span className="sr-only"> {x.number}</span>
+              </Button>
+            </div>
+          </Card>
+        ))}
       {q.isPending ? (
         <Skeleton className="h-40" />
       ) : q.isError ? (

@@ -7,6 +7,7 @@ namespace Modules\Enrolment\Services;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Modules\Assessment\Models\StatementOfResults;
 use Modules\Audit\AuditLogger;
 use Modules\Cohorts\Models\Cohort;
 use Modules\Enrolment\Models\Enrolment;
@@ -70,7 +71,7 @@ final class QctoEnrolmentList
             if ($user === null) {
                 continue;
             }
-            $row = $this->row($user, $profiles->get($e->user_id), $consents->get($e->user_id), $cohort, $qualification, $centre);
+            $row = $this->row($user, $profiles->get($e->user_id), $consents->get($e->user_id), $cohort, $qualification, $centre, $e);
             $rows[] = ['enrolment_id' => $e->id, 'user_id' => $user->id, 'name' => $user->fullName(), 'enrolled_on' => $e->enrolled_on->toDateString(),
                 'sent' => in_array($user->id, $sentIds, true)] + $row;
         }
@@ -130,7 +131,7 @@ final class QctoEnrolmentList
     }
 
     /** @return array{columns: array<string, string>, errors: list<array{column: string, field: string, problem: string}>, warnings: list<array{column: string, field: string, problem: string}>} */
-    private function row(User $user, ?PersonProfile $p, ?Consent $consent, Cohort $cohort, Qualification $q, Centre $centre): array
+    private function row(User $user, ?PersonProfile $p, ?Consent $consent, Cohort $cohort, Qualification $q, Centre $centre, ?Enrolment $enrolment = null): array
     {
         $errors = [];
         $warnings = [];
@@ -222,9 +223,12 @@ final class QctoEnrolmentList
             $errors[] = ['column' => 'AH', 'field' => QctoCodes::COLUMNS['AH'], 'problem' => 'No POPIA consent on record.'];
         }
         $c['AJ'] = $cohort->planned_end_on->format('Ymd');
-        // Columns AK to AP are the second submission (readiness for the EISA), later in the programme.
-        $c['AK'] = '02';
-        $c['AN'] = '1';
+        // Columns AK to AP are the second submission (readiness for the EISA). The Statement of
+        // Results fills AK and AL; AN becomes "SDP training and assessment for readiness" (4).
+        $sorAt = $enrolment !== null ? StatementOfResults::query()->where('enrolment_id', $enrolment->id)->where('status', 'issued')->value('issued_at') : null;
+        $c['AK'] = $sorAt !== null ? '01' : '02';
+        $c['AL'] = $sorAt !== null ? CarbonImmutable::parse((string) $sorAt)->setTimezone('Africa/Johannesburg')->format('Ymd') : '';
+        $c['AN'] = $sorAt !== null ? '4' : '1';
         $c['AQ'] = now()->format('Ymd');
 
         return ['columns' => $c, 'errors' => $errors, 'warnings' => $warnings];
