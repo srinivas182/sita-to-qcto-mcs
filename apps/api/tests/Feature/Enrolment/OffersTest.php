@@ -5,9 +5,7 @@ declare(strict_types=1);
 require_once __DIR__.'/helpers.php';
 
 use Modules\Access\Services\AccessService;
-use Modules\Agreements\Models\Agreement;
 use Modules\Agreements\Models\Signer;
-use Modules\Agreements\Services\AgreementService;
 use Modules\Enrolment\Models\Application;
 use Modules\Enrolment\Models\Enrolment;
 use Modules\Enrolment\Models\Offer;
@@ -19,32 +17,6 @@ beforeEach(function (): void {
     enrolmentSetup($this);
     $this->intake = openIntake($this, ['document_types' => [], 'min_age' => null, 'places' => 2]);
 });
-
-/** Publish the standard learner agreement as the owner (staying signed in). */
-function learnerTemplate(object $test): void
-{
-    signInOwner($test, $test->tym, 'owner2@tym.test');
-    $id = $test->postJson(TYM_V1.'/agreement-templates', ['starter' => 'learner'])->assertCreated()->json('data.id');
-    $test->postJson(TYM_V1."/agreement-templates/{$id}/publish")->assertOk();
-}
-
-function applyAs(object $test, string $phone, string $id, string $first = 'Ayanda'): Application
-{
-    $test->flushHeaders()->flushSession();
-    $ref = applyPublic($test, $test->intake, ['id_number' => $id, 'first_name' => $first], $phone)->assertCreated()->json('data.reference');
-    $test->travel(1)->minutes();
-
-    return asTenant($test->tym, fn () => Application::query()->where('reference', $ref)->sole());
-}
-
-/** Everyone signs the learner agreement (the signing flow itself is tested in Agreements). */
-function completeAgreement(object $test, string $agreementId): void
-{
-    asTenant($test->tym, function () use ($agreementId): void {
-        Signer::query()->where('agreement_id', $agreementId)->update(['status' => 'signed', 'signed_at' => now(), 'signed_name' => 'Signed']);
-        app(AgreementService::class)->complete(Agreement::query()->findOrFail($agreementId));
-    });
-}
 
 it('makes an offer only with a learner agreement published, documents in and a place free', function (): void {
     $a = applyAs($this, '082 123 4567', '9202204720083');

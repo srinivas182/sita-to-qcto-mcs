@@ -37,6 +37,14 @@ interface Detail extends Omit<ApplicationRow, 'applicant' | 'documents'> {
   documents: LearnerDocument[];
   offer: OfferView | null;
   places_left: number;
+  identity_check: {
+    id: string;
+    status: string;
+    checked_at: string | null;
+    requested_at: string | null;
+    problems: string[];
+  } | null;
+  identity_connected: boolean;
 }
 
 /** One applicant: who they are, their answers, and each document with its checks, to accept or reject. */
@@ -135,6 +143,7 @@ export function ApplicantPage() {
         </Card>
         <div className="grid content-start gap-4">
           <OfferCard detail={a} manage={manage} />
+          {a.identity_connected || a.identity_check ? <IdentityCard detail={a} manage={manage} /> : null}
           <Card>
             <CardHeader title="Required" />
             <ul className="grid gap-2">
@@ -493,6 +502,56 @@ function OfferCard({ detail: a, manage }: { detail: Detail; manage: boolean }) {
             </div>
           </div>
         </Dialog>
+      ) : null}
+    </Card>
+  );
+}
+
+const ID_STATE: Record<string, { label: string; tone: 'success' | 'danger' | 'warning' | 'neutral' | 'info' }> = {
+  queued: { label: "Waiting for tonight's check", tone: 'info' },
+  verified: { label: 'Matches Home Affairs', tone: 'success' },
+  mismatch: { label: 'Does not match', tone: 'danger' },
+  not_found: { label: 'Not found at Home Affairs', tone: 'danger' },
+  deceased: { label: 'Recorded as deceased', tone: 'danger' },
+  failed: { label: 'Could not be checked', tone: 'warning' },
+};
+
+/** Home Affairs ID check: asked for here, run in the nightly batch. */
+function IdentityCard({ detail: a, manage }: { detail: Detail; manage: boolean }) {
+  const qc = useQueryClient();
+  const toast = useToast();
+  const ask = useMutation({
+    mutationFn: () => call('POST', `/learner-applications/${a.id}/identity-check`),
+    onSuccess: () => {
+      toast("Added to tonight's Home Affairs check");
+      void qc.invalidateQueries({ queryKey: ['applications', 'one', a.id] });
+    },
+    onError: (e) => toast(errorMessage(e), 'error'),
+  });
+  const c = a.identity_check;
+  const state = c ? (ID_STATE[c.status] ?? { label: c.status, tone: 'neutral' as const }) : null;
+  return (
+    <Card>
+      <CardHeader title="Home Affairs ID check" />
+      {c && state ? (
+        <div className="grid gap-1.5 text-small">
+          <Badge tone={state.tone} dot>
+            {state.label}
+          </Badge>
+          {c.checked_at ? <p className="text-muted">Checked {day(c.checked_at)}</p> : null}
+          {c.problems.map((p) => (
+            <p key={p} className="text-danger">
+              {p}
+            </p>
+          ))}
+        </div>
+      ) : (
+        <p className="text-small text-muted">Not checked.</p>
+      )}
+      {manage && a.identity_connected && c?.status !== 'queued' && a.applicant.id_type === 'sa_id' ? (
+        <Button size="sm" variant="secondary" className="mt-3" loading={ask.isPending} onClick={() => ask.mutate()}>
+          {c ? 'Check again' : 'Check with Home Affairs'}
+        </Button>
       ) : null}
     </Card>
   );

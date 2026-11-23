@@ -6,10 +6,16 @@ require_once __DIR__.'/../People/helpers.php';
 
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
+use Modules\Agreements\Models\Agreement;
+use Modules\Agreements\Models\Signer;
+use Modules\Agreements\Models\Template;
+use Modules\Agreements\Services\AgreementService;
 use Modules\Cohorts\Models\Cohort;
+use Modules\Enrolment\Models\Application;
 use Modules\Enrolment\Models\Intake;
 use Modules\Files\Models\File;
 use Modules\Files\Storage\StoreFactory;
+use Modules\Identity\Models\User;
 use Modules\Identity\Otp\LogOtpChannel;
 use Modules\Qualifications\Models\Programme;
 use Modules\Tenancy\Models\Centre;
@@ -106,4 +112,47 @@ function learnerFile(Tenant $tenant, string $ownerId, string $bytes, string $mim
         'owner_id' => $ownerId, 'purpose' => 'learner_document', 'original_name' => basename($path), 'mime' => $mime,
         'size' => strlen($bytes), 'store_driver' => 'local', 'path' => $path, 'status' => 'ready',
     ])->id);
+}
+
+/** Publish the standard learner agreement as the owner (staying signed in). */
+function learnerTemplate(object $test): void
+{
+    signInOwner($test, $test->tym, 'owner2@tym.test');
+    $id = $test->postJson(TYM_V1.'/agreement-templates', ['starter' => 'learner'])->assertCreated()->json('data.id');
+    $test->postJson(TYM_V1."/agreement-templates/{$id}/publish")->assertOk();
+}
+
+function applyAs(object $test, string $phone, string $id, string $first = 'Ayanda'): Application
+{
+    $test->flushHeaders()->flushSession();
+    $ref = applyPublic($test, $test->intake, ['id_number' => $id, 'first_name' => $first], $phone)->assertCreated()->json('data.reference');
+    $test->travel(1)->minutes();
+
+    return asTenant($test->tym, fn () => Application::query()->where('reference', $ref)->sole());
+}
+
+/** Everyone signs the learner agreement (the signing flow itself is tested in Agreements). */
+function completeAgreement(object $test, string $agreementId): void
+{
+    asTenant($test->tym, function () use ($agreementId): void {
+        Signer::query()->where('agreement_id', $agreementId)->update(['status' => 'signed', 'signed_at' => now(), 'signed_name' => 'Signed']);
+        app(AgreementService::class)->complete(Agreement::query()->findOrFail($agreementId));
+    });
+}
+
+/** Apply, get an offer, accept with consent and sign: the person is enrolled. Returns the learner. */
+function enrolLearner(object $test, string $phone, string $id, string $first = 'Ayanda'): User
+{
+    $a = applyAs($test, $phone, $id, $first);
+    signInOwner($test, $test->tym, 'enrol'.substr($phone, -4).'@tym.test');
+    if (! asTenant($test->tym, fn () => Template::query()->where('kind', 'learner')->where('status', 'published')->exists())) {
+        $tid = $test->postJson(TYM_V1.'/agreement-templates', ['starter' => 'learner'])->assertCreated()->json('data.id');
+        $test->postJson(TYM_V1."/agreement-templates/{$tid}/publish")->assertOk();
+    }
+    $token = substr((string) $test->postJson(TYM_V1."/learner-applications/{$a->id}/offer")->assertCreated()->json('data.link'), -48);
+    $test->flushHeaders()->flushSession();
+    $agreement = $test->postJson(TYM_V1."/public/offers/{$token}/accept", ['consent' => true, 'consent_version' => 1])->assertOk()->json('data.agreement_id');
+    completeAgreement($test, $agreement);
+
+    return asPlatform(fn () => User::query()->whereKey($a->user_id)->firstOrFail());
 }

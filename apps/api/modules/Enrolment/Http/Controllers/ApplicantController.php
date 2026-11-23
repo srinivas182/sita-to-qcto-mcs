@@ -17,6 +17,7 @@ use Modules\Enrolment\Models\Intake;
 use Modules\Enrolment\Models\LearnerDocument;
 use Modules\Enrolment\Models\Offer;
 use Modules\Enrolment\Services\DocumentService;
+use Modules\Enrolment\Services\IdentityCheckService;
 use Modules\Enrolment\Services\OfferService;
 use Modules\Enrolment\Support\DocumentTypes;
 use Modules\Files\Models\File;
@@ -44,6 +45,8 @@ final class ApplicantController
             'requirements' => app(DocumentService::class)->requirements($intake, $u->id),
             'offer' => ($o = Offer::query()->where('application_id', $a->id)->latest()->first()) !== null ? app(OfferService::class)->present($o) : null,
             'places_left' => app(OfferService::class)->placesLeft($intake),
+            'identity_check' => IdentityCheckService::latest($u->id),
+            'identity_connected' => app(IdentityCheckService::class)->connected() !== null,
             'documents' => LearnerDocument::query()->where('user_id', $u->id)->latest()->get()->map(fn (LearnerDocument $d) => self::document($d))->values()->all(),
         ]]);
     }
@@ -81,22 +84,41 @@ final class ApplicantController
     {
         Gate::authorize('applications.view');
 
-        return response()->json(['data' => $this->rules()]);
+        return response()->json(['data' => $this->rules(), 'settings' => $this->other()]);
+    }
+
+    /** Staff ask for a Home Affairs check; it runs in the next nightly batch. */
+    public function identityCheck(Request $request, string $application): JsonResponse
+    {
+        Gate::authorize('applications.manage');
+        $a = $this->application($request, $application, 'applications.manage');
+        /** @var User $by */
+        $by = $request->user();
+        $person = User::query()->whereKey($a->user_id)->firstOrFail();
+        app(IdentityCheckService::class)->request($person, $by, 'Asked for by staff');
+
+        return response()->json(['data' => IdentityCheckService::latest($person->id)], 202);
     }
 
     public function updateSettings(Request $request): JsonResponse
     {
         Gate::authorize('applications.manage');
         $data = $request->validate([
-            'document_rules' => ['required', 'array'],
+            'document_rules' => ['sometimes', 'array'],
+            'qcto_days' => ['sometimes', 'integer', 'between:1,60'],
+            'qcto_working_days' => ['sometimes', 'boolean'],
+            'applicant_retention_months' => ['sometimes', 'integer', 'between:3,60'],
+            'identity_auto' => ['sometimes', 'boolean'],
             'document_rules.*.certified' => ['sometimes', 'boolean'],
             'document_rules.*.max_age_days' => ['nullable', 'integer', 'between:7,730'],
         ]);
-        $rules = array_intersect_key($data['document_rules'], DocumentTypes::ALL);
         $s = EnrolmentSettings::current();
-        $s->forceFill(['document_rules' => array_replace($s->document_rules ?? [], $rules)])->save();
+        if (isset($data['document_rules'])) {
+            $s->document_rules = array_replace($s->document_rules ?? [], array_intersect_key($data['document_rules'], DocumentTypes::ALL));
+        }
+        $s->forceFill(array_intersect_key($data, array_flip(['qcto_days', 'qcto_working_days', 'applicant_retention_months', 'identity_auto'])))->save();
 
-        return response()->json(['data' => $this->rules()]);
+        return response()->json(['data' => $this->rules(), 'settings' => $this->other()]);
     }
 
     /** @return array<string, mixed> */
@@ -107,6 +129,14 @@ final class ApplicantController
             'mime' => File::query()->whereKey($d->file_id)->value('mime'),
             'added_at' => $d->created_at->toIso8601String(), 'reviewed_at' => $d->reviewed_at?->toIso8601String(),
         ];
+    }
+
+    /** @return array<string, mixed> */
+    private function other(): array
+    {
+        $s = EnrolmentSettings::current();
+
+        return $s->only(['qcto_days', 'qcto_working_days', 'applicant_retention_months', 'identity_auto']) + ['identity_connected' => app(IdentityCheckService::class)->connected() !== null];
     }
 
     /** @return list<array<string, mixed>> */

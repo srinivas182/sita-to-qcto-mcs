@@ -12,6 +12,7 @@ use Modules\Enrolment\Http\Controllers\MyOffersController;
 use Modules\Enrolment\Http\Controllers\OfferController;
 use Modules\Enrolment\Http\Controllers\PublicIntakeController;
 use Modules\Enrolment\Http\Controllers\PublicOfferController;
+use Modules\Enrolment\Http\Controllers\QctoController;
 use Modules\Identity\Http\Middleware\EnsureAccess;
 use Modules\Identity\Http\Middleware\RequireMfaEnrolment;
 
@@ -31,6 +32,10 @@ Route::middleware(['auth:sanctum', EnsureAccess::class, RequireMfaEnrolment::cla
     Route::post('learner-applications/{application}/offer', [OfferController::class, 'store'])->whereUlid('application');
     Route::post('offers/{offer}/withdraw', [OfferController::class, 'withdraw'])->whereUlid('offer');
     Route::get('enrolments', [OfferController::class, 'enrolments']);
+    Route::get('cohorts/{cohort}/qcto-enrolment', [QctoController::class, 'show'])->whereUlid('cohort');
+    Route::get('cohorts/{cohort}/qcto-enrolment/workbook', [QctoController::class, 'workbook'])->whereUlid('cohort')->middleware('throttle:30,60');
+    Route::post('cohorts/{cohort}/qcto-enrolment/sent', [QctoController::class, 'sent'])->whereUlid('cohort');
+    Route::post('learner-applications/{application}/identity-check', [ApplicantController::class, 'identityCheck'])->whereUlid('application')->middleware('throttle:30,60');
     Route::post('enrolments/{enrolment}/end', [OfferController::class, 'end'])->whereUlid('enrolment');
     Route::get('consent-text', [OfferController::class, 'consentText']);
     Route::put('consent-text', [OfferController::class, 'updateConsentText']);

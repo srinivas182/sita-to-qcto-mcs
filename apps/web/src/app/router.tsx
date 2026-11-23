@@ -195,6 +195,11 @@ const cohort = createRoute({
   path: '/cohorts/$id',
   component: lazyRouteComponent(() => import('@/features/cohorts/CohortPage'), 'CohortPage'),
 });
+const cohortQcto = createRoute({
+  getParentRoute: () => app,
+  path: '/cohorts/$id/qcto',
+  component: lazyRouteComponent(() => import('@/features/cohorts/QctoPage'), 'QctoPage'),
+});
 const agreements = createRoute({
   getParentRoute: () => app,
   path: '/agreements',
@@ -309,6 +314,7 @@ const routeTree = root.addChildren([
     applicant,
     cohorts,
     cohort,
+    cohortQcto,
     agreements,
     agreementTemplates,
     agreementTemplate,

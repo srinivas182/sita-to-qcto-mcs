@@ -27,7 +27,7 @@ export function IntakesPage() {
           can('applications.manage') ? (
             <div className="flex gap-2">
               <Button variant="secondary" onClick={() => setRules(true)}>
-                Document rules
+                Rules
               </Button>
               <Button variant="secondary" onClick={() => setConsent(true)}>
                 Consent wording
@@ -351,16 +351,30 @@ export function IntakeDialog({ intake, onClose }: { intake: Intake | null; onClo
 }
 
 /** How old a certified copy may be, per document type: 90 days unless the provider chooses otherwise. */
+interface EnrolmentOptions {
+  qcto_days: number;
+  qcto_working_days: boolean;
+  applicant_retention_months: number;
+  identity_auto: boolean;
+  identity_connected: boolean;
+}
+
 function RulesDialog({ onClose }: { onClose: () => void }) {
   const qc = useQueryClient();
   const q = useQuery({
     queryKey: ['enrolment-settings'],
-    queryFn: () => call<{ data: DocumentRule[] }>('GET', '/enrolment-settings').then((r) => r.data),
+    queryFn: () => call<{ data: DocumentRule[]; settings: EnrolmentOptions }>('GET', '/enrolment-settings'),
   });
   const [draft, setDraft] = useState<Record<string, { certified: boolean; max_age_days: number | null }>>({});
+  const [opts, setOpts] = useState<Partial<EnrolmentOptions>>({});
   const value = (r: DocumentRule) => draft[r.type] ?? { certified: r.certified, max_age_days: r.max_age_days };
+  const o = { ...(q.data?.settings ?? ({} as EnrolmentOptions)), ...opts };
   const save = useMutation({
-    mutationFn: () => call('PATCH', '/enrolment-settings', { document_rules: draft }),
+    mutationFn: () =>
+      call('PATCH', '/enrolment-settings', {
+        ...(Object.keys(draft).length ? { document_rules: draft } : {}),
+        ...opts,
+      }),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['enrolment-settings'] });
       onClose();
@@ -370,11 +384,11 @@ function RulesDialog({ onClose }: { onClose: () => void }) {
     <Dialog
       open
       onOpenChange={(o) => !o && onClose()}
-      title="Document rules"
+      title="Rules"
       description="Most institutions accept copies certified in the last 3 months; government accepts 6 months. Choose per document."
     >
       <div className="grid gap-3">
-        {(q.data ?? []).map((r) => (
+        {(q.data?.data ?? []).map((r) => (
           <div key={r.type} className="grid items-end gap-2 sm:grid-cols-[1fr_8rem_8rem]">
             <span className="text-small font-medium text-ink">{r.label}</span>
             <label className="flex items-center gap-2 text-small">
@@ -401,11 +415,55 @@ function RulesDialog({ onClose }: { onClose: () => void }) {
             />
           </div>
         ))}
+        <fieldset className="grid gap-3 border-t border-line pt-3">
+          <legend className="text-small font-semibold text-ink">Enrolment</legend>
+          <div className="grid items-end gap-3 sm:grid-cols-2">
+            <Field
+              label="QCTO enrolment due after (days)"
+              type="number"
+              min={1}
+              max={60}
+              value={o.qcto_days ?? ''}
+              onChange={(e) => setOpts({ ...opts, qcto_days: Number(e.target.value) })}
+            />
+            <label className="flex items-center gap-2 pb-2 text-small">
+              <input
+                type="checkbox"
+                checked={o.qcto_working_days ?? false}
+                onChange={(e) => setOpts({ ...opts, qcto_working_days: e.target.checked })}
+              />
+              Count working days only
+            </label>
+            <Field
+              label="Remove applicants who never enrol after (months)"
+              type="number"
+              min={3}
+              max={60}
+              value={o.applicant_retention_months ?? ''}
+              onChange={(e) => setOpts({ ...opts, applicant_retention_months: Number(e.target.value) })}
+            />
+            <label className="flex items-center gap-2 pb-2 text-small">
+              <input
+                type="checkbox"
+                disabled={!o.identity_connected}
+                checked={o.identity_auto ?? false}
+                onChange={(e) => setOpts({ ...opts, identity_auto: e.target.checked })}
+              />
+              {o.identity_connected
+                ? 'Check every accepted learner with Home Affairs'
+                : 'Home Affairs ID checks are not connected'}
+            </label>
+          </div>
+        </fieldset>
         <div className="flex justify-end gap-2">
           <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
-          <Button loading={save.isPending} disabled={!Object.keys(draft).length} onClick={() => save.mutate()}>
+          <Button
+            loading={save.isPending}
+            disabled={!Object.keys(draft).length && !Object.keys(opts).length}
+            onClick={() => save.mutate()}
+          >
             Save
           </Button>
         </div>

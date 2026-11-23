@@ -16,6 +16,7 @@ import {
 } from '@/components/ui';
 import { ApiError, call, errorMessage } from '@/lib/api';
 import { provinces } from '@/features/apply/types';
+import { CITIZEN, DISABILITY, DISABILITY_RATING, LANGUAGES, NATIONALITIES, TITLES, WORK_STATUS } from './qcto';
 import { CredentialDialog } from './CredentialDialog';
 import { credentialState, type Credential } from './types';
 
@@ -35,11 +36,28 @@ interface Profile {
   province: string | null;
   postal_code: string | null;
   home_language: string | null;
+  title: string | null;
+  middle_name: string | null;
+  nationality: string | null;
+  citizen_status: string | null;
+  socioeconomic_status: string | null;
+  postal_same: boolean;
+  postal_line1: string | null;
+  postal_line2: string | null;
+  postal_code_postal: string | null;
+  statssa_area_code: string | null;
   emergency_name: string | null;
   emergency_phone: string | null;
   emergency_relationship: string | null;
   equity_consented: boolean;
-  equity: { gender?: string; race?: string; disability?: boolean; disability_details?: string } | null;
+  equity: {
+    gender?: string;
+    race?: string;
+    disability?: boolean;
+    disability_details?: string;
+    disability_code?: string;
+    disability_rating?: string;
+  } | null;
 }
 
 type Errors = Record<string, string[]>;
@@ -86,6 +104,17 @@ export function ProfilePage() {
       {...extra}
     />
   );
+  const sel = (k: keyof Profile, label: string, options: Record<string, string> | string[]) => (
+    <Select label={label} value={v(k)} onChange={(e) => setDraft({ ...draft, [k]: e.target.value || null })}>
+      <option value="">Choose…</option>
+      {(Array.isArray(options) ? options.map((o) => [o, o]) : Object.entries(options)).map(([value, text]) => (
+        <option key={value} value={value}>
+          {text}
+        </option>
+      ))}
+    </Select>
+  );
+  const postalSame = 'postal_same' in draft ? draft.postal_same === true : p.postal_same;
   const equity = { ...(p.equity ?? {}), ...((draft.equity as object | undefined) ?? {}) } as NonNullable<
     Profile['equity']
   >;
@@ -147,7 +176,15 @@ export function ProfilePage() {
                 {draft.id_type === 'passport' ? f('id_country', 'Issuing country (2 letters)', { maxLength: 2 }) : null}
               </div>
             )}
-            {f('address_line1', 'Street address', { autoComplete: 'address-line1' })}
+            <div className="grid gap-3 sm:grid-cols-[8rem_1fr]">
+              {sel('title', 'Title', TITLES)}
+              {f('middle_name', 'Middle names (if any)')}
+            </div>
+            {f('address_line1', 'Street address', {
+              autoComplete: 'address-line1',
+              hint: 'House number and street name, for example 12 Vilakazi Street',
+            })}
+            {f('address_line2', 'Suburb or village', { autoComplete: 'address-line2' })}
             <div className="grid gap-3 sm:grid-cols-3">
               {f('city', 'City or town', { autoComplete: 'address-level2' })}
               <Select
@@ -162,7 +199,30 @@ export function ProfilePage() {
               </Select>
               {f('postal_code', 'Postal code', { inputMode: 'numeric', autoComplete: 'postal-code' })}
             </div>
-            {f('home_language', 'Home language')}
+            <label className="flex items-center gap-2 text-small">
+              <input
+                type="checkbox"
+                checked={postalSame}
+                onChange={(e) => setDraft({ ...draft, postal_same: e.target.checked })}
+              />
+              My postal address is the same
+            </label>
+            {postalSame ? null : (
+              <div className="grid gap-3 sm:grid-cols-3">
+                {f('postal_line1', 'Postal address')}
+                {f('postal_line2', 'Suburb or town')}
+                {f('postal_code_postal', 'Postal code', { inputMode: 'numeric' })}
+              </div>
+            )}
+            {f('statssa_area_code', 'Stats SA area code', {
+              hint: 'Your training provider can fill this in from your address if you do not know it.',
+            })}
+            <div className="grid gap-3 sm:grid-cols-2">
+              {sel('home_language', 'Home language', LANGUAGES)}
+              {sel('socioeconomic_status', 'Work status', WORK_STATUS)}
+              {sel('nationality', 'Nationality', NATIONALITIES)}
+              {sel('citizen_status', 'Citizen or resident', CITIZEN)}
+            </div>
             <fieldset className="grid gap-3">
               <legend className="text-small font-medium">In an emergency, contact</legend>
               <div className="grid gap-3 sm:grid-cols-3">
@@ -220,6 +280,32 @@ export function ProfilePage() {
                 />{' '}
                 I live with a disability
               </label>
+              {equity.disability ? (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <Select
+                    label="Kind of disability"
+                    value={equity.disability_code ?? ''}
+                    onChange={(e) => setEquity('disability_code', e.target.value || null)}
+                  >
+                    <option value="">Choose…</option>
+                    {Object.entries(DISABILITY).map(([k, t]) => (
+                      <option key={k} value={k}>
+                        {t}
+                      </option>
+                    ))}
+                  </Select>
+                  <Select
+                    label="Disability rating (QCTO code)"
+                    value={equity.disability_rating ?? ''}
+                    onChange={(e) => setEquity('disability_rating', e.target.value || null)}
+                  >
+                    <option value="">Choose…</option>
+                    {DISABILITY_RATING.map((k) => (
+                      <option key={k}>{k}</option>
+                    ))}
+                  </Select>
+                </div>
+              ) : null}
               <div className="flex flex-wrap justify-between gap-2">
                 <Button variant="ghost" loading={save.isPending} onClick={() => save.mutate({ equity_consent: false })}>
                   Withdraw consent and delete
