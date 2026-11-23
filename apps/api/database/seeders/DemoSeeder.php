@@ -443,6 +443,9 @@ final class DemoSeeder extends Seeder
         $yard->forceFill(['latitude' => '-26.2632', 'longitude' => '27.8890'])->save();
         Placement::query()->firstOrCreate(['cohort_id' => $cohort->id, 'site_id' => $yard->id], ['employer_id' => $yard->employer_id, 'planned_learners' => 10]);
         $bheki = Mentor::query()->where('name', 'Bheki Mabaso')->firstOrFail();
+        if ($bheki->user_id !== null) { // Bheki can also sign in on the web
+            $context->runAsPlatform(fn () => User::query()->whereKey($bheki->user_id)->update(['email' => 'bheki@demo.test', 'password' => Hash::make(self::PASSWORD), 'email_verified_at' => now()]));
+        }
         $bongani = $context->runAsPlatform(fn () => User::query()->where('phone_e164', '+27831110005')->first());
         $enrolment = $bongani ? Enrolment::query()->where('user_id', $bongani->id)->where('cohort_id', $cohort->id)->first() : null;
         if ($bongani === null || $enrolment === null) {

@@ -42,6 +42,7 @@ interface LearnerRow {
   name: string | null;
   hours: ModuleHours[];
   last_entry: string | null;
+  unsigned_weeks: number;
   chain: Chain;
 }
 
@@ -133,6 +134,9 @@ export function CohortLogbookPage() {
                     Last entry
                   </th>
                   <th scope="col" className="px-2 py-2 font-medium">
+                    Unsigned weeks
+                  </th>
+                  <th scope="col" className="px-2 py-2 font-medium">
                     Logbook
                   </th>
                 </tr>
@@ -156,6 +160,13 @@ export function CohortLogbookPage() {
                     <td className="px-2 py-2">
                       {l.last_entry ? shortDate(l.last_entry) : <span className="text-muted">None</span>}
                     </td>
+                    <td className="px-2 py-2 tabular-nums">
+                      {l.unsigned_weeks > 0 ? (
+                        <Badge tone="warning">{l.unsigned_weeks}</Badge>
+                      ) : (
+                        <span className="text-muted">0</span>
+                      )}
+                    </td>
                     <td className="px-2 py-2">
                       <ChainBadge chain={l.chain} />
                     </td>
@@ -177,6 +188,12 @@ export function CohortLogbookPage() {
 
 function ChainBadge({ chain }: { chain: Chain }) {
   if (chain.entries === 0) return <span className="text-muted">No entries</span>;
+  if (chain.ok && chain.signatures_ok === false)
+    return (
+      <Badge tone="danger">
+        <ShieldAlert className="size-3.5" aria-hidden /> Changed after signing
+      </Badge>
+    );
   return chain.ok ? (
     <Badge tone="success">
       <ShieldCheck className="size-3.5" aria-hidden /> Intact

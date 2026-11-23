@@ -1,4 +1,5 @@
 import {
+  NotebookPen,
   Building2,
   CalendarRange,
   Factory,
@@ -76,6 +77,13 @@ const provider: NavItem[] = [
   { to: '/classes', label: 'nav.classes', icon: ClipboardCheck, group: 'main', permission: 'learning.deliver' },
   { to: '/marking', label: 'nav.marking', icon: PenLine, group: 'main', permission: 'learning.deliver' },
   { to: '/my-course', label: 'nav.myCourse', icon: BookOpen, group: 'main', permission: 'learning.self' },
+  {
+    to: '/logbooks',
+    label: 'nav.logbooks',
+    icon: NotebookPen,
+    group: 'main',
+    permission: 'workplace.placements.manage',
+  },
   { to: '/agreements', label: 'nav.agreements', icon: FileSignature, group: 'main', permission: 'agreements.view' },
   { to: '/employers', label: 'nav.employers', icon: Factory, group: 'main', permission: 'employers.view' },
   { to: '/centres', label: 'nav.centres', icon: MapPin, group: 'main', permission: 'centres.view' },

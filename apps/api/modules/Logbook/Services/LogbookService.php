@@ -188,6 +188,7 @@ final class LogbookService
             throw ValidationException::withMessages(['minutes' => 'That is more than 14 hours on one day.']);
         }
         [$distance, $ok] = $this->distance($placement, $data);
+        $this->signOff()->assertOpen($learner->id, $placement->id, CarbonImmutable::parse($date)->startOfWeek()->toDateString());
 
         $entry = DB::transaction(function () use ($learner, $data, $placement, $module, $date, $files, $photoHashes, $distance, $ok, $replaces): LogbookEntry {
             DB::table('users')->where('id', $learner->id)->lockForUpdate()->value('id'); // one chain writer per learner at a time
@@ -205,6 +206,10 @@ final class LogbookService
                 'rechained' => $rechained, 'replaces_id' => $replaces?->id,
             ]);
             $replaces?->forceFill(['status' => 'corrected'])->save();
+            $this->signOff()->weekFor($e);
+            if ($replaces !== null) {
+                $this->signOff()->weekFor($replaces); // reopens the old week once nothing sent back is left
+            }
 
             return $e;
         });
@@ -266,6 +271,11 @@ final class LogbookService
         return array_values($modules->map(fn (QualificationModule $m) => ['module_id' => $m->id, 'code' => $m->code, 'title' => $m->title,
             'hours_needed' => $rules->get($m->id)?->hours_needed, 'hours' => round(($entries->get($m->id)?->sum('minutes') ?? 0) / 60, 1),
             'signed_hours' => round(($entries->get($m->id)?->where('status', 'signed')->sum('minutes') ?? 0) / 60, 1)])->all());
+    }
+
+    private function signOff(): SignOffService
+    {
+        return app(SignOffService::class);
     }
 
     /** @return array<string, mixed> */

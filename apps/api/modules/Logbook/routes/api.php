@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Modules\Identity\Http\Middleware\EnsureAccess;
 use Modules\Identity\Http\Middleware\RequireMfaEnrolment;
 use Modules\Logbook\Http\Controllers\LogbookController;
+use Modules\Logbook\Http\Controllers\MentorLogbookController;
 
 Route::middleware(['auth:sanctum', EnsureAccess::class, RequireMfaEnrolment::class])->group(function (): void {
     Route::get('logbook-rules', [LogbookController::class, 'index']);
@@ -19,4 +20,12 @@ Route::middleware(['auth:sanctum', EnsureAccess::class, RequireMfaEnrolment::cla
     Route::get('me/logbook', [LogbookController::class, 'mine']);
     Route::post('me/logbook', [LogbookController::class, 'record'])->middleware('throttle:120,60');
     Route::post('me/logbook/{entry}/correct', [LogbookController::class, 'correct'])->whereUlid('entry')->middleware('throttle:60,60');
+});
+
+// Workplace mentors (Host employer users) sign weeks; MFA follows their role's rule, as for /me/mentoring.
+Route::middleware(['auth:sanctum', EnsureAccess::class])->group(function (): void {
+    Route::get('mentoring/weeks', [MentorLogbookController::class, 'weeks']);
+    Route::get('logbook-weeks/{week}', [MentorLogbookController::class, 'show'])->whereUlid('week');
+    Route::post('logbook-weeks/{week}/sign', [MentorLogbookController::class, 'sign'])->whereUlid('week')->middleware('throttle:60,60');
+    Route::post('logbook-weeks/{week}/return', [MentorLogbookController::class, 'return'])->whereUlid('week')->middleware('throttle:60,60');
 });

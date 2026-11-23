@@ -250,6 +250,11 @@ const cohortLogbook = createRoute({
   path: '/cohorts/$id/logbook',
   component: lazyRouteComponent(() => import('@/features/logbook/CohortLogbookPage'), 'CohortLogbookPage'),
 });
+const mentorLogbooks = createRoute({
+  getParentRoute: () => app,
+  path: '/logbooks',
+  component: lazyRouteComponent(() => import('@/features/logbook/MentorWeeksPage'), 'MentorWeeksPage'),
+});
 const marking = createRoute({
   getParentRoute: () => app,
   path: '/marking',
@@ -396,6 +401,7 @@ const routeTree = root.addChildren([
     cohortTasks,
     programmeLogbook,
     cohortLogbook,
+    mentorLogbooks,
     marking,
     classes,
     classSession,
