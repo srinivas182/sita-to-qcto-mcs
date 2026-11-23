@@ -193,9 +193,13 @@ function ModuleEditor({ qualificationId, moduleId }: { qualificationId: string; 
   const q = useQuery({
     queryKey: ['instruments', moduleId],
     queryFn: () =>
-      call<{ data: { methods: Method[]; instruments: Instrument[] } }>('GET', `/modules/${moduleId}/instruments`).then(
-        (r) => r.data,
-      ),
+      call<{
+        data: {
+          methods: Method[];
+          instruments: Instrument[];
+          tasks: { id: string; title: string; pass_pct: number }[];
+        };
+      }>('GET', `/modules/${moduleId}/instruments`).then((r) => r.data),
   });
   const [drafts, setDrafts] = useState<Draft[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -221,6 +225,7 @@ function ModuleEditor({ qualificationId, moduleId }: { qualificationId: string; 
     criteria: [{ key: '', text: '' }],
     pass_mark: null,
     instructions: null,
+    task_id: null,
   };
 
   return (
@@ -238,6 +243,7 @@ function ModuleEditor({ qualificationId, moduleId }: { qualificationId: string; 
                 set(i, {
                   method: e.target.value as Method,
                   pass_mark: e.target.value === 'test' ? (d.pass_mark ?? 60) : null,
+                  task_id: e.target.value === 'test' || e.target.value === 'assignment' ? d.task_id : null,
                 })
               }
             >
@@ -261,6 +267,20 @@ function ModuleEditor({ qualificationId, moduleId }: { qualificationId: string; 
               <span />
             )}
           </div>
+          {(d.method === 'test' || d.method === 'assignment') && q.data.tasks.length ? (
+            <Select
+              label={`Taken online as (optional) for ${d.title || `assessment ${i + 1}`}`}
+              value={d.task_id ?? ''}
+              onChange={(e) => set(i, { task_id: e.target.value || null })}
+            >
+              <option value="">Not online: the assessor records it</option>
+              {q.data.tasks.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.title} (task pass mark {t.pass_pct}%)
+                </option>
+              ))}
+            </Select>
+          ) : null}
           <p className="text-small font-medium text-ink">Criteria</p>
           {d.criteria.map((c, n) => (
             <div key={n} className="flex items-end gap-2">

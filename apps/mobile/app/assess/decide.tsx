@@ -1,6 +1,6 @@
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { BackHeader, Pill } from '@/components/BackHeader';
 import { Body, Button, Card, Field, Notice, Screen, Title } from '@/components/ui';
@@ -26,6 +26,10 @@ export default function DecideScreen() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ tone: 'danger' | 'success' | 'info'; text: string } | null>(null);
   const test = inst?.method === 'test';
+  const taken = d?.online?.[instrument];
+  useEffect(() => {
+    if (taken?.latest?.score_pct != null) setScore((s) => (s === '' ? String(taken.latest?.score_pct) : s));
+  }, [taken?.latest?.score_pct]);
   const outcome = useMemo(() => {
     if (!inst) return 'nyc';
     const all = inst.criteria.every((c) => met[c.key]);
@@ -98,7 +102,10 @@ export default function DecideScreen() {
         ) : (
           <>
             {test ? (
-              <Card><Field label={t('assess.score', { pass: inst.pass_mark ?? 0 })} keyboardType="number-pad" value={score} onChangeText={setScore} /></Card>
+              <Card className="gap-2">
+                {taken ? <Notice tone="info">{taken.latest ? t('assess.onlineTaken', { task: taken.task_title, n: String(taken.latest.number), score: String(taken.latest.score_pct ?? '—') }) : t('assess.onlineNotTaken', { task: taken.task_title })}</Notice> : null}
+                <Field label={t('assess.score', { pass: inst.pass_mark ?? 0 })} keyboardType="number-pad" value={score} onChangeText={setScore} />
+              </Card>
             ) : null}
             <Card className="gap-3">
               <Text className="font-medium text-body text-ink dark:text-night-ink">{t('assess.criteria')}</Text>

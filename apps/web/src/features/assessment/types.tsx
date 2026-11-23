@@ -16,6 +16,15 @@ export interface Instrument {
   criteria: Criterion[];
   pass_mark: number | null;
   instructions: string | null;
+  task_id?: string | null;
+}
+
+/** The learner's attempts at the online task linked to an instrument. */
+export interface OnlineAttempt {
+  task_title: string;
+  attempts: number;
+  pass_pct: number;
+  latest: { number: number; score_pct: number | null; status: string; submitted_at: string } | null;
 }
 
 export interface ResultRow {

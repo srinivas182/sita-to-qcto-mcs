@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { CheckCircle2, Circle, Globe, Palette, ShieldCheck, Users } from 'lucide-react';
 import { Card, CardHeader, Kpi, PageHeader } from '@/components/ui';
+import { FixInbox } from './FixInbox';
 import { call } from '@/lib/api';
 import { useCan, useMe } from '@/lib/session';
 import { greeting } from '../admin/OverviewPage';
@@ -68,6 +69,7 @@ export function ProviderOverviewPage() {
           hint="steps complete"
         />
       </div>
+      <FixInbox />
       <Card className="mt-5">
         <CardHeader
           title="Get set up"

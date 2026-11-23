@@ -34,7 +34,7 @@ with sync_playwright() as p:
     page.goto(f'http://tym.platform.test:{PORT}/sign-in'); page.get_by_label('Email').wait_for(); audit(page, 'sign-in')
     page.get_by_label('Email').fill('sekal@demo.test'); page.get_by_label('Password').fill('demo passphrase 2026')
     page.get_by_role('button', name='Sign in', exact=True).click(); page.get_by_label('Code').wait_for(); audit(page,'mfa')
-    page.get_by_label('Code').fill(totp()); page.get_by_role('button', name='Verify').click(); page.get_by_text('Good ').first.wait_for(); audit(page,'overview')
+    page.get_by_label('Code').fill(totp()); page.get_by_role('button', name='Verify').click(); page.get_by_text('Good ').first.wait_for(); page.get_by_text('To fix', exact=True).wait_for(); audit(page,'overview')
     for path, wait in [('/users','Ayanda'),('/brand','Sign-in preview'),('/security','Passkeys'),('/audit','Audit log')]:
         page.click(f'nav a[href="{path}"]'); page.get_by_text(wait).first.wait_for(); audit(page, path)
 

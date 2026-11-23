@@ -32,3 +32,12 @@ export const useBanks = () =>
   useQuery({ queryKey: ['my-bank'], queryFn: () => json<{ data: MyBank | null; banks: BankChoice[] }>(api.GET('/me/bank-account' as never)) });
 
 export const saveMyBank = (body: Record<string, string>) => json<{ data: MyBank }>(api.PUT('/me/bank-account' as never, { body } as never));
+
+export interface Todo {
+  bank_missing: boolean;
+  eisa_to_sign: number;
+  profile_problems: number;
+}
+
+/** What the learner can fix themselves, for one-tap cards on Home. */
+export const useTodo = (enabled = true) => useQuery({ queryKey: ['my-todo'], queryFn: () => json<{ data: Todo }>(api.GET('/me/todo' as never)).then((r) => r.data), enabled });
