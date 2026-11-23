@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Modules\Cohorts\Services;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Modules\Agreements\Models\Agreement;
 use Modules\Cohorts\Models\Cohort;
 use Modules\Cohorts\Models\CohortStaff;
@@ -46,6 +48,7 @@ final class Readiness
         $this->staff($cohort, $qualification, $intake, $end);
         $this->workplaces($cohort, $qualification, $intake, $end);
         $this->dates($cohort, $intake);
+        $this->learners($cohort);
 
         $count = fn (string $status): int => count(array_filter($this->items, fn (array $i): bool => $i['status'] === $status));
         $counts = ['pass' => $count('pass'), 'warn' => $count('warn'), 'fail' => $count('fail')];
@@ -216,6 +219,30 @@ final class Readiness
         }
         if ($cohort->capacity < 1) {
             $this->add('dates.capacity', 'Dates', 'fail', 'No learner places', 'Set how many learners the cohort takes.', 'cohort');
+        }
+    }
+
+    /**
+     * Learners: enrolled only through a signed learner agreement (Enrolment module), so each
+     * enrolled learner has consent and an agreement. Read through the table so Cohorts does
+     * not depend on the Enrolment module.
+     */
+    private function learners(Cohort $cohort): void
+    {
+        if (! Schema::hasTable('enrolments')) {
+            return;
+        }
+        $enrolled = DB::table('enrolments')->where('cohort_id', $cohort->id)->whereIn('status', ['active', 'suspended'])->count();
+        if ($enrolled > $cohort->capacity) {
+            $this->add('learners.capacity', 'Learners', 'fail', 'More learners than places', "{$enrolled} learners are enrolled but the cohort takes {$cohort->capacity}.", 'cohort');
+        } elseif ($enrolled > 0) {
+            $this->add('learners.capacity', 'Learners', 'pass', "{$enrolled} of {$cohort->capacity} places filled", 'Every enrolled learner has given consent and signed the learner agreement.');
+        }
+        $unsigned = DB::table('offers')->join('agreements', 'agreements.id', '=', 'offers.agreement_id')
+            ->join('applications', 'applications.id', '=', 'offers.application_id')->join('intakes', 'intakes.id', '=', 'applications.intake_id')
+            ->where('intakes.cohort_id', $cohort->id)->where('offers.status', 'accepted')->whereNotIn('agreements.status', ['completed', 'cancelled', 'declined'])->count();
+        if ($unsigned > 0) {
+            $this->add('learners.unsigned', 'Learners', 'warn', "{$unsigned} accepted ".($unsigned === 1 ? 'offer is' : 'offers are').' waiting for signatures', 'They enrol once everyone has signed the learner agreement.', 'agreements');
         }
     }
 

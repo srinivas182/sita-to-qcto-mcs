@@ -6,7 +6,7 @@ import { Alert, Badge, Button, Card, Field, Skeleton } from '@/components/ui';
 import { ApiError, call, errorMessage } from '@/lib/api';
 import { AgreementText } from './AgreementText';
 import { PublicLayout } from './PublicLayout';
-import { ROLE_LABEL, signerState, when, type Role } from './types';
+import { ROLE_LABEL, signerState, when, type SignerRole } from './types';
 
 interface SignView {
   agreement: {
@@ -20,8 +20,8 @@ interface SignView {
     verify_url: string;
     has_document: boolean;
   };
-  you: { name: string; role: Role; status: string; pin_to: string | null; signed_at: string | null };
-  parties: { role: Role; name: string; status: string }[];
+  you: { name: string; role: SignerRole; status: string; pin_to: string | null; signed_at: string | null };
+  parties: { role: SignerRole; name: string; status: string }[];
 }
 
 const CHANNEL: Record<string, string> = { whatsapp: 'WhatsApp', sms: 'SMS', email: 'email' };

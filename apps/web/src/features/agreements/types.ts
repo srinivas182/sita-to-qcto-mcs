@@ -1,12 +1,15 @@
 import type { Tone } from '@/components/ui';
 
 export type AgreementStatus = 'sent' | 'completed' | 'declined' | 'cancelled' | 'expired';
+/** Who a template is between. A parent or guardian may sign a learner agreement as well. */
 export type Role = 'learner' | 'employer' | 'provider';
+export type SignerRole = Role | 'guardian';
 
-export const ROLE_LABEL: Record<Role, string> = {
+export const ROLE_LABEL: Record<SignerRole, string> = {
   learner: 'Learner',
   employer: 'Host employer',
   provider: 'Training provider',
+  guardian: 'Parent or guardian',
 };
 
 export const KIND_LABEL: Record<string, string> = {
@@ -41,7 +44,7 @@ export interface AgreementRow {
   completed_at: string | null;
   expires_at: string | null;
   has_document: boolean;
-  signers: { role: Role; name: string; status: string }[];
+  signers: { role: SignerRole; name: string; status: string }[];
 }
 
 export interface AgreementDetail extends Omit<AgreementRow, 'signers'> {
@@ -52,7 +55,7 @@ export interface AgreementDetail extends Omit<AgreementRow, 'signers'> {
   template: { id: string; name: string; version: number } | null;
   signers: {
     id: string;
-    role: Role;
+    role: SignerRole;
     name: string;
     status: string;
     contact: string | null;

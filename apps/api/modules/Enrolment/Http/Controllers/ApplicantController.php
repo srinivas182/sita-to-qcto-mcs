@@ -15,7 +15,9 @@ use Modules\Enrolment\Models\Application;
 use Modules\Enrolment\Models\EnrolmentSettings;
 use Modules\Enrolment\Models\Intake;
 use Modules\Enrolment\Models\LearnerDocument;
+use Modules\Enrolment\Models\Offer;
 use Modules\Enrolment\Services\DocumentService;
+use Modules\Enrolment\Services\OfferService;
 use Modules\Enrolment\Support\DocumentTypes;
 use Modules\Files\Models\File;
 use Modules\Identity\Models\User;
@@ -40,6 +42,8 @@ final class ApplicantController
                 'age' => $u->dob !== null ? (int) floor(CarbonImmutable::parse($u->dob)->diffInYears(CarbonImmutable::today())) : null,
             ],
             'requirements' => app(DocumentService::class)->requirements($intake, $u->id),
+            'offer' => ($o = Offer::query()->where('application_id', $a->id)->latest()->first()) !== null ? app(OfferService::class)->present($o) : null,
+            'places_left' => app(OfferService::class)->placesLeft($intake),
             'documents' => LearnerDocument::query()->where('user_id', $u->id)->latest()->get()->map(fn (LearnerDocument $d) => self::document($d))->values()->all(),
         ]]);
     }

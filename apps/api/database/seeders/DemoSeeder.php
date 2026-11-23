@@ -24,6 +24,7 @@ use Modules\Employers\Models\Mentor;
 use Modules\Enrolment\Models\Application as LearnerApplication;
 use Modules\Enrolment\Services\DocumentService;
 use Modules\Enrolment\Services\IntakeService;
+use Modules\Enrolment\Services\OfferService;
 use Modules\Files\Models\File;
 use Modules\Files\Storage\StoreFactory;
 use Modules\Files\Support\FileStatus;
@@ -62,6 +63,9 @@ final class DemoSeeder extends Seeder
     public const SIGN_TOKEN = 'DemoSigningLinkForAyandaZulu00000000000000000000';
 
     public const VERIFY_CODE = 'demosigned';
+
+    /** Demo only: Lerato's offer link (/offer/…). */
+    public const OFFER_TOKEN = 'DemoOfferLinkForLeratoNdlovu00000000000000000000';
 
     public function run(TenantContext $context, TenantService $tenants, AccessService $access): void
     {
@@ -245,6 +249,7 @@ final class DemoSeeder extends Seeder
             $templates = app(TemplateService::class);
             $template = $templates->publish($templates->fromStarter('workplace'), $sekal);
             $templates->publish($templates->fromStarter('employer_mou'), $sekal);
+            $templates->publish($templates->fromStarter('learner'), $sekal);
             $mabaso = Employer::query()->where('registration_number', '2015/123456/07')->firstOrFail();
             $yard = EmployerSite::query()->where('employer_id', $mabaso->id)->where('name', 'Soweto yard')->firstOrFail();
             $bheki = Mentor::query()->where('employer_id', $mabaso->id)->where('name', 'Bheki Mabaso')->firstOrFail();
@@ -304,9 +309,10 @@ final class DemoSeeder extends Seeder
             $this->person('Thando', 'Mokoena', null, phone: '+27831110001'),
             $this->person('Kagiso', 'Molefe', null, phone: '+27831110002'),
             $this->person('Nomsa', 'Dube', null, phone: '+27831110003'),
+            $this->person('Lerato', 'Ndlovu', null, phone: '+27831110004'),
         ]);
         $context->runAsPlatform(function () use ($applicants): void {
-            foreach (array_map(null, $applicants, ['9505055800089', '9808110200083', '0103035400086']) as [$person, $id]) {
+            foreach (array_map(null, $applicants, ['9505055800089', '9808110200083', '0103035400086', '9001014800089']) as [$person, $id]) {
                 if ($person->id_number === null) {
                     $person->setIdentityNumber(IdType::SaId, $id);
                     $person->dob = Carbon::instance(SaIdNumber::tryParse($id)->dateOfBirth);
@@ -336,7 +342,7 @@ final class DemoSeeder extends Seeder
             foreach ($applicants as $n => $person) {
                 UserTenant::query()->firstOrCreate(['user_id' => $person->id], ['status' => MembershipStatus::Active, 'joined_at' => now(), 'centre_id' => $soweto->id]);
                 $a = LearnerApplication::query()->create(['intake_id' => $intake->id, 'user_id' => $person->id, 'reference' => 'APP-DEMO0'.($n + 1),
-                    'answers' => ['employed' => $n === 1, 'transport' => ['Taxi', 'Walk', 'Taxi'][$n]], 'source' => $n === 2 ? 'app' : 'web', 'submitted_at' => now()->subDays(3 - $n)]);
+                    'answers' => ['employed' => $n === 1, 'transport' => ['Taxi', 'Walk', 'Taxi', 'Own car'][$n]], 'source' => $n === 2 ? 'app' : 'web', 'submitted_at' => now()->subDays(3 - $n)]);
                 // Thando's ID is accepted and his certificate waits to be checked; Kagiso's
                 // certificate was certified too long ago; Nomsa has added nothing yet.
                 if ($n < 2) {
@@ -347,6 +353,12 @@ final class DemoSeeder extends Seeder
                     $a->forceFill(['status' => 'shortlisted', 'decided_at' => now()->subDay(), 'decided_by' => $sekal->id])->save();
                 } elseif ($n === 1) {
                     $a->forceFill(['status' => 'waitlisted', 'waitlist_position' => 1, 'decided_at' => now()->subDay(), 'decided_by' => $sekal->id])->save();
+                } elseif ($n === 3) {
+                    // Lerato's documents are all accepted and she has an open offer.
+                    $this->demoDocument($person, 'id_document', now()->subDays(8), 'accepted', $sekal);
+                    $this->demoDocument($person, 'highest_qualification', now()->subDays(8), 'accepted', $sekal);
+                    $offer = app(OfferService::class)->make($a, ['days' => 7, 'funding' => 'seta_grant'], $sekal)['offer'];
+                    $offer->forceFill(['token_hash' => hash('sha256', self::OFFER_TOKEN)])->save();
                 }
             }
         });
