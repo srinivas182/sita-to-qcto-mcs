@@ -86,11 +86,12 @@ final class AssessmentController
         $people = app(TenantContext::class)->runAsPlatform(fn () => User::query()->whereIn('id', $enrolments->pluck('user_id'))->get()->keyBy('id'));
         $svc = app(AssessmentService::class);
         $modules = QualificationModule::query()->where('qualification_id', $c->qualification_id)->orderBy('sort')->get(['id', 'code', 'title', 'kind']);
+        $states = $svc->modulesFor($enrolments, $c->qualification_id);
 
         return response()->json(['data' => [
             'modules' => $modules->map(fn (QualificationModule $m) => $m->only(['id', 'code', 'title', 'kind']))->values()->all(),
             'learners' => $enrolments->map(fn (Enrolment $e) => ['enrolment_id' => $e->id, 'user_id' => $e->user_id, 'name' => $people->get($e->user_id)?->fullName(),
-                'modules' => array_map(fn (array $m) => ['module_id' => $m['module_id'], 'state' => $m['state']], $svc->modules($e, $c->qualification_id))])
+                'modules' => array_map(fn (array $m) => ['module_id' => $m['module_id'], 'state' => $m['state']], $states[$e->id])])
                 ->sortBy('name')->values()->all(),
         ]]);
     }

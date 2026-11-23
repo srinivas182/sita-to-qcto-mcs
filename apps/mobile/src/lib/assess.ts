@@ -208,6 +208,17 @@ export const useMyResults = () =>
 export const useMyStatements = () =>
   useQuery({ queryKey: ['my-sors'], queryFn: () => json<{ data: Statement[] }>(api.GET('/me/statements-of-results' as never)).then((r) => r.data) });
 
+export interface MyEisa {
+  data: { id: string; eisa_on: string; assessment_centre: string | null; assessment_centre_name: string | null; declared_at: string | null; status: 'draft' | 'registered' | 'withdrawn' }[];
+  declaration: string;
+  name: string;
+}
+
+export const useMyEisa = () => useQuery({ queryKey: ['my-eisa'], queryFn: () => json<MyEisa>(api.GET('/me/eisa' as never)) });
+
+/** The learner signs the EISA declaration: tick and type their full name. */
+export const declareEisa = (id: string, name: string) => json(api.POST(`/me/eisa/${id}/declare` as never, { body: { confirm: true, name } } as never));
+
 export const appeal = (resultId: string, reason: string) => json(api.POST(`/assessment-results/${resultId}/appeal` as never, { body: { reason } } as never));
 
 /** Download the Statement of Results PDF and open the share sheet. */

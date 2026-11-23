@@ -26,10 +26,10 @@ final class StatementController
         $enrolments = Enrolment::query()->where('cohort_id', $c->id)->whereIn('status', ['active', 'suspended', 'completed'])->get();
         $people = app(TenantContext::class)->runAsPlatform(fn () => User::query()->whereIn('id', $enrolments->pluck('user_id'))->get()->keyBy('id'));
         $sors = StatementOfResults::query()->whereIn('enrolment_id', $enrolments->pluck('id'))->orderByDesc('issued_at')->get()->groupBy('enrolment_id');
-        $svc = app(StatementService::class);
+        $ready = app(StatementService::class)->readinessFor($enrolments, $c);
 
-        return response()->json(['data' => $enrolments->map(function (Enrolment $e) use ($c, $people, $sors, $svc) {
-            $r = $svc->readiness($e, $c);
+        return response()->json(['data' => $enrolments->map(function (Enrolment $e) use ($people, $sors, $ready) {
+            $r = $ready[$e->id];
 
             return ['enrolment_id' => $e->id, 'name' => $people->get($e->user_id)?->fullName(), 'ready' => $r['ready'], 'blockers' => $r['blockers'],
                 'statements' => ($sors->get($e->id) ?? collect())->map(fn (StatementOfResults $s) => StatementService::present($s))->values()->all()];

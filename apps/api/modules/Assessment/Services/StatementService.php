@@ -10,7 +10,6 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Modules\Assessment\Http\Controllers\ModerationController;
 use Modules\Assessment\Models\Appeal;
-use Modules\Assessment\Models\Result;
 use Modules\Assessment\Models\StatementOfResults;
 use Modules\Audit\AuditLogger;
 use Modules\Cohorts\Models\Cohort;
@@ -45,10 +44,45 @@ final class StatementService
      */
     public function readiness(Enrolment $e, Cohort $c): array
     {
-        $modules = app(AssessmentService::class)->modules($e, $c->qualification_id);
-        $groups = QualificationModule::query()->whereIn('id', array_column($modules, 'module_id'))->pluck('group', 'id');
-        $open = Appeal::query()->where('status', 'open')->whereIn('result_id', Result::query()->where('enrolment_id', $e->id)->pluck('id'))->exists();
-        $signoffs = LogbookSignoff::query()->where('enrolment_id', $e->id)->where('status', 'checked')->pluck('module_id')->all();
+        return $this->readinessFor([$e], $c)[$e->id];
+    }
+
+    /**
+     * readiness() for many enrolments of one cohort in a fixed number of queries.
+     *
+     * @param  iterable<Enrolment>  $enrolments
+     * @return array<string, array{ready: bool, blockers: list<string>, modules: list<array<string, mixed>>}>
+     */
+    public function readinessFor(iterable $enrolments, Cohort $c): array
+    {
+        $list = [];
+        foreach ($enrolments as $e) {
+            $list[] = $e;
+        }
+        $ids = array_map(fn (Enrolment $e) => $e->id, $list);
+        $all = app(AssessmentService::class)->modulesFor($list, $c->qualification_id);
+        $groups = QualificationModule::query()->where('qualification_id', $c->qualification_id)->pluck('group', 'id')->all();
+        $open = $ids === [] ? [] : Appeal::query()->where('assessment_appeals.status', 'open')
+            ->join('assessment_results', 'assessment_results.id', '=', 'assessment_appeals.result_id')
+            ->whereIn('assessment_results.enrolment_id', $ids)->pluck('assessment_results.enrolment_id')->flip()->all();
+        $signoffs = $ids === [] ? collect() : LogbookSignoff::query()->whereIn('enrolment_id', $ids)->where('status', 'checked')->get(['enrolment_id', 'module_id'])
+            ->groupBy('enrolment_id');
+        $out = [];
+        foreach ($ids as $id) {
+            $out[$id] = self::evaluate($all[$id], $groups, isset($open[$id]), ($signoffs->get($id) ?? collect())->pluck('module_id')->all());
+        }
+
+        return $out;
+    }
+
+    /**
+     * @param  list<array<string, mixed>>  $modules
+     * @param  array<string, mixed>  $groups
+     * @param  list<mixed>  $signoffs
+     * @return array{ready: bool, blockers: list<string>, modules: list<array<string, mixed>>}
+     */
+    private static function evaluate(array $modules, array $groups, bool $open, array $signoffs): array
+    {
         $blockers = [];
         $counted = [];
         foreach ($modules as $m) {

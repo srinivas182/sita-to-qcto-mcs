@@ -208,19 +208,40 @@ final class AssessmentService
      */
     public function modules(Enrolment $e, string $qualificationId): array
     {
+        return $this->modulesFor([$e], $qualificationId)[$e->id];
+    }
+
+    /**
+     * modules() for many enrolments of one qualification in three queries, for cohort grids.
+     *
+     * @param  iterable<Enrolment>  $enrolments
+     * @return array<string, list<array<string, mixed>>> keyed by enrolment id
+     */
+    public function modulesFor(iterable $enrolments, string $qualificationId): array
+    {
+        $ids = [];
+        foreach ($enrolments as $e) {
+            $ids[] = $e->id;
+        }
         $modules = QualificationModule::query()->where('qualification_id', $qualificationId)->orderBy('sort')->get();
         $instruments = Instrument::query()->whereIn('module_id', $modules->pluck('id'))->where('active', true)->orderBy('sort')->get()->groupBy('module_id');
-        $results = Result::query()->where('enrolment_id', $e->id)->whereIn('status', Result::STANDING)->orderBy('attempt')->get()->groupBy('instrument_id');
+        $all = $ids === [] ? collect() : Result::query()->whereIn('enrolment_id', $ids)->whereIn('status', Result::STANDING)->orderBy('attempt')->get()
+            ->groupBy(fn (Result $r) => $r->enrolment_id.'|'.$r->instrument_id);
         $out = [];
-        foreach ($modules as $m) {
-            $rows = [];
-            foreach ($instruments->get($m->id) ?? [] as $i) {
-                $latest = $results->get($i->id)?->last();
-                $rows[] = ['instrument_id' => $i->id, 'title' => $i->title, 'method' => $i->method, 'attempts' => $results->get($i->id)?->count() ?? 0,
-                    'latest' => $latest ? self::present($latest) : null];
+        foreach ($ids as $id) {
+            $list = [];
+            foreach ($modules as $m) {
+                $rows = [];
+                foreach ($instruments->get($m->id) ?? [] as $i) {
+                    $mine = $all->get($id.'|'.$i->id);
+                    $latest = $mine?->last();
+                    $rows[] = ['instrument_id' => $i->id, 'title' => $i->title, 'method' => $i->method, 'attempts' => $mine?->count() ?? 0,
+                        'latest' => $latest ? self::present($latest) : null];
+                }
+                $list[] = ['module_id' => $m->id, 'code' => $m->code, 'title' => $m->title, 'kind' => $m->kind, 'credits' => $m->credits,
+                    'state' => self::state($rows), 'instruments' => $rows];
             }
-            $out[] = ['module_id' => $m->id, 'code' => $m->code, 'title' => $m->title, 'kind' => $m->kind, 'credits' => $m->credits,
-                'state' => self::state($rows), 'instruments' => $rows];
+            $out[$id] = $list;
         }
 
         return $out;
