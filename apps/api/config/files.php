@@ -92,6 +92,16 @@ return [
             'variants' => [],
             'public_variants' => false,
         ],
+        // A learner's bank confirmation letter, for their stipend.
+        'bank_proof' => [
+            'scope' => 'tenant',
+            'permission' => 'self',
+            'viewers' => 'funding.view',
+            'max_kb' => 10240,
+            'mimes' => ['application/pdf', 'image/jpeg', 'image/png'],
+            'variants' => [],
+            'public_variants' => false,
+        ],
         'flc_evidence' => [
             'scope' => 'tenant',
             'permission' => 'cohorts.manage',

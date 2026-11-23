@@ -2,7 +2,7 @@
 Accessibility audit (axe-core, WCAG 2.0/2.1/2.2 A and AA) of the main web screens with
 demo data. Fails on any violation. Runs in CI after the smoke test.
 """
-import os, sys
+import os, re, sys
 import json, base64, hmac, hashlib, struct, time, zlib, tempfile
 from playwright.sync_api import sync_playwright
 AXE = open(os.path.join(os.path.dirname(__file__), '../node_modules/axe-core/axe.min.js')).read()
@@ -114,7 +114,7 @@ with sync_playwright() as p:
     page.get_by_role('heading', name='Attendance', exact=True).wait_for(); page.get_by_role('button', name='Attendance rules').wait_for(); page.wait_for_timeout(500); audit(page, '/cohorts/:id/attendance')
     page.get_by_role('button', name='Attendance rules').click(); page.get_by_role('dialog').get_by_label('Late after (minutes)').wait_for(); audit(page, '/attendance rules dialog')
     page.keyboard.press('Escape')
-    page.get_by_role('link', name='Monthly registers').click(); page.get_by_text('No registers yet').wait_for(); audit(page, '/cohorts/:id/registers')
+    page.get_by_role('link', name='Monthly registers').click(); page.get_by_role('heading', name='Attendance registers').wait_for(); page.wait_for_load_state('networkidle'); audit(page, '/cohorts/:id/registers')
     page.get_by_role('button', name='Make a register').click(); page.get_by_role('dialog').get_by_label('Month').wait_for(); audit(page, '/registers make dialog')
     page.keyboard.press('Escape')
     page.goto(f'http://tym.platform.test:{PORT}/programmes'); page.get_by_role('link', name='Materials for Occupational Certificate: Bricklayer').click()
@@ -147,6 +147,10 @@ with sync_playwright() as p:
     page.go_back(); page.get_by_role('link', name='Funding', exact=True).click(); page.get_by_text('CETA/DG/2026-27/0142').first.wait_for(); audit(page, '/cohorts/:id/funding')
     page.get_by_role('button', name='Add a grant agreement').click(); page.get_by_role('dialog').wait_for(); page.get_by_text('Tranche 1').first.wait_for(); audit(page, '/cohorts/:id/funding (add)'); page.keyboard.press('Escape')
     page.get_by_role('link', name='Learners and evidence for CETA/DG/2026-27/0142').click(); page.get_by_text('Tranche 1:').first.wait_for(); audit(page, '/grant-agreements/:id')
+    page.get_by_role('button', name='Stipend rule').click(); page.get_by_role('dialog').wait_for(); audit(page, '/grant-agreements/:id (stipend rule)'); page.keyboard.press('Escape')
+    page.get_by_role('button', name=re.compile('^Bank details for')).first.click(); page.get_by_role('dialog').get_by_text('Account holder').wait_for(); audit(page, '/grant-agreements/:id (bank details)'); page.keyboard.press('Escape')
+    page.locator('a[href^="/stipend-runs/"]').first.click(); page.get_by_role('heading', name=re.compile('^Stipends for')).wait_for(); audit(page, '/stipend-runs/:id')
+    page.get_by_role('button', name=re.compile('^Change stipend for')).first.click(); page.get_by_role('dialog').wait_for(); audit(page, '/stipend-runs/:id (change)'); page.keyboard.press('Escape')
     page.goto(f'http://tym.platform.test:{PORT}/sor/abcdefghij'); page.get_by_text("We can't find this statement").wait_for(); audit(page, '/sor/:code (not found)')
     page.goto(f'http://tym.platform.test:{PORT}/c/01jdemo0000000000000000000.1.0123456789abcdef0123'); page.get_by_role('button', name='Check in now').wait_for(); audit(page, '/c/:token')
     page.goto(f'http://tym.platform.test:{PORT}/cohorts'); page.get_by_role('button', name='Plan a cohort').click(); page.get_by_role('dialog').wait_for(); audit(page, '/cohorts plan dialog')
