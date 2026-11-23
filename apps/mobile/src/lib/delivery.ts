@@ -68,7 +68,7 @@ export interface MyRegister {
   cohort: string | null;
   month: string;
   status: string;
-  role: 'learner' | 'facilitator';
+  role: 'learner' | 'facilitator' | 'mentor';
   my_status: 'pending' | 'signed' | 'disputed';
   attended: number | null;
   held: number | null;
@@ -86,7 +86,7 @@ export const useCourseTasks = (enrolmentId: string, enabled = true) =>
 export const useMyRegisters = (enabled = true) => useQuery({ queryKey: ['my-registers'], queryFn: () => get<MyRegister[]>('/me/registers'), enabled });
 
 /** The phone's position once, for the distance check. Never fails the check-in. */
-async function place(): Promise<{ latitude?: number; longitude?: number; accuracy?: number; mocked?: boolean }> {
+export async function place(): Promise<{ latitude?: number; longitude?: number; accuracy?: number; mocked?: boolean }> {
   try {
     const perm = await Location.requestForegroundPermissionsAsync();
     if (!perm.granted) return {};

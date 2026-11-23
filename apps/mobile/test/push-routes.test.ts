@@ -15,6 +15,8 @@ describe('notification routes', () => {
     expect(routeFor({ type: 'register', register_id: '01JDEMO0000000000000000000' })).toBe('/registers/01JDEMO0000000000000000000');
     expect(routeFor({ type: 'timetable', session_id: 'x' })).toBe('/timetable');
     expect(routeFor({ type: 'task', task_id: 'x' })).toBe('/learn');
+    expect(routeFor({ type: 'logbook', week_id: 'x' })).toBe('/logbook');
+    expect(routeFor({ type: 'logbook_mentor' })).toBe('/mentoring');
   });
 
   it('ignores anything else, including a malformed id', () => {

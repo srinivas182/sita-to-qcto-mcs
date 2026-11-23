@@ -14,7 +14,7 @@ import {
 } from '@/components/ui';
 import { ApiError, call, errorMessage } from '@/lib/api';
 import { shortDate } from '@/lib/money';
-import { type Entry, type ModuleHours, type Signoff, duration, signoffState } from './types';
+import { type Entry, type ModuleHours, type Signoff, duration, photoOpener, signoffState } from './types';
 
 interface Week {
   id: string;
@@ -195,6 +195,7 @@ type Detail = Week & { entries: (Entry & { module: string | null; activity: stri
 function WeekDialog({ week, onClose }: { week: Week; onClose: () => void }) {
   const qc = useQueryClient();
   const toast = useToast();
+  const openPhoto = photoOpener((m) => toast(m, 'error'));
   const [confirm, setConfirm] = useState(false);
   const [returning, setReturning] = useState(false);
   const [comment, setComment] = useState('');
@@ -281,6 +282,15 @@ function WeekDialog({ week, onClose }: { week: Week; onClose: () => void }) {
                     {shortDate(e.work_date)} · {e.activity} · {duration(e.minutes)}
                   </p>
                   {e.note ? <p className="text-small text-ink">{e.note}</p> : null}
+                  {e.file_ids.length > 0 ? (
+                    <span className="flex flex-wrap gap-2">
+                      {e.file_ids.map((f, n) => (
+                        <Button key={f} size="sm" variant="ghost" onClick={() => openPhoto(f)}>
+                          Photo {n + 1}
+                        </Button>
+                      ))}
+                    </span>
+                  ) : null}
                   <p className="text-small text-muted">
                     {e.module}
                     {e.distance_m !== null

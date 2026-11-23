@@ -1,3 +1,5 @@
+import { call, errorMessage } from '@/lib/api';
+
 export interface Activity {
   key: string;
   title: string;
@@ -33,6 +35,7 @@ export interface Entry {
   work_date: string;
   minutes: number;
   note: string | null;
+  file_ids: string[];
   distance_m: number | null;
   location_ok: boolean | null;
   offline: boolean;
@@ -75,3 +78,11 @@ export const signoffState = {
   checked: { label: 'Checked', tone: 'success' },
   queried: { label: 'Queried', tone: 'danger' },
 } as const;
+
+/** A row of "Photo 1", "Photo 2" buttons that open a logbook photo (signed link). */
+export function photoOpener(onError: (message: string) => void) {
+  return (fileId: string) =>
+    void call<{ url: string | null }>('GET', `/files/${fileId}/download`)
+      .then((r) => r.url && window.open(r.url, '_blank', 'noopener'))
+      .catch((e: unknown) => onError(errorMessage(e)));
+}
