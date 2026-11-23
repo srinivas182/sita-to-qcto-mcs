@@ -296,6 +296,16 @@ const readiness = createRoute({
   path: '/cohorts/$id/statements',
   component: lazyRouteComponent(() => import('@/features/assessment/ReadinessPage'), 'ReadinessPage'),
 });
+const cohortFunding = createRoute({
+  getParentRoute: () => app,
+  path: '/cohorts/$id/funding',
+  component: lazyRouteComponent(() => import('@/features/funding/FundingPage'), 'FundingPage'),
+});
+const grantAgreement = createRoute({
+  getParentRoute: () => app,
+  path: '/grant-agreements/$id',
+  component: lazyRouteComponent(() => import('@/features/funding/AgreementPage'), 'AgreementPage'),
+});
 const cohortEisa = createRoute({
   getParentRoute: () => app,
   path: '/cohorts/$id/eisa',
@@ -461,6 +471,8 @@ const routeTree = root.addChildren([
     myResults,
     readiness,
     cohortEisa,
+    cohortFunding,
+    grantAgreement,
     moderation,
     cohortModeration,
     marking,

@@ -82,6 +82,16 @@ return [
             'variants' => [],
             'public_variants' => false,
         ],
+        // Signed grant agreements (MoAs) and claim evidence the platform doesn't hold itself.
+        'grant_document' => [
+            'scope' => 'tenant',
+            'permission' => 'funding.manage',
+            'viewers' => 'funding.view',
+            'max_kb' => 20480,
+            'mimes' => ['application/pdf', 'image/jpeg', 'image/png'],
+            'variants' => [],
+            'public_variants' => false,
+        ],
         'flc_evidence' => [
             'scope' => 'tenant',
             'permission' => 'cohorts.manage',
