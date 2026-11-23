@@ -1,7 +1,7 @@
 # Sprint 5: Classes delivered and recorded
 
 **Plan dates:** 18 – 29 Jan 2027 (Phase 1 – SaaS compliance core).
-**Status:** approved 23 Nov 2026 (recommendations in §9 accepted). In build: 5a timetables.
+**Status:** approved 23 Nov 2026 (recommendations in §9 accepted). In build: 5a timetables and 5b attendance done.
 
 **Goal (from the sprint plan):** *Classes delivered and recorded.*
 

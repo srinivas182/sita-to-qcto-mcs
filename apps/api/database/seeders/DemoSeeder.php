@@ -390,6 +390,9 @@ final class DemoSeeder extends Seeder
     /** Demo only: rooms at Soweto, Lindiwe registered for Bricklayer, and the first four weeks of classes. */
     private function demoTimetable(Cohort $cohort, Centre $soweto, string $qualificationId, User $by): void
     {
+        if ($soweto->latitude === null) {
+            $soweto->forceFill(['latitude' => '-26.2485', 'longitude' => '27.8540'])->save(); // Orlando West, for check-in distances
+        }
         $room = Room::query()->firstOrCreate(['centre_id' => $soweto->id, 'name' => 'Room 1'], ['capacity' => 25]);
         $yard = Room::query()->firstOrCreate(['centre_id' => $soweto->id, 'name' => 'Brick yard'], ['kind' => 'outdoor', 'capacity' => 20]);
         Room::query()->firstOrCreate(['centre_id' => $soweto->id, 'name' => 'Computer lab'], ['kind' => 'computer_lab', 'capacity' => 16]);
