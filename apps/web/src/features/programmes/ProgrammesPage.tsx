@@ -156,13 +156,22 @@ export function ProgrammesPage() {
                       key: 'materials',
                       header: <span className="sr-only">Materials</span>,
                       cell: (p: ProgrammeRow) => (
-                        <Link
-                          to="/programmes/$id/materials"
-                          params={{ id: p.qualification.id }}
-                          className="text-small font-medium text-primary-700 hover:underline"
-                        >
-                          Materials<span className="sr-only"> for {p.qualification.title}</span>
-                        </Link>
+                        <span className="flex gap-3">
+                          <Link
+                            to="/programmes/$id/materials"
+                            params={{ id: p.qualification.id }}
+                            className="text-small font-medium text-primary-700 hover:underline"
+                          >
+                            Materials<span className="sr-only"> for {p.qualification.title}</span>
+                          </Link>
+                          <Link
+                            to="/programmes/$id/tasks"
+                            params={{ id: p.qualification.id }}
+                            className="text-small font-medium text-primary-700 hover:underline"
+                          >
+                            Tasks<span className="sr-only"> for {p.qualification.title}</span>
+                          </Link>
+                        </span>
                       ),
                     },
                   ]

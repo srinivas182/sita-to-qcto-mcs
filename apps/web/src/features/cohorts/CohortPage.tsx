@@ -111,6 +111,13 @@ export function CohortPage() {
               Attendance
             </Link>
             <Link
+              to="/cohorts/$id/tasks"
+              params={{ id: c.id }}
+              className="inline-flex h-10 items-center rounded-lg border border-line bg-surface px-4 text-small font-medium text-ink hover:border-primary-200"
+            >
+              Task results
+            </Link>
+            <Link
               to="/cohorts/$id/qcto"
               params={{ id: c.id }}
               className="inline-flex h-10 items-center rounded-lg border border-line bg-surface px-4 text-small font-medium text-ink hover:border-primary-200"
