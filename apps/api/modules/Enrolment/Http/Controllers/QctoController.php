@@ -26,7 +26,7 @@ final class QctoController
     public function workbook(Request $request, string $cohort): Response
     {
         Gate::authorize('applications.manage');
-        $file = $this->list()->workbook($this->cohort($request, $cohort, 'applications.manage'), $request->boolean('only_unsent'));
+        $file = $this->list()->workbook($this->cohort($request, $cohort, 'applications.manage'), $request->boolean('only_unsent'), $request->boolean('acknowledge'));
 
         return response($file['bytes'], 200, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

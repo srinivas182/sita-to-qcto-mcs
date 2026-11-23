@@ -62,13 +62,24 @@ interface Profile {
 
 type Errors = Record<string, string[]>;
 
+interface QctoCheck {
+  cohort: string;
+  errors: { code: string; column: string; problem: string }[];
+  warnings: { code: string; column: string; problem: string }[];
+}
+
 /** Your own details with this provider, and your registrations if you facilitate, assess, moderate or mentor. */
 export function ProfilePage() {
   const qc = useQueryClient();
   const toast = useToast();
+  const [qcto, setQcto] = useState<QctoCheck[] | null>(null);
   const q = useQuery({
     queryKey: ['me', 'profile'],
-    queryFn: () => call<{ data: Profile }>('GET', '/me/profile').then((r) => r.data),
+    queryFn: () =>
+      call<{ data: Profile; qcto?: QctoCheck[] }>('GET', '/me/profile').then((r) => {
+        setQcto(r.qcto ?? []);
+        return r.data;
+      }),
   });
   const creds = useQuery({
     queryKey: ['credentials', 'mine'],
@@ -80,9 +91,10 @@ export function ProfilePage() {
   const [adding, setAdding] = useState<Credential | 'new' | null>(null);
   const save = useMutation({
     mutationFn: (body: Record<string, unknown>) =>
-      call<{ data: Profile; warnings: string[] }>('PATCH', '/me/profile', body),
+      call<{ data: Profile; warnings: string[]; qcto?: QctoCheck[] }>('PATCH', '/me/profile', body),
     onSuccess: (r) => {
       qc.setQueryData(['me', 'profile'], r.data);
+      setQcto(r.qcto ?? []);
       setDraft({});
       setErrors({});
       setWarnings(r.warnings);
@@ -127,6 +139,20 @@ export function ProfilePage() {
         title="My profile"
         description="Kept by your training provider for your records and reports. Only you and the people who run your records see it."
       />
+      {qcto?.map((c) =>
+        c.errors.length ? (
+          <div key={c.cohort} className="mb-4">
+            <Alert tone="warning">
+              <p className="font-medium">For your {c.cohort} record with the QCTO, still to fix:</p>
+              <ul className="mt-1 list-disc pl-5">
+                {c.errors.map((e) => (
+                  <li key={`${e.code}${e.column}`}>{e.problem}</li>
+                ))}
+              </ul>
+            </Alert>
+          </div>
+        ) : null,
+      )}
       {warnings.map((w) => (
         <div key={w} className="mb-4">
           <Alert tone="info">{w}</Alert>

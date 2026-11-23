@@ -7,18 +7,21 @@ namespace Modules\Enrolment\Services;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Modules\Assessment\Models\StatementOfResults;
 use Modules\Audit\AuditLogger;
 use Modules\Cohorts\Models\Cohort;
 use Modules\Enrolment\Models\Enrolment;
 use Modules\Enrolment\Models\EnrolmentSettings;
 use Modules\Enrolment\Models\QctoSubmission;
+use Modules\Enrolment\Qcto\QctoRules;
 use Modules\Enrolment\Support\WorkingDays;
 use Modules\Identity\Models\Consent;
 use Modules\Identity\Models\User;
 use Modules\Identity\Support\IdType;
 use Modules\Identity\Support\SaIdNumber;
 use Modules\People\Models\PersonProfile;
+use Modules\Qualifications\Models\CentreQualification;
 use Modules\Qualifications\Models\Qualification;
 use Modules\Support\Qcto\QctoCodes;
 use Modules\Tenancy\Context\TenantContext;
@@ -51,11 +54,12 @@ final class QctoEnrolmentList
      * @return array{cohort: array<string, mixed>, due: array<string, mixed>, rows: list<array<string, mixed>>, ready: int, total: int,
      *               sent: list<array<string, mixed>>, unsent: int}
      */
-    public function build(Cohort $cohort): array
+    public function build(Cohort $cohort, ?string $onlyUser = null): array
     {
         $qualification = Qualification::query()->whereKey($cohort->qualification_id)->firstOrFail();
         $centre = Centre::query()->whereKey($cohort->centre_id)->firstOrFail();
-        $enrolments = Enrolment::query()->where('cohort_id', $cohort->id)->whereIn('status', ['active', 'suspended', 'completed'])->orderBy('enrolled_on')->get();
+        $enrolments = Enrolment::query()->where('cohort_id', $cohort->id)->whereIn('status', ['active', 'suspended', 'completed'])
+            ->when($onlyUser !== null, fn ($q) => $q->where('user_id', $onlyUser))->orderBy('enrolled_on')->get();
         $userIds = $enrolments->pluck('user_id')->all();
         /** @var Collection<string, User> $users */
         $users = $this->context->runAsPlatform(fn () => User::query()->whereIn('id', $userIds)->get()->keyBy('id'));
@@ -65,6 +69,12 @@ final class QctoEnrolmentList
         $sent = QctoSubmission::query()->where('cohort_id', $cohort->id)->orderBy('sent_on')->get();
         $sentIds = $sent->flatMap(fn (QctoSubmission $s) => $s->learner_ids)->unique()->all();
 
+        $scope = CentreQualification::query()->where('centre_id', $centre->id)->where('qualification_id', $qualification->id)->first();
+        $ctx = ['intake_on' => $cohort->intake_on->toDateString(), 'planned_end_on' => $cohort->planned_end_on->toDateString(),
+            'centre_expires_on' => $centre->accreditation_expires_on?->toDateString(),
+            'in_scope' => $scope !== null || in_array($qualification->saqa_id, $centre->scope ?? [], true) ? true
+                : (CentreQualification::query()->where('centre_id', $centre->id)->exists() || ($centre->scope ?? []) !== [] ? false : null),
+            'scope_expires_on' => $scope?->expires_on?->toDateString(), 'eisa_on' => $this->eisaOn($cohort)];
         $rows = [];
         foreach ($enrolments as $e) {
             $user = $users->get($e->user_id);
@@ -72,6 +82,7 @@ final class QctoEnrolmentList
                 continue;
             }
             $row = $this->row($user, $profiles->get($e->user_id), $consents->get($e->user_id), $cohort, $qualification, $centre, $e);
+            $row = self::withRules($row, $ctx);
             $rows[] = ['enrolment_id' => $e->id, 'user_id' => $user->id, 'name' => $user->fullName(), 'enrolled_on' => $e->enrolled_on->toDateString(),
                 'sent' => in_array($user->id, $sentIds, true)] + $row;
         }
@@ -82,6 +93,9 @@ final class QctoEnrolmentList
             'due' => $this->due($cohort),
             'rows' => $rows,
             'ready' => count(array_filter($rows, fn (array $r) => $r['errors'] === [])),
+            'rules' => ['version' => QctoRules::VERSION, 'source' => QctoRules::SOURCE],
+            'errors' => array_sum(array_map(fn (array $r) => count($r['errors']), $rows)),
+            'warnings' => array_sum(array_map(fn (array $r) => count($r['warnings']), $rows)),
             'total' => count($rows),
             'sent' => array_values($sent->map(fn (QctoSubmission $s) => ['id' => $s->id, 'sent_on' => $s->sent_on->toDateString(), 'rows' => $s->rows, 'note' => $s->note])->all()),
             'unsent' => count(array_filter($rows, fn (array $r) => ! $r['sent'])),
@@ -89,14 +103,65 @@ final class QctoEnrolmentList
     }
 
     /**
+     * The row's own findings (missing values) with codes and fix targets, plus every rule of
+     * the specification. Errors stop the file; warnings must be acknowledged.
+     *
+     * @param  array{columns: array<string, string>, errors: list<array<string, string>>, warnings: list<array<string, string>>}  $row
+     * @param  array{intake_on: string, planned_end_on: string, centre_expires_on: string|null, in_scope: bool|null, scope_expires_on: string|null, eisa_on: string|null}  $ctx
+     * @return array{columns: array<string, string>, errors: list<array<string, string>>, warnings: list<array<string, string>>}
+     */
+    public static function withRules(array $row, array $ctx): array
+    {
+        $tag = fn (array $f, string $sev) => ['code' => 'Q-REQUIRED', 'severity' => $sev, 'fix' => QctoRules::FIX[$f['column']] ?? 'profile'] + $f;
+        $errors = array_map(fn (array $f) => $tag($f, 'error'), $row['errors']);
+        $warnings = array_map(fn (array $f) => $tag($f, 'warning'), $row['warnings']);
+        foreach (QctoRules::check($row['columns'], $ctx, array_column($row['errors'], 'column')) as $f) {
+            $f['severity'] === 'error' ? $errors[] = $f : $warnings[] = $f;
+        }
+
+        return ['columns' => $row['columns'], 'errors' => $errors, 'warnings' => $warnings];
+    }
+
+    /**
+     * What a learner can fix in their own details for the QCTO file, per course: shown in the
+     * profile forms as they are saved.
+     *
+     * @return list<array{cohort: string, errors: list<array<string, string>>, warnings: list<array<string, string>>}>
+     */
+    public function forUser(User $user): array
+    {
+        $out = [];
+        foreach (Enrolment::query()->where('user_id', $user->id)->whereIn('status', ['active', 'suspended'])->get() as $e) {
+            $cohort = Cohort::query()->whereKey($e->cohort_id)->first();
+            $row = $cohort ? ($this->build($cohort, $user->id)['rows'][0] ?? null) : null;
+            if ($row === null) {
+                continue;
+            }
+            $mine = fn (array $f) => in_array($f['fix'], ['profile', 'identity', 'consent'], true);
+            $out[] = ['cohort' => $cohort->name, 'errors' => array_values(array_filter($row['errors'], $mine)), 'warnings' => array_values(array_filter($row['warnings'], $mine))];
+        }
+
+        return $out;
+    }
+
+    /** The EISA date the cohort is registered for, once known (Sprint 8c). */
+    private function eisaOn(Cohort $cohort): ?string
+    {
+        $v = $cohort->getAttribute('eisa_on');
+
+        return is_string($v) ? $v : null;
+    }
+
+    /**
      * The workbook as QCTO asks: Excel, every value as text, columns in place.
      *
      * @return array{name: string, bytes: string, rows: int}
      */
-    public function workbook(Cohort $cohort, bool $onlyUnsent = false): array
+    public function workbook(Cohort $cohort, bool $onlyUnsent = false, bool $acknowledged = false): array
     {
         $data = $this->build($cohort);
         $rows = array_values(array_filter($data['rows'], fn (array $r) => ! $onlyUnsent || ! $r['sent']));
+        self::assertClean($rows, $acknowledged);
         $tenantId = $this->context->tenantId();
         /** @var Tenant $tenant */
         $tenant = $this->context->runAsPlatform(fn () => Tenant::query()->whereKey($tenantId)->firstOrFail());
@@ -113,15 +178,33 @@ final class QctoEnrolmentList
         $writer->close();
         $bytes = (string) file_get_contents((string) $path);
         @unlink((string) $path);
-        $this->audit->record('qcto.enrolment_file', $cohort, [], ['rows' => count($rows), 'only_unsent' => $onlyUnsent]);
+        $this->audit->record('qcto.enrolment_file', $cohort, [], ['rows' => count($rows), 'only_unsent' => $onlyUnsent, 'warnings_acknowledged' => $acknowledged, 'rules' => QctoRules::VERSION]);
 
         return ['name' => $name, 'bytes' => $bytes, 'rows' => count($rows)];
+    }
+
+    /**
+     * Zero rejection: no file leaves with an error; warnings only once acknowledged.
+     *
+     * @param  list<array<string, mixed>>  $rows
+     */
+    public static function assertClean(array $rows, bool $acknowledged): void
+    {
+        $bad = array_filter($rows, fn (array $r) => $r['errors'] !== []);
+        if ($bad !== []) {
+            $n = count($bad);
+            throw ValidationException::withMessages(['file' => $n === 1 ? '1 learner has errors the QCTO would reject. Fix them first.' : "{$n} learners have errors the QCTO would reject. Fix them first."]);
+        }
+        if (! $acknowledged && array_filter($rows, fn (array $r) => $r['warnings'] !== []) !== []) {
+            throw ValidationException::withMessages(['acknowledge' => 'Some learners have warnings. Check them and confirm before exporting.']);
+        }
     }
 
     /** Record that the file went to learnerenrolments@qcto.org.za, with the learners it held. */
     public function markSent(Cohort $cohort, string $sentOn, ?string $note, User $by, bool $onlyUnsent = true): QctoSubmission
     {
         $rows = array_values(array_filter($this->build($cohort)['rows'], fn (array $r) => ! $onlyUnsent || ! $r['sent']));
+        self::assertClean($rows, true);
         $s = QctoSubmission::query()->create(['cohort_id' => $cohort->id, 'stage' => 'enrolment', 'learner_ids' => array_column($rows, 'user_id'),
             'rows' => count($rows), 'sent_on' => $sentOn, 'note' => $note, 'submitted_by' => $by->id]);
         $cohort->forceFill(['qcto_alerted_for' => null])->saveQuietly();

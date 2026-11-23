@@ -30,3 +30,4 @@
 - [ADR-029 Internal summative assessment results](ADR-029-summative-assessment.md)
 - [ADR-030 Internal moderation and appeals](ADR-030-moderation-appeals.md)
 - [ADR-031 Statement of Results](ADR-031-statement-of-results.md)
+- [ADR-032 Zero-rejection rules for the QCTO file](ADR-032-zero-rejection.md)

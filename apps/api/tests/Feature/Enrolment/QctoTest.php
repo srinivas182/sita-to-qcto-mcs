@@ -44,7 +44,7 @@ it('lists what each learner still needs for the QCTO file, and counts down to th
     expect(collect($row['errors'])->pluck('column')->all())->toBe(['H', 'R', 'T', 'U', 'Z', 'AF', 'AG'])
         ->and($row['columns'])->toMatchArray(['A' => 'SDP0712/24-0001', 'C' => '9202204720083', 'E' => '533', 'F' => 'U', 'G' => 'SA', 'I' => 'F', 'J' => 'SA',
             'N' => '03', 'O' => 'Zulu', 'P' => 'Ayanda', 'S' => '19920220', 'AC' => '0821234567', 'AH' => 'Yes', 'AN' => '1'])
-        ->and(collect($row['warnings'])->pluck('column')->all())->toBe(['F', 'K', 'L']);
+        ->and(collect($row['warnings'])->pluck('column')->all())->toBe(['F', 'K', 'L', 'B']); // B: the centre's accreditation scope isn't recorded in this fixture
 
     completeProfile($this, $learner);
     $row = $this->getJson(TYM_V1."/cohorts/{$this->cohort->id}/qcto-enrolment")->json('data.rows.0');
@@ -61,7 +61,8 @@ it('downloads the file as text in QCTO column order and records what was sent', 
     $learner = enrolLearner($this, '082 123 4567', '9202204720083');
     completeProfile($this, $learner);
     signInOwner($this, $this->tym, 'qcto@tym.test');
-    $res = $this->get(TYM_V1."/cohorts/{$this->cohort->id}/qcto-enrolment/workbook")->assertOk();
+    $this->get(TYM_V1."/cohorts/{$this->cohort->id}/qcto-enrolment/workbook")->assertStatus(422)->assertJsonValidationErrors('acknowledge'); // warnings to confirm
+    $res = $this->get(TYM_V1."/cohorts/{$this->cohort->id}/qcto-enrolment/workbook?acknowledge=1")->assertOk();
     expect($res->headers->get('Content-Disposition'))->toContain('LEISA'.now()->format('Ymd').'-Training Young Minds (Pty) Ltd.xlsx');
     $path = tempnam(sys_get_temp_dir(), 'x').'.xlsx';
     file_put_contents($path, $res->getContent());
