@@ -6,6 +6,7 @@ require_once __DIR__.'/../Logbook/helpers.php';
 
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
+use Modules\Logbook\Models\LogbookSignoff;
 use Modules\People\Models\StaffCredential;
 
 /** A cohort with KM/PM/WM modules, an enrolled learner, a registered assessor (Naledi) and a registered moderator (Zanele). */
@@ -36,4 +37,17 @@ function observation(object $test, bool $allMet, array $over = []): array
     return array_merge(['enrolment_id' => $test->enrolment, 'instrument_id' => $test->pmObs['id'], 'outcome' => $allMet ? 'competent' : 'nyc', 'assessed_on' => $test->today,
         'criteria' => [['key' => 'plumb', 'met' => true], ['key' => 'bond', 'met' => $allMet, 'comment' => $allMet ? null : 'Bond broken on course 3'], ['key' => 'safe', 'met' => true]],
         'feedback' => $allMet ? 'Neat work' : 'Keep the bond: check each course against the line'], $over);
+}
+
+/** Every module competent and final; the work experience logbook checked. */
+function allCompetent(object $test): void
+{
+    asTenant($test->tym, fn () => LogbookSignoff::query()->create(['enrolment_id' => $test->enrolment, 'user_id' => $test->ayanda->id, 'module_id' => $test->wm->id,
+        'mentor_id' => $test->mentor->id, 'signed_at' => now(), 'minutes' => 24000, 'signature' => str_repeat('a', 64), 'statement_version' => 'v1', 'status' => 'checked']));
+    signInAs($test, 'naledi@tym.test');
+    $test->postJson(TYM_V1.'/assessment-results', ['enrolment_id' => $test->enrolment, 'instrument_id' => $test->kmTest['id'], 'assessed_on' => $test->today,
+        'criteria' => [['key' => 'k1', 'met' => true]], 'outcome' => 'competent', 'score' => 70])->assertCreated();
+    $test->postJson(TYM_V1.'/assessment-results', observation($test, true))->assertCreated();
+    $test->postJson(TYM_V1.'/assessment-results', ['enrolment_id' => $test->enrolment, 'instrument_id' => $test->wmLog['id'], 'assessed_on' => $test->today,
+        'criteria' => [['key' => 'hours', 'met' => true]], 'outcome' => 'competent'])->assertCreated();
 }

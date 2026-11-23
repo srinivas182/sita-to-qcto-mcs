@@ -17,6 +17,7 @@ use Modules\Agreements\Models\Agreement;
 use Modules\Agreements\Models\Signer;
 use Modules\Agreements\Services\AgreementService;
 use Modules\Agreements\Services\TemplateService;
+use Modules\Assessment\Models\EisaCalendar;
 use Modules\Assessment\Services\AssessmentService;
 use Modules\Assessment\Services\ModerationService;
 use Modules\Billing\Models\BillingProfile;
@@ -341,6 +342,15 @@ final class DemoSeeder extends Seeder
                 }
             }
         });
+        // Published EISA dates for the Bricklayer qualification (platform calendar; demo values).
+        if ($bricklayer !== null) {
+            foreach ([[75, 45], [180, 150]] as [$on, $closes]) {
+                EisaCalendar::query()->firstOrCreate(
+                    ['qualification_id' => $bricklayer->id, 'eisa_on' => now()->addDays($on)->toDateString()],
+                    ['closes_on' => now()->addDays($closes)->toDateString(), 'quality_partner' => 'QCTO (CETA)', 'source' => 'Demo EISA calendar'],
+                );
+            }
+        }
         $context->runAs($tym, function () use ($bricklayer, $applicants, $sekal): void {
             if ($bricklayer === null || Cohort::query()->where('qualification_id', $bricklayer->id)->exists()) {
                 return;

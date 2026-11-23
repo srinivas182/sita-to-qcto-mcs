@@ -29,6 +29,7 @@ export function MyResultsPage() {
         title="My results"
         description="Your summative results per module. If you are not yet competent, read the feedback before your next attempt."
       />
+      <EisaCard />
       {sors.data
         ?.filter((x) => x.status === 'issued')
         .map((x) => (
@@ -162,5 +163,82 @@ function AppealDialog({ result, title, onClose }: { result: ResultRow; title: st
         />
       </div>
     </Dialog>
+  );
+}
+
+interface MyEisa {
+  data: {
+    id: string;
+    eisa_on: string;
+    assessment_centre: string | null;
+    assessment_centre_name: string | null;
+    declared_at: string | null;
+    status: string;
+  }[];
+  declaration: string;
+  name: string;
+}
+
+/** The learner's EISA registration and the declaration to sign. */
+function EisaCard() {
+  const qc = useQueryClient();
+  const toast = useToast();
+  const q = useQuery({ queryKey: ['my-eisa'], queryFn: () => call<MyEisa>('GET', '/me/eisa') });
+  const [confirm, setConfirm] = useState(false);
+  const [name, setName] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const sign = useMutation({
+    mutationFn: (id: string) => call('POST', `/me/eisa/${id}/declare`, { confirm, name }),
+    onSuccess: () => {
+      toast('Declaration signed');
+      void qc.invalidateQueries({ queryKey: ['my-eisa'] });
+    },
+    onError: (e) => setError(e instanceof ApiError ? (Object.values(e.fields)[0]?.[0] ?? e.message) : errorMessage(e)),
+  });
+  if (!q.data?.data.length) return null;
+  return (
+    <>
+      {q.data.data.map((r) => (
+        <Card key={r.id} className="mb-4">
+          <p className="font-medium text-ink">External assessment (EISA) on {shortDate(r.eisa_on)}</p>
+          <p className="text-small text-muted">
+            {r.assessment_centre_name ?? r.assessment_centre ?? 'Assessment centre to be confirmed'} ·{' '}
+            {r.status === 'registered' ? 'You are registered.' : 'Your provider is registering you.'}
+          </p>
+          {r.declared_at ? (
+            <p className="mt-2 text-small text-success">You signed the declaration on {shortDate(r.declared_at)}.</p>
+          ) : r.status === 'draft' ? (
+            <div className="mt-3 grid gap-2">
+              {error ? <Alert tone="danger">{error}</Alert> : null}
+              <label className="flex items-start gap-2 text-small">
+                <input
+                  type="checkbox"
+                  className="mt-0.5 size-5"
+                  checked={confirm}
+                  onChange={(e) => setConfirm(e.target.checked)}
+                />
+                {q.data.declaration}
+              </label>
+              <div className="grid gap-1.5">
+                <label htmlFor={`sign-${r.id}`} className="text-small font-medium text-ink">
+                  Type your full name to sign ({q.data.name})
+                </label>
+                <input
+                  id={`sign-${r.id}`}
+                  className="h-10 rounded-lg border border-line bg-surface px-3 text-body"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
+              <div>
+                <Button loading={sign.isPending} disabled={!confirm || !name.trim()} onClick={() => sign.mutate(r.id)}>
+                  Sign the declaration
+                </Button>
+              </div>
+            </div>
+          ) : null}
+        </Card>
+      ))}
+    </>
   );
 }

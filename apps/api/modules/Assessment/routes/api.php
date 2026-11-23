@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use Modules\Assessment\Http\Controllers\AssessmentController;
+use Modules\Assessment\Http\Controllers\EisaController;
 use Modules\Assessment\Http\Controllers\ModerationController;
 use Modules\Assessment\Http\Controllers\StatementController;
 use Modules\Identity\Http\Middleware\EnsureAccess;
@@ -32,6 +33,18 @@ Route::middleware(['auth:sanctum', EnsureAccess::class, RequireMfaEnrolment::cla
     Route::post('statements-of-results/{statement}/withdraw', [StatementController::class, 'withdraw'])->whereUlid('statement');
     Route::get('statements-of-results/{statement}/pdf', [StatementController::class, 'pdf'])->whereUlid('statement');
     Route::get('me/statements-of-results', [StatementController::class, 'mine']);
+    Route::get('eisa-dates', [EisaController::class, 'dates']);
+    Route::post('eisa-dates', [EisaController::class, 'addDate']);
+    Route::get('cohorts/{cohort}/eisa', [EisaController::class, 'cohort'])->whereUlid('cohort');
+    Route::get('cohorts/{cohort}/eisa-packs', [EisaController::class, 'cohortPack'])->whereUlid('cohort')->middleware('throttle:20,60');
+    Route::put('enrolments/{enrolment}/eisa-registration', [EisaController::class, 'save'])->whereUlid('enrolment');
+    Route::post('eisa-registrations/{registration}/register', [EisaController::class, 'register'])->whereUlid('registration');
+    Route::post('eisa-registrations/{registration}/withdraw', [EisaController::class, 'withdraw'])->whereUlid('registration');
+    Route::get('eisa-registrations/{registration}/pack', [EisaController::class, 'pack'])->whereUlid('registration')->middleware('throttle:60,60');
+    Route::get('me/eisa', [EisaController::class, 'mine']);
+    Route::post('me/eisa/{registration}/declare', [EisaController::class, 'declare'])->whereUlid('registration');
+    Route::get('platform/eisa-calendar', [EisaController::class, 'calendar']);
+    Route::post('platform/eisa-calendar', [EisaController::class, 'addCalendar']);
     Route::post('appeals/{appeal}/decide', [ModerationController::class, 'decideAppeal'])->whereUlid('appeal');
 });
 
