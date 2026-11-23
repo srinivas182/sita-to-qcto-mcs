@@ -74,7 +74,8 @@ final class SigningService
         return ['channel' => $channel, 'destination' => $signer->evidence['destination'] ?? null];
     }
 
-    public function sign(Signer $signer, string $code, string $typedName, bool $agree, ?string $ip, ?string $userAgent): Agreement
+    /** @param  array<string, string>  $via  how they reached it, e.g. ['via' => 'app', 'device' => …] */
+    public function sign(Signer $signer, string $code, string $typedName, bool $agree, ?string $ip, ?string $userAgent, array $via = ['via' => 'link']): Agreement
     {
         $agreement = $this->open($signer);
         if (! $agree) {
@@ -94,11 +95,11 @@ final class SigningService
             throw ValidationException::withMessages(['name' => "Type your full name as it appears here: {$signer->name}."]);
         }
 
-        $completed = DB::transaction(function () use ($signer, $agreement, $typedName, $ip, $userAgent): bool {
+        $completed = DB::transaction(function () use ($signer, $agreement, $typedName, $ip, $userAgent, $via): bool {
             $signer->forceFill([
                 'status' => 'signed', 'signed_at' => now(), 'signed_name' => trim($typedName), 'ip' => $ip, 'user_agent' => mb_substr((string) $userAgent, 0, 300),
                 'code_hash' => null, 'code_expires_at' => null,
-                'evidence' => [...($signer->evidence ?? []), 'method' => 'one-time PIN', 'document_sha256' => $agreement->body_sha256, 'code_sent_at' => $signer->code_sent_at?->toIso8601String()],
+                'evidence' => [...($signer->evidence ?? []), ...$via, 'method' => 'one-time PIN', 'document_sha256' => $agreement->body_sha256, 'code_sent_at' => $signer->code_sent_at?->toIso8601String()],
             ])->save();
 
             return ! Signer::query()->where('agreement_id', $agreement->id)->where('status', '!=', 'signed')->lockForUpdate()->exists();

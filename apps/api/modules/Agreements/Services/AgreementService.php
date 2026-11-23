@@ -101,7 +101,7 @@ final class AgreementService
                 throw ValidationException::withMessages(["signers.{$i}.email" => 'Advanced signatures are sent by email: add an email address.']);
             }
             $signers[] = ['role' => $s['role'], 'name' => trim((string) $s['name']), 'email' => $s['email'] ?? null, 'phone' => $phone,
-                'user_id' => $s['user_id'] ?? null, 'sort' => array_search($s['role'], $template->parties, true)];
+                'user_id' => $this->account($s['user_id'] ?? null, $phone, $s['email'] ?? null), 'sort' => array_search($s['role'], $template->parties, true)];
         }
 
         $tenantId = $this->context->tenantId();
@@ -153,6 +153,26 @@ final class AgreementService
         $this->audit->record('agreement.sent', $agreement, [], ['title' => $agreement->title, 'level' => $level, 'sha256' => $agreement->body_sha256]);
 
         return $agreement;
+    }
+
+    /**
+     * The provider's member this signer is, if any: named directly, or matched by mobile
+     * number or email. A linked signer can also sign in the app and gets a push notice.
+     */
+    private function account(?string $userId, ?string $phone, ?string $email): ?string
+    {
+        $members = UserTenant::query()->select('user_id');
+        if ($userId !== null) {
+            return User::query()->whereKey($userId)->whereIn('id', $members)->value('id');
+        }
+        if ($phone === null && $email === null) {
+            return null;
+        }
+        $matches = User::query()->whereIn('id', $members)->where(fn ($q) => $q
+            ->when($phone !== null, fn ($w) => $w->orWhere('phone_e164', $phone))
+            ->when($email !== null, fn ($w) => $w->orWhereRaw('lower(email) = ?', [mb_strtolower((string) $email)])))->limit(2)->pluck('id');
+
+        return $matches->count() === 1 ? (string) $matches->first() : null; // never guess between two people
     }
 
     public function resend(Signer $signer): void

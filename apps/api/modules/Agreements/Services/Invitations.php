@@ -9,14 +9,17 @@ use Illuminate\Support\Str;
 use Modules\Agreements\Models\Agreement;
 use Modules\Agreements\Models\Signer;
 use Modules\Agreements\Notifications\AgreementMail;
+use Modules\Identity\Models\Device;
+use Modules\Identity\Push\PushService;
 use Modules\Messaging\Services\MessageService;
 use Modules\Tenancy\Context\TenantContext;
 use Modules\Tenancy\Models\Tenant;
+use Throwable;
 
 /** Sends signing links. Each send makes a new link; older links stop working. */
 final class Invitations
 {
-    public function __construct(private readonly MessageService $messages, private readonly TenantContext $context) {}
+    public function __construct(private readonly MessageService $messages, private readonly TenantContext $context, private readonly PushService $pushes) {}
 
     public function sendAll(Agreement $agreement): void
     {
@@ -41,6 +44,22 @@ final class Invitations
         }
         if ($signer->email !== null) {
             Notification::route('mail', $signer->email)->notify(new AgreementMail($kind, $tenant->trading_name, $agreement->title, $signer->name, $url));
+        }
+        if ($signer->user_id !== null) {
+            $this->push($signer->user_id, $kind === 'reminder' ? 'Reminder: a document to sign' : 'You have a document to sign',
+                "{$tenant->trading_name}: {$agreement->title}", ['type' => 'agreement', 'signer_id' => $signer->id]);
+        }
+    }
+
+    /** @param  array<string, string>  $data */
+    private function push(string $userId, string $title, string $body, array $data): void
+    {
+        foreach (Device::query()->where('user_id', $userId)->whereNull('revoked_at')->whereNotNull('push_token')->get() as $device) {
+            try {
+                $this->pushes->send($device, $title, $body, $data);
+            } catch (Throwable $e) {
+                report($e); // a push is a courtesy: the link has gone by message already
+            }
         }
     }
 
