@@ -73,6 +73,12 @@ const verify = createRoute({
   component: lazyRouteComponent(() => import('@/features/agreements/VerifyPage'), 'VerifyPage'),
 });
 
+const verifySor = createRoute({
+  getParentRoute: () => root,
+  path: '/sor/$code',
+  component: lazyRouteComponent(() => import('@/features/assessment/VerifySorPage'), 'VerifySorPage'),
+});
+
 // The platform's own public site: pricing and applying to join.
 const pricing = createRoute({
   getParentRoute: () => root,
@@ -285,6 +291,11 @@ const cohortModeration = createRoute({
   path: '/cohorts/$id/moderation',
   component: lazyRouteComponent(() => import('@/features/assessment/CohortModerationPage'), 'CohortModerationPage'),
 });
+const readiness = createRoute({
+  getParentRoute: () => app,
+  path: '/cohorts/$id/statements',
+  component: lazyRouteComponent(() => import('@/features/assessment/ReadinessPage'), 'ReadinessPage'),
+});
 const myResults = createRoute({
   getParentRoute: () => app,
   path: '/my-results',
@@ -408,6 +419,7 @@ const routeTree = root.addChildren([
   offer,
   sign,
   verify,
+  verifySor,
   pricing,
   apply,
   applyResume,
@@ -442,6 +454,7 @@ const routeTree = root.addChildren([
     cohortResults,
     learnerResults,
     myResults,
+    readiness,
     moderation,
     cohortModeration,
     marking,
