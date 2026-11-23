@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use Modules\Delivery\Http\Controllers\AttendanceController;
+use Modules\Delivery\Http\Controllers\RegisterController;
 use Modules\Delivery\Http\Controllers\TimetableController;
 use Modules\Identity\Http\Middleware\EnsureAccess;
 use Modules\Identity\Http\Middleware\RequireMfaEnrolment;
@@ -26,5 +27,14 @@ Route::middleware(['auth:sanctum', EnsureAccess::class, RequireMfaEnrolment::cla
     Route::get('delivery-settings', [AttendanceController::class, 'settings']);
     Route::patch('delivery-settings', [AttendanceController::class, 'updateSettings']);
     Route::post('me/check-ins', [AttendanceController::class, 'checkIn'])->middleware('throttle:30,1');
+    Route::get('cohorts/{cohort}/registers', [RegisterController::class, 'index'])->whereUlid('cohort');
+    Route::post('cohorts/{cohort}/registers', [RegisterController::class, 'store'])->whereUlid('cohort');
+    Route::get('registers/{register}', [RegisterController::class, 'show'])->whereUlid('register');
+    Route::get('registers/{register}/pdf', [RegisterController::class, 'pdf'])->whereUlid('register')->middleware('throttle:30,60');
+    Route::post('registers/{register}/sign', [RegisterController::class, 'sign'])->whereUlid('register')->middleware('throttle:20,60');
+    Route::post('registers/{register}/dispute', [RegisterController::class, 'dispute'])->whereUlid('register')->middleware('throttle:20,60');
+    Route::post('registers/{register}/submitted', [RegisterController::class, 'submitted'])->whereUlid('register');
+    Route::post('registers/{register}/remind', [RegisterController::class, 'remind'])->whereUlid('register')->middleware('throttle:10,60');
+    Route::get('me/registers', [RegisterController::class, 'mine']);
     Route::post('me/class-sessions/{session}/note', [AttendanceController::class, 'note'])->whereUlid('session')->middleware('throttle:20,60');
 });
