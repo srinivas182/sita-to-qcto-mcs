@@ -18,6 +18,8 @@ use Modules\Tenancy\Concerns\BelongsToTenant;
  * @property Carbon $sent_on
  * @property string|null $note
  * @property string|null $submitted_by
+ * @property Carbon|null $response_loaded_at
+ * @property list<array<string, string>>|null $response_unmatched
  */
 final class QctoSubmission extends Model
 {
@@ -28,6 +30,6 @@ final class QctoSubmission extends Model
 
     protected function casts(): array
     {
-        return ['learner_ids' => 'array', 'sent_on' => 'date', 'rows' => 'integer'];
+        return ['response_loaded_at' => 'datetime', 'response_unmatched' => 'array', 'learner_ids' => 'array', 'sent_on' => 'date', 'rows' => 'integer'];
     }
 }

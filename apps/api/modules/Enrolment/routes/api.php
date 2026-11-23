@@ -35,6 +35,8 @@ Route::middleware(['auth:sanctum', EnsureAccess::class, RequireMfaEnrolment::cla
     Route::get('cohorts/{cohort}/qcto-enrolment', [QctoController::class, 'show'])->whereUlid('cohort');
     Route::get('cohorts/{cohort}/qcto-enrolment/workbook', [QctoController::class, 'workbook'])->whereUlid('cohort')->middleware('throttle:30,60');
     Route::post('cohorts/{cohort}/qcto-enrolment/sent', [QctoController::class, 'sent'])->whereUlid('cohort');
+    Route::post('qcto-submissions/{submission}/response', [QctoController::class, 'response'])->whereUlid('submission')->middleware('throttle:30,60');
+    Route::post('qcto-outcomes/{outcome}/resolved', [QctoController::class, 'resolved'])->whereUlid('outcome');
     Route::post('learner-applications/{application}/identity-check', [ApplicantController::class, 'identityCheck'])->whereUlid('application')->middleware('throttle:30,60');
     Route::post('enrolments/{enrolment}/end', [OfferController::class, 'end'])->whereUlid('enrolment');
     Route::get('consent-text', [OfferController::class, 'consentText']);

@@ -13,6 +13,7 @@ use Modules\Audit\AuditLogger;
 use Modules\Cohorts\Models\Cohort;
 use Modules\Enrolment\Models\Enrolment;
 use Modules\Enrolment\Models\EnrolmentSettings;
+use Modules\Enrolment\Models\QctoOutcome;
 use Modules\Enrolment\Models\QctoSubmission;
 use Modules\Enrolment\Qcto\QctoRules;
 use Modules\Enrolment\Support\WorkingDays;
@@ -66,8 +67,23 @@ final class QctoEnrolmentList
         $profiles = PersonProfile::query()->whereIn('user_id', $userIds)->get()->keyBy('user_id');
         $consents = Consent::query()->whereIn('user_id', $userIds)->where('purpose', 'data_sharing_seta')->whereNull('withdrawn_at')
             ->orderBy('granted_at')->get()->keyBy('user_id');
-        $sent = QctoSubmission::query()->where('cohort_id', $cohort->id)->orderBy('sent_on')->get();
-        $sentIds = $sent->flatMap(fn (QctoSubmission $s) => $s->learner_ids)->unique()->all();
+        $sent = QctoSubmission::query()->where('cohort_id', $cohort->id)->orderBy('sent_on')->orderBy('created_at')->get();
+        // A learner's latest submission decides: if the QCTO rejected them there, they are to be sent again.
+        $latest = [];
+        foreach ($sent as $sub) {
+            foreach ($sub->learner_ids as $uid) {
+                $latest[$uid] = $sub->id;
+            }
+        }
+        $outcomes = QctoOutcome::query()->whereIn('submission_id', $sent->pluck('id'))->get()->keyBy(fn (QctoOutcome $o) => $o->submission_id.'|'.$o->user_id);
+        $rejected = [];
+        foreach ($latest as $uid => $subId) {
+            $o = $outcomes->get($subId.'|'.$uid);
+            if ($o?->status === 'rejected') {
+                $rejected[$uid] = $o->resolved_at === null ? (string) $o->reason : null; // null: fixed, waiting to be sent again
+            }
+        }
+        $sentIds = array_keys(array_diff_key($latest, $rejected));
 
         $scope = CentreQualification::query()->where('centre_id', $centre->id)->where('qualification_id', $qualification->id)->first();
         $ctx = ['intake_on' => $cohort->intake_on->toDateString(), 'planned_end_on' => $cohort->planned_end_on->toDateString(),
@@ -83,6 +99,10 @@ final class QctoEnrolmentList
             }
             $row = $this->row($user, $profiles->get($e->user_id), $consents->get($e->user_id), $cohort, $qualification, $centre, $e);
             $row = self::withRules($row, $ctx);
+            if (($rejected[$user->id] ?? null) !== null) {
+                $row['errors'][] = ['code' => 'Q-QCTO-REJECTED', 'column' => '', 'field' => 'QCTO reply', 'severity' => 'error', 'fix' => 'profile',
+                    'problem' => 'The QCTO rejected this learner: '.$rejected[$user->id].' Fix it, then confirm it is fixed.'];
+            }
             $rows[] = ['enrolment_id' => $e->id, 'user_id' => $user->id, 'name' => $user->fullName(), 'enrolled_on' => $e->enrolled_on->toDateString(),
                 'sent' => in_array($user->id, $sentIds, true)] + $row;
         }
@@ -97,7 +117,13 @@ final class QctoEnrolmentList
             'errors' => array_sum(array_map(fn (array $r) => count($r['errors']), $rows)),
             'warnings' => array_sum(array_map(fn (array $r) => count($r['warnings']), $rows)),
             'total' => count($rows),
-            'sent' => array_values($sent->map(fn (QctoSubmission $s) => ['id' => $s->id, 'sent_on' => $s->sent_on->toDateString(), 'rows' => $s->rows, 'note' => $s->note])->all()),
+            'sent' => array_values($sent->map(fn (QctoSubmission $s) => ['id' => $s->id, 'sent_on' => $s->sent_on->toDateString(), 'rows' => $s->rows, 'note' => $s->note,
+                'response_loaded_at' => $s->response_loaded_at?->toIso8601String(), 'unmatched' => count($s->response_unmatched ?? []),
+                'accepted' => $outcomes->where('submission_id', $s->id)->where('status', 'accepted')->count(),
+                'rejected' => $outcomes->where('submission_id', $s->id)->where('status', 'rejected')->count(),
+                'learners' => array_values(array_filter(array_map(fn (string $uid) => ($u = $users->get($uid)) ? ['user_id' => $uid, 'name' => $u->fullName(),
+                    'outcome_id' => $outcomes->get($s->id.'|'.$uid)?->id, 'status' => $outcomes->get($s->id.'|'.$uid)?->status, 'reason' => $outcomes->get($s->id.'|'.$uid)?->reason,
+                    'resolved' => $outcomes->get($s->id.'|'.$uid)?->resolved_at !== null] : null, $s->learner_ids)))])->all()),
             'unsent' => count(array_filter($rows, fn (array $r) => ! $r['sent'])),
         ];
     }

@@ -21,6 +21,11 @@ The QCTO receives the Learner Enrolment and Readiness for EISA file by email and
 4. **Checked as data is saved:** the profile responses (own and staff views) carry the learner's QCTO problems per course, so they are fixed where they are entered.
 5. Rules are code, versioned and tested against the specification's rules. A change to the specification is a new version with its date.
 
+## The QCTO's reply (Sprint 8b)
+
+6. **Loading the reply** (`qcto_outcomes`, one per submission and learner): the provider uploads the spreadsheet the QCTO sent back (.xlsx or .csv). We find the heading row (the one with "National Id"), match each row by national ID, or by alternate ID and last name, and read the first column whose heading speaks of an error, reason, comment, status or result. "OK", "Success", "Accepted" and similar mean accepted; anything else is a rejection with that text as the reason. Rows we can't match are counted and kept, with the ID masked. **The file itself is not kept**, because it holds ID numbers. When the QCTO replies by email instead, learners can be marked by hand, with a reason for each rejection.
+7. **A rejected learner goes back into the list**: their latest submission decides, so they count as not sent, and an error `Q-QCTO-REJECTED` with the QCTO's reason blocks the file until the provider marks it fixed. They are then included in the next file of new learners, and the history of what was sent and rejected stays.
+
 ## Consequences
 
 - The readiness columns (AM, AO, AP) become required once a Statement of Results is issued; 8c captures them with EISA registration.
