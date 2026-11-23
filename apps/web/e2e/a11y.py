@@ -111,7 +111,7 @@ with sync_playwright() as p:
     page.get_by_role('button', name='Show check-in code').click(); page.get_by_role('img', name='Check-in code').wait_for(); audit(page, '/classes code dialog')
     page.keyboard.press('Escape')
     page.goto(f'http://tym.platform.test:{PORT}/cohorts'); page.get_by_role('link', name='Bricklayer, December 2026').first.click(); page.get_by_role('link', name='Attendance').click()
-    page.get_by_role('columnheader', name='Attendance').wait_for(); audit(page, '/cohorts/:id/attendance')
+    page.get_by_role('heading', name='Attendance', exact=True).wait_for(); page.get_by_role('button', name='Attendance rules').wait_for(); page.wait_for_timeout(500); audit(page, '/cohorts/:id/attendance')
     page.get_by_role('button', name='Attendance rules').click(); page.get_by_role('dialog').get_by_label('Late after (minutes)').wait_for(); audit(page, '/attendance rules dialog')
     page.keyboard.press('Escape')
     page.goto(f'http://tym.platform.test:{PORT}/c/01jdemo0000000000000000000.1.0123456789abcdef0123'); page.get_by_role('button', name='Check in now').wait_for(); audit(page, '/c/:token')
