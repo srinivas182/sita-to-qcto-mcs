@@ -47,6 +47,18 @@ const invite = createRoute({
   component: lazyRouteComponent(() => import('@/features/auth/AcceptInvitationPage'), 'AcceptInvitationPage'),
 });
 
+// Signing and checking agreements: by link, no account needed.
+const sign = createRoute({
+  getParentRoute: () => root,
+  path: '/sign/$token',
+  component: lazyRouteComponent(() => import('@/features/agreements/SignPage'), 'SignPage'),
+});
+const verify = createRoute({
+  getParentRoute: () => root,
+  path: '/verify/$code',
+  component: lazyRouteComponent(() => import('@/features/agreements/VerifyPage'), 'VerifyPage'),
+});
+
 // The platform's own public site: pricing and applying to join.
 const pricing = createRoute({
   getParentRoute: () => root,
@@ -144,6 +156,26 @@ const employer = createRoute({
   path: '/employers/$id',
   component: lazyRouteComponent(() => import('@/features/employers/EmployerPage'), 'EmployerPage'),
 });
+const agreements = createRoute({
+  getParentRoute: () => app,
+  path: '/agreements',
+  component: lazyRouteComponent(() => import('@/features/agreements/AgreementsPage'), 'AgreementsPage'),
+});
+const agreement = createRoute({
+  getParentRoute: () => app,
+  path: '/agreements/$id',
+  component: lazyRouteComponent(() => import('@/features/agreements/AgreementPage'), 'AgreementPage'),
+});
+const agreementTemplates = createRoute({
+  getParentRoute: () => app,
+  path: '/agreements/templates',
+  component: lazyRouteComponent(() => import('@/features/agreements/TemplatesPage'), 'TemplatesPage'),
+});
+const agreementTemplate = createRoute({
+  getParentRoute: () => app,
+  path: '/agreements/templates/$id',
+  component: lazyRouteComponent(() => import('@/features/agreements/TemplateEditorPage'), 'TemplateEditorPage'),
+});
 const roles = createRoute({
   getParentRoute: () => app,
   path: '/roles',
@@ -217,6 +249,8 @@ const routeTree = root.addChildren([
   forgot,
   reset,
   invite,
+  sign,
+  verify,
   pricing,
   apply,
   applyResume,
@@ -229,6 +263,10 @@ const routeTree = root.addChildren([
     programmes,
     employers,
     employer,
+    agreements,
+    agreementTemplates,
+    agreementTemplate,
+    agreement,
     roles,
     credentials,
     profile,

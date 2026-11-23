@@ -71,6 +71,14 @@ with sync_playwright() as p:
     page.get_by_role('button', name='Add mentor').first.click(); page.get_by_role('dialog').wait_for(); audit(page, '/employers mentor dialog')
     page.keyboard.press('Escape')
 
+    # Agreements: the list, one agreement, the send dialog, the wording and its editor.
+    page.click('nav a[href="/agreements"]'); page.get_by_text('Lerato Nkosi').first.wait_for(); audit(page, '/agreements')
+    page.get_by_role('button', name='Send agreement').click(); page.get_by_role('dialog').wait_for(); audit(page, '/agreements send dialog')
+    page.keyboard.press('Escape')
+    page.get_by_role('link', name='Workplace learning agreement — Ayanda Zulu').first.click(); page.get_by_text('Send a new link').first.wait_for(); audit(page, '/agreements/:id')
+    page.goto(f'http://tym.platform.test:{PORT}/agreements/templates'); page.get_by_text('How agreements are signed').wait_for(); audit(page, '/agreements/templates')
+    page.get_by_role('link', name='Host employer memorandum of understanding').first.click(); page.get_by_text('Who signs').wait_for(); audit(page, '/agreements/templates/:id')
+
     # Centres with the expiry warning, and the edit dialog.
     page.click('nav a[href="/centres"]'); page.get_by_text('Durban Site', exact=True).first.wait_for(); audit(page, '/centres')
     page.get_by_text('Durban Site', exact=True).first.click(); page.get_by_role('dialog').wait_for(); audit(page, '/centres dialog')
@@ -78,6 +86,11 @@ with sync_playwright() as p:
 
     # The public site: pricing, applying (start, email code) and resuming.
     pub = b.new_page(viewport={'width':1280,'height':900})
+    # Signing and checking agreements: public pages on the provider's address.
+    pub.goto(f'http://tym.platform.test:{PORT}/sign/DemoSigningLinkForAyandaZulu00000000000000000000'); pub.get_by_role('button', name='Send me a PIN').wait_for(); audit(pub, '/sign/:token')
+    pub.get_by_role('button', name='Send me a PIN').click(); pub.get_by_label('PIN', exact=True).wait_for(); audit(pub, '/sign/:token pin')
+    pub.goto(f'http://tym.platform.test:{PORT}/verify/demosigned'); pub.get_by_text('Check a copy').wait_for(); audit(pub, '/verify/:code')
+
     pub.goto(f'http://platform.test:{PORT}/pricing'); pub.get_by_text('Starter').first.wait_for(); audit(pub, '/pricing')
     pub.goto(f'http://platform.test:{PORT}/apply'); pub.get_by_label('Work email').wait_for(); audit(pub, '/apply start')
     pub.get_by_label('First name').fill('Nomsa'); pub.get_by_label('Last name').fill('Khumalo')

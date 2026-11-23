@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Providers\AppServiceProvider;
 use Modules\Access\AccessServiceProvider;
+use Modules\Agreements\AgreementsServiceProvider;
 use Modules\Audit\AuditServiceProvider;
 use Modules\Billing\BillingServiceProvider;
 use Modules\Employers\EmployersServiceProvider;
@@ -32,4 +33,5 @@ return [
     QualificationsServiceProvider::class,
     PeopleServiceProvider::class,
     EmployersServiceProvider::class,
+    AgreementsServiceProvider::class,
 ];
