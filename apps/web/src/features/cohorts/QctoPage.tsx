@@ -22,9 +22,12 @@ import { CITIZEN, LANGUAGES, NATIONALITIES, TITLES, WORK_STATUS } from '@/featur
 import { shortDate } from './types';
 
 interface Problem {
+  code?: string;
   column: string;
   field: string;
   problem: string;
+  severity?: 'error' | 'warning';
+  fix?: 'profile' | 'identity' | 'consent' | 'centre' | 'qualification' | 'cohort' | 'statement' | 'eisa';
 }
 interface Row {
   enrolment_id: string;
@@ -52,6 +55,42 @@ interface QctoList {
   total: number;
   sent: { id: string; sent_on: string; rows: number; note: string | null }[];
   unsent: number;
+  rules?: { version: string; source: string };
+  errors?: number;
+  warnings?: number;
+}
+
+/** Where a problem is fixed, for problems outside the learner's own details. */
+function FixLink({ p, cohortId }: { p: Problem; cohortId: string }) {
+  const cls = 'ml-1 text-primary-700 hover:underline';
+  switch (p.fix) {
+    case 'centre':
+      return (
+        <Link to="/centres" className={cls}>
+          Fix on Centres
+        </Link>
+      );
+    case 'qualification':
+      return (
+        <Link to="/programmes" className={cls}>
+          Fix on Programmes
+        </Link>
+      );
+    case 'cohort':
+      return (
+        <Link to="/cohorts/$id" params={{ id: cohortId }} className={cls}>
+          Fix on the cohort
+        </Link>
+      );
+    case 'statement':
+      return (
+        <Link to="/cohorts/$id/statements" params={{ id: cohortId }} className={cls}>
+          Statements of Results
+        </Link>
+      );
+    default:
+      return null;
+  }
 }
 
 /**
@@ -66,6 +105,7 @@ export function QctoPage() {
   const [fixing, setFixing] = useState<Row | null>(null);
   const [sending, setSending] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [confirming, setConfirming] = useState<boolean | null>(null);
   const q = useQuery({
     queryKey: ['qcto', id],
     queryFn: () => call<{ data: QctoList }>('GET', `/cohorts/${id}/qcto-enrolment`).then((r) => r.data),
@@ -74,10 +114,17 @@ export function QctoPage() {
   const download = async (onlyUnsent: boolean) => {
     setDownloading(true);
     try {
-      const res = await fetch(`/v1/cohorts/${id}/qcto-enrolment/workbook${onlyUnsent ? '?only_unsent=1' : ''}`, {
-        credentials: 'include',
-        headers: { 'X-Requested-With': 'XMLHttpRequest' },
-      });
+      const res = await fetch(
+        `/v1/cohorts/${id}/qcto-enrolment/workbook?acknowledge=1${onlyUnsent ? '&only_unsent=1' : ''}`,
+        {
+          credentials: 'include',
+          headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' },
+        },
+      );
+      if (res.status === 422) {
+        const body = (await res.json().catch(() => null)) as { errors?: Record<string, string[]> } | null;
+        throw new Error(Object.values(body?.errors ?? {})[0]?.[0] ?? 'The file has errors the QCTO would reject.');
+      }
       if (!res.ok) throw new Error('The file could not be made. Try again.');
       const name = /filename="([^"]+)"/.exec(res.headers.get('Content-Disposition') ?? '')?.[1] ?? 'LEISA.xlsx';
       const url = URL.createObjectURL(await res.blob());
@@ -127,7 +174,10 @@ export function QctoPage() {
                 variant="secondary"
                 icon={<Download className="size-4" />}
                 loading={downloading}
-                onClick={() => void download(l.sent.length > 0)}
+                disabled={(l.errors ?? 0) > 0}
+                onClick={() =>
+                  (l.warnings ?? 0) > 0 ? setConfirming(l.sent.length > 0) : void download(l.sent.length > 0)
+                }
               >
                 {l.sent.length > 0 ? 'Download new learners' : 'Download the file'}
               </Button>
@@ -142,6 +192,19 @@ export function QctoPage() {
         <Alert tone={dueTone}>
           {dueText} {l.total > 0 ? `${l.ready} of ${l.total} learners complete.` : 'No learners are enrolled yet.'}
         </Alert>
+        {(l.errors ?? 0) > 0 ? (
+          <div className="mt-2">
+            <Alert tone="danger">
+              {l.errors} {l.errors === 1 ? 'error' : 'errors'} the QCTO would reject. The file can be downloaded once
+              they are fixed.
+            </Alert>
+          </div>
+        ) : null}
+        {l.rules ? (
+          <p className="mt-2 text-small text-muted">
+            Checked against the {l.rules.source} (rules {l.rules.version}).
+          </p>
+        ) : null}
       </div>
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
         <Card>
@@ -168,7 +231,7 @@ export function QctoPage() {
                   {r.errors.length || r.warnings.length ? (
                     <ul className="mt-2 grid gap-1 text-small">
                       {r.errors.map((e) => (
-                        <li key={e.column} className="flex items-start gap-1.5">
+                        <li key={`${e.code ?? ''}${e.column}`} className="flex items-start gap-1.5">
                           <XCircle className="mt-0.5 size-4 shrink-0 text-danger" aria-hidden />
                           <span>
                             <span className="sr-only">Missing: </span>
@@ -176,11 +239,12 @@ export function QctoPage() {
                             <span className="text-muted">
                               ({e.column}, {e.field})
                             </span>
+                            <FixLink p={e} cohortId={id} />
                           </span>
                         </li>
                       ))}
                       {r.warnings.map((e) => (
-                        <li key={e.column} className="flex items-start gap-1.5 text-muted">
+                        <li key={`${e.code ?? ''}${e.column}`} className="flex items-start gap-1.5 text-muted">
                           <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" aria-hidden />
                           <span>
                             <span className="sr-only">Note: </span>
@@ -229,6 +293,33 @@ export function QctoPage() {
       </div>
       {fixing ? <FixDialog row={fixing} cohortId={id} onClose={() => setFixing(null)} /> : null}
       {sending ? <SentDialog cohortId={id} count={l.unsent} onClose={() => setSending(false)} /> : null}
+      {confirming !== null ? (
+        <Dialog
+          open
+          onOpenChange={(o) => !o && setConfirming(null)}
+          title="Check the warnings first"
+          description={`${l.warnings ?? 0} ${l.warnings === 1 ? 'warning' : 'warnings'}: the QCTO accepts these, but check each is right (for example optional equity details sent as Unknown).`}
+          footer={
+            <>
+              <Button variant="secondary" onClick={() => setConfirming(null)}>
+                Cancel
+              </Button>
+              <Button
+                loading={downloading}
+                onClick={() => {
+                  const only = confirming;
+                  setConfirming(null);
+                  void download(only);
+                }}
+              >
+                I have checked them: download
+              </Button>
+            </>
+          }
+        >
+          <p className="text-small text-muted">This is recorded with the download.</p>
+        </Dialog>
+      ) : null}
     </>
   );
 }

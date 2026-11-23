@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
+use Modules\Enrolment\Services\QctoEnrolmentList;
 use Modules\Identity\Models\User;
 use Modules\Identity\Models\UserTenant;
 use Modules\People\Models\StaffCredential;
@@ -26,7 +27,9 @@ final class PeopleController
     {
         Gate::authorize('tenant.users.view');
 
-        return response()->json(['data' => $this->profiles()->present($this->member($person), Gate::allows('people.manage'))]);
+        $p = $this->member($person);
+
+        return response()->json(['data' => $this->profiles()->present($p, Gate::allows('people.manage')), 'qcto' => app(QctoEnrolmentList::class)->forUser($p)]);
     }
 
     public function updateProfile(Request $request, string $person): JsonResponse
@@ -35,12 +38,14 @@ final class PeopleController
         $model = $this->member($person);
         $result = $this->profiles()->update($model, $request->all(), $this->actor($request), true);
 
-        return response()->json(['data' => $this->profiles()->present($model->refresh(), true)] + $result);
+        return response()->json(['data' => $this->profiles()->present($model->refresh(), true), 'qcto' => app(QctoEnrolmentList::class)->forUser($model)] + $result);
     }
 
     public function myProfile(Request $request): JsonResponse
     {
-        return response()->json(['data' => $this->profiles()->present($this->actor($request), true)]);
+        $me = $this->actor($request);
+
+        return response()->json(['data' => $this->profiles()->present($me, true), 'qcto' => app(QctoEnrolmentList::class)->forUser($me)]);
     }
 
     public function updateMyProfile(Request $request): JsonResponse
@@ -48,7 +53,7 @@ final class PeopleController
         $me = $this->actor($request);
         $result = $this->profiles()->update($me, $request->except(['first_name', 'last_name']), $me, false);
 
-        return response()->json(['data' => $this->profiles()->present($me->refresh(), true)] + $result);
+        return response()->json(['data' => $this->profiles()->present($me->refresh(), true), 'qcto' => app(QctoEnrolmentList::class)->forUser($me)] + $result);
     }
 
     // ── Credentials ─────────────────────────────────────────────
