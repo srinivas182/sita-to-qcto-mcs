@@ -15,6 +15,7 @@ use Modules\Identity\Support\IdType;
 use Modules\Identity\Support\PhoneNumber;
 use Modules\Identity\Support\SaIdNumber;
 use Modules\People\Models\PersonProfile;
+use Modules\Support\Qcto\QctoCodes;
 use Modules\Tenancy\Context\TenantContext;
 
 /**
@@ -54,6 +55,16 @@ final class ProfileService
             'province' => $profile?->province,
             'postal_code' => $profile?->postal_code,
             'home_language' => $profile?->home_language,
+            'title' => $profile?->title,
+            'middle_name' => $profile?->middle_name,
+            'nationality' => $profile?->nationality,
+            'citizen_status' => $profile?->citizen_status,
+            'socioeconomic_status' => $profile?->socioeconomic_status,
+            'postal_same' => $profile->postal_same ?? true,
+            'postal_line1' => $profile?->postal_line1,
+            'postal_line2' => $profile?->postal_line2,
+            'postal_code_postal' => $profile?->postal_code_postal,
+            'statssa_area_code' => $profile?->statssa_area_code,
             'emergency_name' => $profile?->emergency_name,
             'emergency_phone' => $profile?->emergency_phone,
             'emergency_relationship' => $profile?->emergency_relationship,
@@ -81,6 +92,16 @@ final class ProfileService
             'province' => ['nullable', Rule::in(self::PROVINCES)],
             'postal_code' => ['nullable', 'regex:/^\d{4}$/'],
             'home_language' => ['nullable', 'string', 'max:40'],
+            'title' => ['nullable', Rule::in(QctoCodes::TITLES)],
+            'middle_name' => ['nullable', 'string', 'max:100'],
+            'nationality' => ['nullable', Rule::in(array_keys(QctoCodes::NATIONALITY))],
+            'citizen_status' => ['nullable', Rule::in(array_keys(QctoCodes::CITIZEN))],
+            'socioeconomic_status' => ['nullable', Rule::in(array_keys(QctoCodes::SOCIOECONOMIC))],
+            'postal_same' => ['sometimes', 'boolean'],
+            'postal_line1' => ['nullable', 'string', 'max:200'],
+            'postal_line2' => ['nullable', 'string', 'max:200'],
+            'postal_code_postal' => ['nullable', 'regex:/^\d{4}$/'],
+            'statssa_area_code' => ['nullable', 'string', 'max:20'],
             'emergency_name' => ['nullable', 'string', 'max:150'],
             'emergency_phone' => ['nullable', 'string', 'max:20'],
             'emergency_relationship' => ['nullable', 'string', 'max:60'],
@@ -90,7 +111,9 @@ final class ProfileService
             'equity.race' => ['nullable', Rule::in(self::RACES)],
             'equity.disability' => ['nullable', 'boolean'],
             'equity.disability_details' => ['nullable', 'string', 'max:300'],
-        ], ['postal_code.regex' => 'A South African postal code has 4 digits.'])->validate();
+            'equity.disability_code' => ['nullable', Rule::in(['01', '02', '03', '04', '05', '06', '07', '09'])],
+            'equity.disability_rating' => ['nullable', Rule::in(['01', '02', '03', '04', '06', '60', '70', '80'])],
+        ], ['postal_code.regex' => 'A South African postal code has 4 digits.', 'postal_code_postal.regex' => 'A South African postal code has 4 digits.'])->validate();
 
         $warnings = [];
 
@@ -131,7 +154,8 @@ final class ProfileService
 
         $profile = PersonProfile::query()->firstOrNew(['user_id' => $person->id]);
         $fields = array_intersect_key($data, array_flip(['address_line1', 'address_line2', 'city', 'province', 'postal_code', 'home_language',
-            'emergency_name', 'emergency_phone', 'emergency_relationship']));
+            'emergency_name', 'emergency_phone', 'emergency_relationship', 'title', 'middle_name', 'nationality', 'citizen_status',
+            'socioeconomic_status', 'postal_same', 'postal_line1', 'postal_line2', 'postal_code_postal', 'statssa_area_code']));
         if (isset($fields['emergency_phone'])) {
             $fields['emergency_phone'] = PhoneNumber::normalise((string) $fields['emergency_phone'])
                 ?? throw ValidationException::withMessages(['emergency_phone' => 'That mobile number is not valid.']);

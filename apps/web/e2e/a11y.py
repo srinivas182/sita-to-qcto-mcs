@@ -81,7 +81,7 @@ with sync_playwright() as p:
     page.get_by_role('link', name='Thando Mokoena').first.click(); page.get_by_text('Checked automatically when added').wait_for(); page.wait_for_timeout(500); audit(page, '/applications/:id')
     page.get_by_role('button', name='Check this document').first.click(); page.get_by_role('dialog').wait_for(); audit(page, '/applications review dialog')
     page.keyboard.press('Escape')
-    page.goto(f'http://tym.platform.test:{PORT}/intakes'); page.get_by_role('button', name='Document rules').click(); page.get_by_role('dialog').get_by_text('Proof of address').wait_for(); audit(page, '/intakes rules dialog')
+    page.goto(f'http://tym.platform.test:{PORT}/intakes'); page.get_by_role('button', name='Rules', exact=True).click(); page.get_by_role('dialog').get_by_text('Proof of address').wait_for(); audit(page, '/intakes rules dialog')
     page.keyboard.press('Escape')
     page.get_by_role('button', name='Consent wording').click(); page.get_by_role('textbox', name='Wording').wait_for(); page.wait_for_timeout(300); audit(page, '/intakes consent dialog')
     page.keyboard.press('Escape')
@@ -92,6 +92,12 @@ with sync_playwright() as p:
     # Cohorts: the list, and a cohort being planned with its readiness check.
     page.goto(f'http://tym.platform.test:{PORT}/cohorts'); page.get_by_text('GETC: Construction, February 2027').first.wait_for(); audit(page, '/cohorts')
     page.get_by_role('link', name='GETC: Construction, February 2027').first.click(); page.get_by_text('Enrolment closed').wait_for(); audit(page, '/cohorts/:id')
+    page.goto(f'http://tym.platform.test:{PORT}/cohorts'); page.get_by_role('link', name='Bricklayer, December 2026').first.click(); page.get_by_role('link', name='QCTO enrolment').click()
+    page.get_by_text('Bongani Khumalo', exact=True).wait_for(); audit(page, '/cohorts/:id/qcto')
+    page.get_by_role('button', name='Fill in details for Bongani Khumalo').click(); page.get_by_label('Stats SA area code').wait_for(); audit(page, '/cohorts qcto fix dialog')
+    page.keyboard.press('Escape')
+    page.get_by_role('button', name='Mark as sent').click(); page.get_by_label('Date sent').wait_for(); audit(page, '/cohorts qcto sent dialog')
+    page.keyboard.press('Escape')
     page.goto(f'http://tym.platform.test:{PORT}/cohorts'); page.get_by_role('button', name='Plan a cohort').click(); page.get_by_role('dialog').wait_for(); audit(page, '/cohorts plan dialog')
     page.keyboard.press('Escape')
 

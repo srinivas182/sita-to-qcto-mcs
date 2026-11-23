@@ -25,9 +25,19 @@ use Modules\Tenancy\Concerns\BelongsToTenant;
  * @property string|null $emergency_name
  * @property string|null $emergency_phone
  * @property string|null $emergency_relationship
- * @property array{gender?: string|null, race?: string|null, disability?: bool|null, disability_details?: string|null}|null $equity
  * @property Carbon|null $equity_consented_at
  * @property string|null $equity_consent_version
+ * @property string|null $title
+ * @property string|null $middle_name
+ * @property string|null $nationality
+ * @property string|null $citizen_status
+ * @property string|null $socioeconomic_status
+ * @property bool $postal_same
+ * @property string|null $postal_line1
+ * @property string|null $postal_line2
+ * @property string|null $postal_code_postal
+ * @property string|null $statssa_area_code
+ * @property array{gender?: string|null, race?: string|null, disability?: bool|null, disability_details?: string|null, disability_code?: string|null, disability_rating?: string|null}|null $equity
  */
 final class PersonProfile extends Model
 {
@@ -42,6 +52,6 @@ final class PersonProfile extends Model
 
     protected function casts(): array
     {
-        return ['equity' => 'encrypted:array', 'equity_consented_at' => 'datetime'];
+        return ['equity' => 'encrypted:array', 'equity_consented_at' => 'datetime', 'postal_same' => 'boolean'];
     }
 }

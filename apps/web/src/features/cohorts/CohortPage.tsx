@@ -96,6 +96,13 @@ export function CohortPage() {
             <Badge tone={cohortState[c.status].tone} dot>
               {cohortState[c.status].label}
             </Badge>
+            <Link
+              to="/cohorts/$id/qcto"
+              params={{ id: c.id }}
+              className="inline-flex h-10 items-center rounded-lg border border-line bg-surface px-4 text-small font-medium text-ink hover:border-primary-200"
+            >
+              QCTO enrolment
+            </Link>
             {manage && c.status === 'draft' ? (
               <>
                 <Button

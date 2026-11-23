@@ -22,6 +22,7 @@ use Modules\Tenancy\Concerns\BelongsToTenant;
  * @property Carbon $intake_on
  * @property Carbon $planned_end_on
  * @property int $capacity
+ * @property int|null $qcto_alerted_for
  * @property string $status
  * @property string|null $notes
  * @property array<string, mixed>|null $readiness

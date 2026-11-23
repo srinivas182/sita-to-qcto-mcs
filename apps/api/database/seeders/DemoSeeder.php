@@ -22,6 +22,7 @@ use Modules\Employers\Models\Employer;
 use Modules\Employers\Models\EmployerSite;
 use Modules\Employers\Models\Mentor;
 use Modules\Enrolment\Models\Application as LearnerApplication;
+use Modules\Enrolment\Models\ConsentText;
 use Modules\Enrolment\Services\DocumentService;
 use Modules\Enrolment\Services\IntakeService;
 use Modules\Enrolment\Services\OfferService;
@@ -36,6 +37,7 @@ use Modules\Identity\Support\MembershipStatus;
 use Modules\Identity\Support\SaIdNumber;
 use Modules\Onboarding\Models\Application;
 use Modules\People\Models\StaffCredential;
+use Modules\People\Services\ProfileService;
 use Modules\Qualifications\Models\CentreQualification;
 use Modules\Qualifications\Models\Programme;
 use Modules\Qualifications\Models\Qualification;
@@ -310,9 +312,10 @@ final class DemoSeeder extends Seeder
             $this->person('Kagiso', 'Molefe', null, phone: '+27831110002'),
             $this->person('Nomsa', 'Dube', null, phone: '+27831110003'),
             $this->person('Lerato', 'Ndlovu', null, phone: '+27831110004'),
+            $this->person('Bongani', 'Khumalo', null, phone: '+27831110005'),
         ]);
         $context->runAsPlatform(function () use ($applicants): void {
-            foreach (array_map(null, $applicants, ['9505055800089', '9808110200083', '0103035400086', '9001014800089']) as [$person, $id]) {
+            foreach (array_map(null, $applicants, ['9505055800089', '9808110200083', '0103035400086', '9001014800089', '9202204720083']) as [$person, $id]) {
                 if ($person->id_number === null) {
                     $person->setIdentityNumber(IdType::SaId, $id);
                     $person->dob = Carbon::instance(SaIdNumber::tryParse($id)->dateOfBirth);
@@ -342,7 +345,7 @@ final class DemoSeeder extends Seeder
             foreach ($applicants as $n => $person) {
                 UserTenant::query()->firstOrCreate(['user_id' => $person->id], ['status' => MembershipStatus::Active, 'joined_at' => now(), 'centre_id' => $soweto->id]);
                 $a = LearnerApplication::query()->create(['intake_id' => $intake->id, 'user_id' => $person->id, 'reference' => 'APP-DEMO0'.($n + 1),
-                    'answers' => ['employed' => $n === 1, 'transport' => ['Taxi', 'Walk', 'Taxi', 'Own car'][$n]], 'source' => $n === 2 ? 'app' : 'web', 'submitted_at' => now()->subDays(3 - $n)]);
+                    'answers' => ['employed' => $n === 1, 'transport' => ['Taxi', 'Walk', 'Taxi', 'Own car', 'Taxi'][$n]], 'source' => $n === 2 ? 'app' : 'web', 'submitted_at' => now()->subDays(3 - $n)]);
                 // Thando's ID is accepted and his certificate waits to be checked; Kagiso's
                 // certificate was certified too long ago; Nomsa has added nothing yet.
                 if ($n < 2) {
@@ -359,6 +362,17 @@ final class DemoSeeder extends Seeder
                     $this->demoDocument($person, 'highest_qualification', now()->subDays(8), 'accepted', $sekal);
                     $offer = app(OfferService::class)->make($a, ['days' => 7, 'funding' => 'seta_grant'], $sekal)['offer'];
                     $offer->forceFill(['token_hash' => hash('sha256', self::OFFER_TOKEN)])->save();
+                } elseif ($n === 4) {
+                    // Bongani accepted and signed: he is enrolled, and his QCTO details are partly filled in.
+                    $this->demoDocument($person, 'id_document', now()->subDays(9), 'accepted', $sekal);
+                    $this->demoDocument($person, 'highest_qualification', now()->subDays(9), 'accepted', $sekal);
+                    $offers = app(OfferService::class);
+                    $offer = $offers->make($a, ['days' => 7, 'funding' => 'employer'], $sekal)['offer'];
+                    $offer = $offers->accept($offer, ['consent' => true, 'consent_version' => ConsentText::current('enrolment')->version], 'web', null);
+                    Signer::query()->where('agreement_id', $offer->agreement_id)->update(['status' => 'signed', 'signed_at' => now(), 'signed_name' => 'Signed']);
+                    app(AgreementService::class)->complete(Agreement::query()->findOrFail($offer->agreement_id));
+                    app(ProfileService::class)->update($person, ['title' => 'Mr', 'home_language' => 'isiZulu', 'address_line1' => '45 Vundla Drive',
+                        'address_line2' => 'Jabavu', 'city' => 'Soweto', 'province' => 'Gauteng', 'postal_code' => '1809', 'socioeconomic_status' => '02'], $sekal, true);
                 }
             }
         });

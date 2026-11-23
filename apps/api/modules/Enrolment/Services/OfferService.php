@@ -18,12 +18,14 @@ use Modules\Cohorts\Models\Cohort;
 use Modules\Enrolment\Models\Application;
 use Modules\Enrolment\Models\ConsentText;
 use Modules\Enrolment\Models\Enrolment;
+use Modules\Enrolment\Models\EnrolmentSettings;
 use Modules\Enrolment\Models\Intake;
 use Modules\Enrolment\Models\Offer;
 use Modules\Identity\Models\Consent;
 use Modules\Identity\Models\Device;
 use Modules\Identity\Models\User;
 use Modules\Identity\Push\PushService;
+use Modules\Identity\Support\IdType;
 use Modules\Identity\Support\PhoneNumber;
 use Modules\Messaging\Services\MessageService;
 use Modules\Tenancy\Context\TenantContext;
@@ -178,7 +180,7 @@ final class OfferService
             }
         }
 
-        return DB::transaction(function () use ($offer, $application, $learner, $text, $guardian, $channel, $ip): Offer {
+        $accepted = DB::transaction(function () use ($offer, $application, $learner, $text, $guardian, $channel, $ip): Offer {
             Consent::query()->create(['tenant_id' => $offer->tenant_id, 'user_id' => $learner->id, 'purpose' => 'data_sharing_seta', 'version' => 'enrolment-v'.$text->version,
                 'granted_at' => now(), 'ip' => $ip, 'consent_text_id' => $text->id, 'given_by' => $guardian ? "{$guardian['name']} ({$guardian['relationship']})" : null, 'channel' => $channel]);
 
@@ -205,6 +207,13 @@ final class OfferService
 
             return $offer;
         });
+        // The provider may have every accepted learner checked with Home Affairs in the next batch.
+        $checks = app(IdentityCheckService::class);
+        if (EnrolmentSettings::current()->identity_auto && $checks->connected() !== null && $learner->id_type === IdType::SaId) {
+            $checks->request($learner, null, 'Accepted an offer');
+        }
+
+        return $accepted;
     }
 
     public function decline(Offer $offer, ?string $reason): void

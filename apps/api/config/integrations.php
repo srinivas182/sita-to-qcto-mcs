@@ -30,6 +30,7 @@ return [
         'email' => ['label' => 'Email', 'single' => false, 'modes' => false],
         'storage' => ['label' => 'File storage', 'single' => true, 'modes' => false],
         'esign' => ['label' => 'Advanced e-signature', 'single' => true, 'modes' => true],
+        'identity' => ['label' => 'Home Affairs ID checks', 'single' => true, 'modes' => true],
     ],
 
     'drivers' => [
@@ -262,6 +263,18 @@ return [
                 'client_secret' => ['label' => 'Client secret', 'secret' => true, 'required' => true],
                 'username' => ['label' => 'API user email', 'required' => true],
                 'password' => ['label' => 'API user password', 'secret' => true, 'required' => true],
+            ],
+        ],
+        // ── Home Affairs ID checks (through a reseller) ──────────────────────
+        'identity.test' => [
+            'label' => 'Test ID checks',
+            'description' => 'Tries the ID check flow without calling Home Affairs. The adapter for the chosen reseller replaces it.',
+            'capabilities' => ['identity_check'],
+            'note' => 'No Home Affairs call is made and nothing is charged.',
+            'fields' => [
+                'not_found' => ['label' => 'ID numbers to report as not found', 'required' => false, 'help' => 'Comma separated.'],
+                'deceased' => ['label' => 'ID numbers to report as deceased', 'required' => false, 'help' => 'Comma separated.'],
+                'names' => ['label' => 'Registered names (JSON)', 'required' => false, 'help' => '{"9001014800089": "Sipho|Dlamini"}'],
             ],
         ],
         'storage.azure' => [
