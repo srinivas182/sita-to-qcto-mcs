@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use Modules\Agreements\Http\Controllers\AgreementController;
+use Modules\Agreements\Http\Controllers\MyAgreementsController;
 use Modules\Agreements\Http\Controllers\SigningController;
 use Modules\Agreements\Http\Controllers\TemplateController;
 use Modules\Identity\Http\Middleware\EnsureAccess;
@@ -16,6 +17,10 @@ Route::middleware(['auth:sanctum', EnsureAccess::class, RequireMfaEnrolment::cla
     Route::get('agreements/{agreement}/document', [AgreementController::class, 'document'])->whereUlid('agreement');
     Route::post('agreements/{agreement}/cancel', [AgreementController::class, 'cancel'])->whereUlid('agreement');
     Route::post('agreements/{agreement}/signers/{signer}/resend', [AgreementController::class, 'resend'])->whereUlid('agreement')->whereUlid('signer');
+    Route::get('me/agreements', [MyAgreementsController::class, 'index']);
+    Route::get('me/agreements/{signer}', [MyAgreementsController::class, 'show'])->whereUlid('signer');
+    Route::post('me/agreements/{signer}/code', [MyAgreementsController::class, 'code'])->whereUlid('signer')->middleware('throttle:6,10');
+    Route::post('me/agreements/{signer}/sign', [MyAgreementsController::class, 'sign'])->whereUlid('signer');
     Route::get('agreement-settings', [AgreementController::class, 'settings']);
     Route::patch('agreement-settings', [AgreementController::class, 'updateSettings']);
 

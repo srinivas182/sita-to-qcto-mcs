@@ -216,6 +216,17 @@ final class DemoSeeder extends Seeder
                 'highest_qualification' => 'National Diploma: Building', 'qualification_nqf_level' => 6, 'site_ids' => [$midrand->id]]);
         });
 
+        // Bheki, the employer's site foreman, signs in on the app as a workplace mentor.
+        $bheki = $context->runAsPlatform(fn () => $this->person('Bheki', 'Mabaso', null, phone: '+27825550101'));
+        $context->runAs($tym, function () use ($bheki, $access): void {
+            $soweto = Centre::query()->where('name', 'Soweto Campus')->firstOrFail();
+            UserTenant::query()->firstOrCreate(['user_id' => $bheki->id], ['status' => MembershipStatus::Active, 'joined_at' => now(), 'centre_id' => $soweto->id]);
+            if (! in_array('host-employer', $access->roles($bheki), true)) {
+                $access->assign($bheki, 'host-employer', null);
+            }
+            Mentor::query()->where('name', 'Bheki Mabaso')->update(['user_id' => $bheki->id]);
+        });
+
         // Agreements: the standard workplace agreement published; one waiting for the learner,
         // and one signed by everyone and sealed (its verification page works).
         $sekal = $context->runAsPlatform(fn () => User::query()->where('email', 'sekal@demo.test')->firstOrFail());

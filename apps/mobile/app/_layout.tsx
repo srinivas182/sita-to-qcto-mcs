@@ -9,6 +9,7 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppProvider, useApp, type Phase } from '@/lib/app';
+import { useNotificationRoutes } from '@/lib/push';
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -23,7 +24,7 @@ const home: Record<Exclude<Phase, 'loading'>, { route: string; allowed: string[]
   'signed-out': { route: '/sign-in', allowed: ['sign-in'] },
   'setup-lock': { route: '/setup-lock', allowed: ['setup-lock'] },
   locked: { route: '/unlock', allowed: ['unlock'] },
-  ready: { route: '/', allowed: ['(tabs)'] },
+  ready: { route: '/', allowed: ['(tabs)', 'agreements', 'mentoring'] },
 };
 
 function Gate() {
@@ -31,6 +32,7 @@ function Gate() {
   const segments = useSegments();
   const router = useRouter();
   const { colorScheme } = useColorScheme();
+  useNotificationRoutes(phase === 'ready');
 
   useEffect(() => {
     if (phase === 'loading') return;

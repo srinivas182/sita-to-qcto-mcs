@@ -1,6 +1,9 @@
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
+import { useRouter } from 'expo-router';
+import { useEffect } from 'react';
 import { Platform } from 'react-native';
+import { routeFor } from '@/core/notificationRoute';
 import { api, json } from './api';
 
 // Show notifications while the app is open too.
@@ -42,4 +45,15 @@ export async function enablePush(): Promise<PushState> {
 
 export async function testPush(): Promise<void> {
   await json(api.POST('/me/push-tokens/test' as never, {} as never));
+}
+
+/** Opens the right screen when the person taps a notification (once signed in and unlocked). */
+export function useNotificationRoutes(ready: boolean): void {
+  const router = useRouter();
+  const last = Notifications.useLastNotificationResponse();
+  useEffect(() => {
+    if (!ready || Platform.OS === 'web' || !last) return;
+    const route = routeFor(last.notification.request.content.data as Record<string, unknown> | undefined);
+    if (route) router.push(route as never);
+  }, [ready, last, router]);
 }

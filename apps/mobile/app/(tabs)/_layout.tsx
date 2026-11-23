@@ -20,6 +20,7 @@ export default function TabsLayout() {
     >
       <Tabs.Screen name="index" options={{ title: t('tabs.home'), tabBarIcon: ({ color }) => <Feather name="home" size={21} color={color as string} /> }} />
       <Tabs.Screen name="learn" options={{ title: t('tabs.learn'), tabBarIcon: ({ color }) => <Feather name="book-open" size={21} color={color as string} /> }} />
+      <Tabs.Screen name="profile" options={{ title: t('tabs.profile'), tabBarIcon: ({ color }) => <Feather name="user" size={21} color={color as string} /> }} />
       <Tabs.Screen name="settings" options={{ title: t('tabs.settings'), tabBarIcon: ({ color }) => <Feather name="settings" size={21} color={color as string} /> }} />
     </Tabs>
   );

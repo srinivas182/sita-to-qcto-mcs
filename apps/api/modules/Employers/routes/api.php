@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use Modules\Employers\Http\Controllers\EmployerController;
+use Modules\Employers\Http\Controllers\MentoringController;
 use Modules\Identity\Http\Middleware\EnsureAccess;
 use Modules\Identity\Http\Middleware\RequireMfaEnrolment;
+
+Route::middleware(['auth:sanctum', EnsureAccess::class])->get('me/mentoring', MentoringController::class);
 
 Route::middleware(['auth:sanctum', EnsureAccess::class, RequireMfaEnrolment::class])->prefix('employers')->group(function (): void {
     Route::get('/', [EmployerController::class, 'index']);
