@@ -53,6 +53,8 @@ return [
         'agreements.manage' => 'Write agreement templates, send agreements and follow them up',
         'cohorts.view' => 'See cohorts and their readiness',
         'cohorts.manage' => 'Plan, open and close cohorts',
+        'applications.view' => 'See intakes and applications',
+        'applications.manage' => 'Publish intakes and decide on applications',
         'programmes.view' => 'See the qualifications the provider offers',
         'programmes.manage' => 'Add qualifications from the catalogue, set centre scope, suggest catalogue changes',
         'learners.view' => 'See learner records',
@@ -91,7 +93,7 @@ return [
             'tenant.audit.view', 'tenant.support.approve', 'centres.view', 'centres.manage', 'learners.view',
             'tenant.billing.manage', 'programmes.view', 'programmes.manage',
             'tenant.roles.manage', 'credentials.view', 'credentials.manage', 'people.manage',
-            'employers.view', 'employers.manage', 'agreements.view', 'agreements.manage', 'cohorts.view', 'cohorts.manage',
+            'employers.view', 'employers.manage', 'agreements.view', 'agreements.manage', 'cohorts.view', 'cohorts.manage', 'applications.view', 'applications.manage',
         ]],
         'host-employer' => ['label' => 'Host employer', 'scope' => 'tenant', 'mfa' => false, 'permissions' => [
             'workplace.placements.manage', 'learners.view',
@@ -103,7 +105,7 @@ return [
         'centre-manager' => ['label' => 'Centre manager', 'scope' => 'centre', 'mfa' => false, 'permissions' => [
             'tenant.users.view', 'tenant.users.invite', 'tenant.roles.assign', 'tenant.audit.view', 'centres.view', 'learners.view',
             'programmes.view', 'credentials.view', 'credentials.manage', 'people.manage',
-            'employers.view', 'employers.manage', 'agreements.view', 'agreements.manage', 'cohorts.view', 'cohorts.manage',
+            'employers.view', 'employers.manage', 'agreements.view', 'agreements.manage', 'cohorts.view', 'cohorts.manage', 'applications.view', 'applications.manage',
         ]],
         'facilitator' => ['label' => 'Facilitator', 'scope' => 'centre', 'mfa' => false, 'permissions' => ['learners.view', 'learning.deliver', 'programmes.view']],
         'assessor' => ['label' => 'Assessor', 'scope' => 'centre', 'mfa' => false, 'permissions' => ['learners.view', 'assessment.conduct', 'programmes.view']],

@@ -1,7 +1,7 @@
 # Sprint 4 — Applications and enrolment
 
 **Plan dates:** 4 – 15 Jan 2027 (Phase 1 – SaaS compliance core).
-**Status:** draft for approval. Decisions needed are in §9.
+**Status:** approved 23 Nov 2026 (recommendations in §9 accepted). In build: 4a intakes and applications done; 4b documents next.
 
 **Goal (from the sprint plan):** *Learners enrolled correctly first time.*
 
@@ -133,7 +133,7 @@ Every table gets `tenant_id` and forced RLS, except consent texts, which are ver
 | Identity-check cost | Optional; off-peak batching (R1) by default; real-time only when the provider asks |
 | Year-end break | Applications and documents first, then offers and enrolment, then the identity connector |
 
-## 9. Decisions needed
+## 9. Decisions (approved 23 Nov 2026)
 
 1. **Certified-copy age:** recommend a default of **3 months** (what most institutions ask), editable per provider and per document type. A provider can set 6 months to match government practice.
 2. **Home Affairs identity check:** recommend building it as an **optional connector**, off by default, with batched off-peak checks to keep the cost near R1 each. The JV picks the reseller; we can start with one that has a sandbox.
