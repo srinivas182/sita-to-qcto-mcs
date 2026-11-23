@@ -53,11 +53,30 @@ interface QctoList {
   rows: Row[];
   ready: number;
   total: number;
-  sent: { id: string; sent_on: string; rows: number; note: string | null }[];
+  sent: Submission[];
   unsent: number;
   rules?: { version: string; source: string };
   errors?: number;
   warnings?: number;
+}
+
+interface Submission {
+  id: string;
+  sent_on: string;
+  rows: number;
+  note: string | null;
+  response_loaded_at?: string | null;
+  accepted?: number;
+  rejected?: number;
+  unmatched?: number;
+  learners?: {
+    user_id: string;
+    name: string;
+    outcome_id: string | null;
+    status: 'accepted' | 'rejected' | null;
+    reason: string | null;
+    resolved: boolean;
+  }[];
 }
 
 /** Where a problem is fixed, for problems outside the learner's own details. */
@@ -106,6 +125,7 @@ export function QctoPage() {
   const [sending, setSending] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [confirming, setConfirming] = useState<boolean | null>(null);
+  const [replying, setReplying] = useState<Submission | null>(null);
   const q = useQuery({
     queryKey: ['qcto', id],
     queryFn: () => call<{ data: QctoList }>('GET', `/cohorts/${id}/qcto-enrolment`).then((r) => r.data),
@@ -275,10 +295,36 @@ export function QctoPage() {
           {l.sent.length ? (
             <ul className="grid gap-2 text-small">
               {l.sent.map((s) => (
-                <li key={s.id}>
-                  <span className="font-medium text-ink">{shortDate(s.sent_on)}</span> · {s.rows}{' '}
-                  {s.rows === 1 ? 'learner' : 'learners'}
-                  {s.note ? <span className="block text-muted">{s.note}</span> : null}
+                <li key={s.id} className="grid gap-1 border-b border-line pb-2">
+                  <span>
+                    <span className="font-medium text-ink">{shortDate(s.sent_on)}</span> · {s.rows}{' '}
+                    {s.rows === 1 ? 'learner' : 'learners'}
+                  </span>
+                  {s.note ? <span className="text-muted">{s.note}</span> : null}
+                  {s.response_loaded_at ? (
+                    <span className="text-muted">
+                      QCTO reply: {s.accepted ?? 0} accepted, {s.rejected ?? 0} rejected
+                      {s.unmatched ? `, ${s.unmatched} not matched` : ''}
+                    </span>
+                  ) : null}
+                  {(s.learners ?? [])
+                    .filter((x) => x.status === 'rejected')
+                    .map((x) => (
+                      <span key={x.user_id} className="flex flex-wrap items-center gap-1.5">
+                        <XCircle className="size-4 text-danger" aria-hidden />
+                        {x.name}: {x.reason}
+                        {x.resolved ? (
+                          <Badge tone="success">Fixed, to send again</Badge>
+                        ) : manage && x.outcome_id ? (
+                          <ResolveButton outcomeId={x.outcome_id} cohortId={id} name={x.name} />
+                        ) : null}
+                      </span>
+                    ))}
+                  {manage ? (
+                    <Button size="sm" variant="ghost" onClick={() => setReplying(s)}>
+                      Load the QCTO's reply<span className="sr-only"> for {shortDate(s.sent_on)}</span>
+                    </Button>
+                  ) : null}
                 </li>
               ))}
             </ul>
@@ -293,6 +339,7 @@ export function QctoPage() {
       </div>
       {fixing ? <FixDialog row={fixing} cohortId={id} onClose={() => setFixing(null)} /> : null}
       {sending ? <SentDialog cohortId={id} count={l.unsent} onClose={() => setSending(false)} /> : null}
+      {replying ? <ReplyDialog cohortId={id} s={replying} onClose={() => setReplying(null)} /> : null}
       {confirming !== null ? (
         <Dialog
           open
@@ -453,6 +500,135 @@ function SentDialog({ cohortId, count, onClose }: { cohortId: string; count: num
             Save
           </Button>
         </div>
+      </div>
+    </Dialog>
+  );
+}
+
+function ResolveButton({ outcomeId, cohortId, name }: { outcomeId: string; cohortId: string; name: string }) {
+  const qc = useQueryClient();
+  const toast = useToast();
+  const m = useMutation({
+    mutationFn: () => call('POST', `/qcto-outcomes/${outcomeId}/resolved`),
+    onSuccess: () => {
+      toast(`${name} will be in the next file`);
+      void qc.invalidateQueries({ queryKey: ['qcto', cohortId] });
+    },
+    onError: (e) => toast(errorMessage(e), 'error'),
+  });
+  return (
+    <Button size="sm" variant="secondary" loading={m.isPending} onClick={() => m.mutate()}>
+      Fixed<span className="sr-only"> for {name}</span>
+    </Button>
+  );
+}
+
+/** Load the QCTO's reply: their spreadsheet, or mark learners by hand from their email. */
+function ReplyDialog({ cohortId, s, onClose }: { cohortId: string; s: Submission; onClose: () => void }) {
+  const qc = useQueryClient();
+  const toast = useToast();
+  const [file, setFile] = useState<File | null>(null);
+  const [marks, setMarks] = useState<Record<string, { status: 'accepted' | 'rejected'; reason: string }>>({});
+  const [error, setError] = useState<string | null>(null);
+  const load = useMutation({
+    mutationFn: () => {
+      if (file) {
+        const form = new FormData();
+        form.append('file', file);
+        return call<{ loaded: { accepted: number; rejected: number; unmatched: number } }>(
+          'POST',
+          `/qcto-submissions/${s.id}/response`,
+          form,
+        );
+      }
+      return call<{ loaded: { accepted: number; rejected: number; unmatched: number } }>(
+        'POST',
+        `/qcto-submissions/${s.id}/response`,
+        {
+          outcomes: Object.entries(marks).map(([user_id, m]) => ({
+            user_id,
+            status: m.status,
+            reason: m.reason || null,
+          })),
+        },
+      );
+    },
+    onSuccess: (r) => {
+      toast(
+        `Loaded: ${r.loaded.accepted} accepted, ${r.loaded.rejected} rejected${r.loaded.unmatched ? `, ${r.loaded.unmatched} not matched` : ''}`,
+      );
+      void qc.invalidateQueries({ queryKey: ['qcto', cohortId] });
+      onClose();
+    },
+    onError: (e) => setError(e instanceof ApiError ? (Object.values(e.fields)[0]?.[0] ?? e.message) : errorMessage(e)),
+  });
+  return (
+    <Dialog
+      open
+      onOpenChange={(o) => !o && onClose()}
+      title={`The QCTO's reply to the file sent ${shortDate(s.sent_on)}`}
+      description="Load the spreadsheet the QCTO sent back, or mark learners from their email. The file is read and not kept."
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            loading={load.isPending}
+            disabled={!file && Object.keys(marks).length === 0}
+            onClick={() => load.mutate()}
+          >
+            Load
+          </Button>
+        </>
+      }
+    >
+      <div className="grid gap-3">
+        {error ? <Alert tone="danger">{error}</Alert> : null}
+        <div className="grid gap-1.5">
+          <label htmlFor="reply-file" className="text-small font-medium text-ink">
+            The QCTO's spreadsheet (.xlsx or .csv)
+          </label>
+          <input
+            id="reply-file"
+            type="file"
+            accept=".xlsx,.csv"
+            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          />
+        </div>
+        {!file ? (
+          <fieldset className="grid gap-2">
+            <legend className="mb-1 text-small font-medium text-ink">Or mark by hand</legend>
+            {(s.learners ?? []).map((x) => (
+              <div key={x.user_id} className="grid gap-1 rounded-lg border border-line p-2">
+                <Select
+                  label={x.name}
+                  value={marks[x.user_id]?.status ?? ''}
+                  onChange={(e) => {
+                    const v = e.target.value as 'accepted' | 'rejected' | '';
+                    const next = { ...marks };
+                    if (v === '') delete next[x.user_id];
+                    else next[x.user_id] = { status: v, reason: marks[x.user_id]?.reason ?? '' };
+                    setMarks(next);
+                  }}
+                >
+                  <option value="">No change</option>
+                  <option value="accepted">Accepted</option>
+                  <option value="rejected">Rejected</option>
+                </Select>
+                {marks[x.user_id]?.status === 'rejected' ? (
+                  <Field
+                    label={`QCTO's reason for ${x.name}`}
+                    value={marks[x.user_id]?.reason ?? ''}
+                    onChange={(e) =>
+                      setMarks({ ...marks, [x.user_id]: { status: 'rejected', reason: e.target.value } })
+                    }
+                  />
+                ) : null}
+              </div>
+            ))}
+          </fieldset>
+        ) : null}
       </div>
     </Dialog>
   );
