@@ -142,6 +142,8 @@ with sync_playwright() as p:
     page.keyboard.press('Escape')
     page.goto(f'http://tym.platform.test:{PORT}/cohorts'); page.get_by_role('link', name='Bricklayer, December 2026').first.click(); page.get_by_role('link', name='Statements of Results').click()
     page.get_by_text('ready to issue').wait_for(); audit(page, '/cohorts/:id/readiness')
+    page.go_back(); page.get_by_role('link', name='EISA', exact=True).click(); page.get_by_text('EISA dates').wait_for(); audit(page, '/cohorts/:id/eisa')
+    page.get_by_role('button', name='Add a date').click(); page.get_by_role('dialog').wait_for(); audit(page, '/cohorts/:id/eisa (add date)'); page.keyboard.press('Escape')
     page.goto(f'http://tym.platform.test:{PORT}/sor/abcdefghij'); page.get_by_text("We can't find this statement").wait_for(); audit(page, '/sor/:code (not found)')
     page.goto(f'http://tym.platform.test:{PORT}/c/01jdemo0000000000000000000.1.0123456789abcdef0123'); page.get_by_role('button', name='Check in now').wait_for(); audit(page, '/c/:token')
     page.goto(f'http://tym.platform.test:{PORT}/cohorts'); page.get_by_role('button', name='Plan a cohort').click(); page.get_by_role('dialog').wait_for(); audit(page, '/cohorts plan dialog')

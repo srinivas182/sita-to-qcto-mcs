@@ -6,7 +6,6 @@ require_once __DIR__.'/helpers.php';
 
 use Modules\Assessment\Models\AssessmentSettings;
 use Modules\Assessment\Models\StatementOfResults;
-use Modules\Logbook\Models\LogbookSignoff;
 
 beforeEach(function (): void {
     assessmentSetup($this);
@@ -15,19 +14,6 @@ beforeEach(function (): void {
         ['method' => 'logbook', 'title' => 'Workplace logbook', 'criteria' => [['key' => 'hours', 'text' => 'Hours and activities signed off by the mentor']]],
     ]])->assertOk()->json('data.0');
 });
-
-/** Every module competent and final; the work experience logbook checked. */
-function allCompetent(object $test): void
-{
-    asTenant($test->tym, fn () => LogbookSignoff::query()->create(['enrolment_id' => $test->enrolment, 'user_id' => $test->ayanda->id, 'module_id' => $test->wm->id,
-        'mentor_id' => $test->mentor->id, 'signed_at' => now(), 'minutes' => 24000, 'signature' => str_repeat('a', 64), 'statement_version' => 'v1', 'status' => 'checked']));
-    signInAs($test, 'naledi@tym.test');
-    $test->postJson(TYM_V1.'/assessment-results', ['enrolment_id' => $test->enrolment, 'instrument_id' => $test->kmTest['id'], 'assessed_on' => $test->today,
-        'criteria' => [['key' => 'k1', 'met' => true]], 'outcome' => 'competent', 'score' => 70])->assertCreated();
-    $test->postJson(TYM_V1.'/assessment-results', observation($test, true))->assertCreated();
-    $test->postJson(TYM_V1.'/assessment-results', ['enrolment_id' => $test->enrolment, 'instrument_id' => $test->wmLog['id'], 'assessed_on' => $test->today,
-        'criteria' => [['key' => 'hours', 'met' => true]], 'outcome' => 'competent'])->assertCreated();
-}
 
 it('lists what stands between each learner and the Statement of Results', function (): void {
     signInAs($this, 'naledi@tym.test');

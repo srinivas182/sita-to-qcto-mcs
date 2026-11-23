@@ -8,6 +8,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Modules\Assessment\Models\EisaRegistration;
 use Modules\Assessment\Models\StatementOfResults;
 use Modules\Audit\AuditLogger;
 use Modules\Cohorts\Models\Cohort;
@@ -170,12 +171,12 @@ final class QctoEnrolmentList
         return $out;
     }
 
-    /** The EISA date the cohort is registered for, once known (Sprint 8c). */
+    /** The earliest EISA date the cohort's learners are registered for. */
     private function eisaOn(Cohort $cohort): ?string
     {
-        $v = $cohort->getAttribute('eisa_on');
+        $on = EisaRegistration::query()->where('cohort_id', $cohort->id)->where('status', '!=', 'withdrawn')->min('eisa_on');
 
-        return is_string($v) ? $v : null;
+        return is_string($on) ? substr($on, 0, 10) : null;
     }
 
     /**
@@ -338,6 +339,10 @@ final class QctoEnrolmentList
         $c['AK'] = $sorAt !== null ? '01' : '02';
         $c['AL'] = $sorAt !== null ? CarbonImmutable::parse((string) $sorAt)->setTimezone('Africa/Johannesburg')->format('Ymd') : '';
         $c['AN'] = $sorAt !== null ? '4' : '1';
+        $reg = $enrolment !== null ? EisaRegistration::query()->where('enrolment_id', $enrolment->id)->where('status', '!=', 'withdrawn')->first() : null;
+        $c['AM'] = (string) $reg?->assessment_centre;
+        $c['AO'] = (string) $reg?->flc_code;
+        $c['AP'] = (string) $reg?->flc_number;
         $c['AQ'] = now()->format('Ymd');
 
         return ['columns' => $c, 'errors' => $errors, 'warnings' => $warnings];
