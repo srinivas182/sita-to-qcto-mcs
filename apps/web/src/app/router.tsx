@@ -47,6 +47,13 @@ const invite = createRoute({
   component: lazyRouteComponent(() => import('@/features/auth/AcceptInvitationPage'), 'AcceptInvitationPage'),
 });
 
+// Applying to an intake: by link or QR, no account needed.
+const join = createRoute({
+  getParentRoute: () => root,
+  path: '/join/$slug',
+  component: lazyRouteComponent(() => import('@/features/intakes/JoinPage'), 'JoinPage'),
+});
+
 // Signing and checking agreements: by link, no account needed.
 const sign = createRoute({
   getParentRoute: () => root,
@@ -156,6 +163,16 @@ const employer = createRoute({
   path: '/employers/$id',
   component: lazyRouteComponent(() => import('@/features/employers/EmployerPage'), 'EmployerPage'),
 });
+const intakes = createRoute({
+  getParentRoute: () => app,
+  path: '/intakes',
+  component: lazyRouteComponent(() => import('@/features/intakes/IntakesPage'), 'IntakesPage'),
+});
+const intake = createRoute({
+  getParentRoute: () => app,
+  path: '/intakes/$id',
+  component: lazyRouteComponent(() => import('@/features/intakes/IntakePage'), 'IntakePage'),
+});
 const cohorts = createRoute({
   getParentRoute: () => app,
   path: '/cohorts',
@@ -259,6 +276,7 @@ const routeTree = root.addChildren([
   forgot,
   reset,
   invite,
+  join,
   sign,
   verify,
   pricing,
@@ -273,6 +291,8 @@ const routeTree = root.addChildren([
     programmes,
     employers,
     employer,
+    intakes,
+    intake,
     cohorts,
     cohort,
     agreements,

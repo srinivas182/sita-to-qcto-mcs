@@ -9,6 +9,7 @@ use Modules\Audit\AuditServiceProvider;
 use Modules\Billing\BillingServiceProvider;
 use Modules\Cohorts\CohortsServiceProvider;
 use Modules\Employers\EmployersServiceProvider;
+use Modules\Enrolment\EnrolmentServiceProvider;
 use Modules\Files\FilesServiceProvider;
 use Modules\Identity\IdentityServiceProvider;
 use Modules\Messaging\MessagingServiceProvider;
@@ -36,4 +37,5 @@ return [
     EmployersServiceProvider::class,
     AgreementsServiceProvider::class,
     CohortsServiceProvider::class,
+    EnrolmentServiceProvider::class,
 ];

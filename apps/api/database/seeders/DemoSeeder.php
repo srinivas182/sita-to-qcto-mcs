@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
 use Modules\Access\Models\CustomRole;
 use Modules\Access\Services\AccessService;
 use Modules\Agreements\Models\Agreement;
@@ -20,11 +21,14 @@ use Modules\Cohorts\Services\CohortService;
 use Modules\Employers\Models\Employer;
 use Modules\Employers\Models\EmployerSite;
 use Modules\Employers\Models\Mentor;
+use Modules\Enrolment\Models\Application as LearnerApplication;
+use Modules\Enrolment\Services\IntakeService;
 use Modules\Identity\Models\MfaFactor;
 use Modules\Identity\Models\User;
 use Modules\Identity\Models\UserTenant;
 use Modules\Identity\Support\IdType;
 use Modules\Identity\Support\MembershipStatus;
+use Modules\Identity\Support\SaIdNumber;
 use Modules\Onboarding\Models\Application;
 use Modules\People\Models\StaffCredential;
 use Modules\Qualifications\Models\CentreQualification;
@@ -279,6 +283,62 @@ final class DemoSeeder extends Seeder
             $cohorts->setStaff($cohort, [['user_id' => $lindiwe->id, 'role' => 'facilitator'], ['user_id' => $sipho->id, 'role' => 'assessor']]);
             $yard = EmployerSite::query()->where('name', 'Soweto yard')->firstOrFail();
             $cohorts->setPlacements($cohort, [['site_id' => $yard->id, 'planned_learners' => 20]]);
+        });
+
+        // Applications: Bricklayer (93627) takes enrolments until 30 Dec 2026 (SAQA). In this demo
+        // database only, it is published so an intake can run; its modules still wait on the QCTO
+        // curriculum document. A cohort just before that date, an open intake, and three applicants.
+        $bricklayer = $context->runAsPlatform(function () {
+            $q = Qualification::query()->where('saqa_id', '93627')->first();
+            if ($q !== null && $q->status === 'draft' && $q->last_enrolment_on !== null && $q->last_enrolment_on->gt(now()->addDays(14))) {
+                $q->forceFill(['status' => 'published', 'notes' => trim($q->notes."\nDemo database only: published so the intake demo runs; the modules are still to be loaded.")])->save();
+            }
+
+            return $q !== null && $q->status === 'published' ? $q : null;
+        });
+        $applicants = $bricklayer === null ? [] : $context->runAsPlatform(fn () => [
+            $this->person('Thando', 'Mokoena', null, phone: '+27831110001'),
+            $this->person('Kagiso', 'Molefe', null, phone: '+27831110002'),
+            $this->person('Nomsa', 'Dube', null, phone: '+27831110003'),
+        ]);
+        $context->runAsPlatform(function () use ($applicants): void {
+            foreach (array_map(null, $applicants, ['9505055800089', '9808110200083', '0103035400086']) as [$person, $id]) {
+                if ($person->id_number === null) {
+                    $person->setIdentityNumber(IdType::SaId, $id);
+                    $person->dob = Carbon::instance(SaIdNumber::tryParse($id)->dateOfBirth);
+                    $person->save();
+                }
+            }
+        });
+        $context->runAs($tym, function () use ($bricklayer, $applicants, $sekal): void {
+            if ($bricklayer === null || Cohort::query()->where('qualification_id', $bricklayer->id)->exists()) {
+                return;
+            }
+            $soweto = Centre::query()->where('name', 'Soweto Campus')->firstOrFail();
+            Programme::query()->firstOrCreate(['qualification_id' => $bricklayer->id], ['modes' => ['contact', 'blended']]);
+            CentreQualification::query()->firstOrCreate(['centre_id' => $soweto->id, 'qualification_id' => $bricklayer->id], ['expires_on' => $soweto->accreditation_expires_on]);
+            $intakeOn = $bricklayer->last_enrolment_on->copy()->subDays(7);
+            $cohort = app(CohortService::class)->save(['name' => 'Bricklayer, December 2026', 'qualification_id' => $bricklayer->id, 'centre_id' => $soweto->id,
+                'mode' => 'contact', 'intake_on' => $intakeOn->toDateString(), 'planned_end_on' => $intakeOn->copy()->addYear()->toDateString(), 'capacity' => 20], null, null);
+            $intakes = app(IntakeService::class);
+            $intake = $intakes->publish($intakes->save([
+                'cohort_id' => $cohort->id, 'title' => 'Bricklayer, December 2026', 'opens_on' => now()->toDateString(),
+                'closes_on' => $intakeOn->copy()->subDays(5)->toDateString(), 'min_age' => 18,
+                'description' => "A year of bricklaying at our Soweto campus and on building sites, ending in the NAMB trade test.\nBring your ID and your highest school certificate.",
+                'questions' => [['key' => 'employed', 'label' => 'Are you employed at the moment?', 'type' => 'yesno', 'required' => true],
+                    ['key' => 'transport', 'label' => 'How will you get to class?', 'type' => 'choice', 'options' => ['Walk', 'Taxi', 'Own transport'], 'required' => false]],
+            ], null, null, $sekal));
+            $intake->forceFill(['slug' => 'bricklay'])->save(); // a stable demo link: /join/bricklay
+            foreach ($applicants as $n => $person) {
+                UserTenant::query()->firstOrCreate(['user_id' => $person->id], ['status' => MembershipStatus::Active, 'joined_at' => now(), 'centre_id' => $soweto->id]);
+                $a = LearnerApplication::query()->create(['intake_id' => $intake->id, 'user_id' => $person->id, 'reference' => 'APP-DEMO0'.($n + 1),
+                    'answers' => ['employed' => $n === 1, 'transport' => ['Taxi', 'Walk', 'Taxi'][$n]], 'source' => $n === 2 ? 'app' : 'web', 'submitted_at' => now()->subDays(3 - $n)]);
+                if ($n === 0) {
+                    $a->forceFill(['status' => 'shortlisted', 'decided_at' => now()->subDay(), 'decided_by' => $sekal->id])->save();
+                } elseif ($n === 1) {
+                    $a->forceFill(['status' => 'waitlisted', 'waitlist_position' => 1, 'decided_at' => now()->subDay(), 'decided_by' => $sekal->id])->save();
+                }
+            }
         });
 
         $this->command?->info('Demo ready. Password: '.self::PASSWORD.' · TOTP secret: '.self::TOTP_SECRET);

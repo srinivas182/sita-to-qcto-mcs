@@ -69,6 +69,7 @@ const provider: NavItem[] = [
     group: 'main',
     permission: 'credentials.view',
   },
+  { to: '/intakes', label: 'nav.intakes', icon: Inbox, group: 'main', permission: 'applications.view' },
   { to: '/cohorts', label: 'nav.cohorts', icon: CalendarRange, group: 'main', permission: 'cohorts.view' },
   { to: '/agreements', label: 'nav.agreements', icon: FileSignature, group: 'main', permission: 'agreements.view' },
   { to: '/employers', label: 'nav.employers', icon: Factory, group: 'main', permission: 'employers.view' },

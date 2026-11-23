@@ -71,6 +71,14 @@ with sync_playwright() as p:
     page.get_by_role('button', name='Add mentor').first.click(); page.get_by_role('dialog').wait_for(); audit(page, '/employers mentor dialog')
     page.keyboard.press('Escape')
 
+    # Applications: intakes, the board with its share card, the intake and decline dialogs.
+    page.goto(f'http://tym.platform.test:{PORT}/intakes'); page.get_by_role('link', name='Bricklayer, December 2026').first.wait_for(); audit(page, '/intakes')
+    page.get_by_role('button', name='Open an intake').click(); page.get_by_role('dialog').wait_for(); audit(page, '/intakes dialog')
+    page.keyboard.press('Escape')
+    page.get_by_role('link', name='Bricklayer, December 2026').first.click(); page.get_by_text('Thando Mokoena').first.wait_for(); audit(page, '/intakes/:id')
+    page.get_by_role('button', name='Decline Kagiso Molefe').first.click(); page.get_by_role('dialog').wait_for(); audit(page, '/intakes decline dialog')
+    page.keyboard.press('Escape')
+
     # Cohorts: the list, and a cohort being planned with its readiness check.
     page.goto(f'http://tym.platform.test:{PORT}/cohorts'); page.get_by_text('GETC: Construction, February 2027').first.wait_for(); audit(page, '/cohorts')
     page.get_by_role('link', name='GETC: Construction, February 2027').first.click(); page.get_by_text('Enrolment closed').wait_for(); audit(page, '/cohorts/:id')
@@ -92,6 +100,10 @@ with sync_playwright() as p:
 
     # The public site: pricing, applying (start, email code) and resuming.
     pub = b.new_page(viewport={'width':1280,'height':900})
+    # Applying: the public intake page, then the form after the PIN is sent.
+    pub.goto(f'http://tym.platform.test:{PORT}/join/bricklay'); pub.get_by_role('button', name='Send me a PIN').wait_for(); audit(pub, '/join/:slug')
+    pub.get_by_label('Your mobile number').fill('0849990000'); pub.get_by_role('button', name='Send me a PIN').click(); pub.get_by_label('PIN', exact=True).wait_for(); audit(pub, '/join/:slug form')
+
     # Signing and checking agreements: public pages on the provider's address.
     pub.goto(f'http://tym.platform.test:{PORT}/sign/DemoSigningLinkForAyandaZulu00000000000000000000'); pub.get_by_role('button', name='Send me a PIN').wait_for(); audit(pub, '/sign/:token')
     pub.get_by_role('button', name='Send me a PIN').click(); pub.get_by_label('PIN', exact=True).wait_for(); audit(pub, '/sign/:token pin')
