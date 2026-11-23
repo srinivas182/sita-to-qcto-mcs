@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Modules\Assessment\Http\Controllers;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Modules\Access\Services\AccessService;
+use Modules\Assessment\Models\Appeal;
 use Modules\Assessment\Models\AssessmentSettings;
 use Modules\Assessment\Models\Instrument;
 use Modules\Assessment\Models\Result;
@@ -155,10 +157,17 @@ final class AssessmentController
         $svc = app(AssessmentService::class);
         $enrolments = Enrolment::query()->where('user_id', $me->id)->whereIn('status', ['active', 'suspended', 'completed'])->get();
         $cohorts = Cohort::query()->whereIn('id', $enrolments->pluck('cohort_id'))->get()->keyBy('id');
+        $appeals = Appeal::query()->where('user_id', $me->id)->get()->keyBy('result_id');
+        $days = AssessmentSettings::current()->appeal_days;
+        $mineOf = fn (array $latest) => array_diff_key($latest, ['assessor_id' => 1, 'intact' => 1]) + [
+            'appeal' => ($a = $appeals->get($latest['id'])) ? ModerationController::presentAppeal($a) : null,
+            'appeal_until' => CarbonImmutable::parse($latest['decided_at'])->addDays($days)->toIso8601String(),
+            'can_appeal' => ! $appeals->has($latest['id']) && CarbonImmutable::parse($latest['decided_at'])->addDays($days)->isFuture(),
+        ];
 
         return response()->json(['data' => $enrolments->map(fn (Enrolment $e) => ['enrolment_id' => $e->id, 'cohort' => $cohorts->get($e->cohort_id)?->name,
             'modules' => array_map(fn (array $m) => array_merge($m, ['instruments' => array_map(fn (array $i) => array_merge($i, ['latest' => $i['latest'] === null ? null
-                : array_diff_key($i['latest'], ['assessor_id' => 1, 'intact' => 1])]), $m['instruments'])]),
+                : $mineOf($i['latest'])]), $m['instruments'])]),
                 $svc->modules($e, (string) $cohorts->get($e->cohort_id)?->qualification_id))])->values()->all()]);
     }
 

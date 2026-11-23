@@ -1,11 +1,13 @@
-import { useQuery } from '@tanstack/react-query';
-import { Alert, Badge, Card, EmptyState, PageHeader, Skeleton } from '@/components/ui';
-import { call, errorMessage } from '@/lib/api';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { Alert, Badge, Button, Card, Dialog, EmptyState, PageHeader, Skeleton, useToast } from '@/components/ui';
+import { ApiError, call, errorMessage } from '@/lib/api';
 import { shortDate } from '@/lib/money';
-import { type ModuleResults, methodLabel, stateBadge } from './types';
+import { type ModuleResults, type ResultRow, methodLabel, stateBadge } from './types';
 
 /** The learner's results per module, with feedback and what to work on. */
 export function MyResultsPage() {
+  const [appealing, setAppealing] = useState<{ result: ResultRow; title: string } | null>(null);
   const q = useQuery({
     queryKey: ['my-results'],
     queryFn: () =>
@@ -52,6 +54,22 @@ export function MyResultsPage() {
                         </p>
                         {i.latest!.feedback ? <p className="text-ink">{i.latest!.feedback}</p> : null}
                         {i.latest!.remediation ? <p className="text-ink">To work on: {i.latest!.remediation}</p> : null}
+                        {i.latest!.appeal ? (
+                          <p className="text-muted">
+                            Appeal:{' '}
+                            {i.latest!.appeal.status === 'open'
+                              ? `waiting for a decision by ${shortDate(i.latest!.appeal.decide_by)}`
+                              : `${i.latest!.appeal.status === 'overturned' ? 'result changed' : 'result stands'}. ${i.latest!.appeal.decision_note ?? ''}`}
+                          </p>
+                        ) : i.latest!.can_appeal ? (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setAppealing({ result: i.latest!, title: i.title })}
+                          >
+                            Appeal<span className="sr-only"> {i.title}</span>
+                          </Button>
+                        ) : null}
                       </div>
                     ))}
                 </li>
@@ -60,6 +78,58 @@ export function MyResultsPage() {
           </Card>
         ))
       )}
+      {appealing ? <AppealDialog {...appealing} onClose={() => setAppealing(null)} /> : null}
     </>
+  );
+}
+
+function AppealDialog({ result, title, onClose }: { result: ResultRow; title: string; onClose: () => void }) {
+  const qc = useQueryClient();
+  const toast = useToast();
+  const [reason, setReason] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const send = useMutation({
+    mutationFn: () => call('POST', `/assessment-results/${result.id}/appeal`, { reason }),
+    onSuccess: () => {
+      toast('Appeal sent. A moderator will decide it.');
+      void qc.invalidateQueries({ queryKey: ['my-results'] });
+      onClose();
+    },
+    onError: (e) => setError(e instanceof ApiError ? (Object.values(e.fields)[0]?.[0] ?? e.message) : errorMessage(e)),
+  });
+  return (
+    <Dialog
+      open
+      onOpenChange={(o) => !o && onClose()}
+      title={`Appeal: ${title}`}
+      description={
+        result.appeal_until
+          ? `You can appeal until ${shortDate(result.appeal_until)}. A moderator who did not assess you decides.`
+          : undefined
+      }
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button loading={send.isPending} onClick={() => send.mutate()}>
+            Send appeal
+          </Button>
+        </>
+      }
+    >
+      <div className="grid gap-1.5">
+        {error ? <Alert tone="danger">{error}</Alert> : null}
+        <label htmlFor="appeal-reason" className="text-small font-medium text-ink">
+          Why do you think the result is wrong?
+        </label>
+        <textarea
+          id="appeal-reason"
+          className="min-h-24 rounded-lg border border-line bg-surface px-3 py-2 text-body"
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+        />
+      </div>
+    </Dialog>
   );
 }

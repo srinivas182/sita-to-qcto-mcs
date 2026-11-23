@@ -27,7 +27,19 @@ export function CohortResultsPage() {
       <Link to="/assessing" className="mb-3 inline-flex items-center gap-1 text-small text-muted hover:text-ink">
         <ArrowLeft className="size-4" /> Assessments
       </Link>
-      <PageHeader title="Results" description="Open a learner to record a decision or see their attempts." />
+      <PageHeader
+        title="Results"
+        description="Open a learner to record a decision or see their attempts."
+        actions={
+          <Link
+            to="/cohorts/$id/moderation"
+            params={{ id }}
+            className="inline-flex h-10 items-center rounded-lg border border-line bg-surface px-4 text-small font-medium text-ink hover:border-primary-200"
+          >
+            Moderation
+          </Link>
+        }
+      />
       {q.isPending ? (
         <Skeleton className="h-64" />
       ) : q.isError ? (
