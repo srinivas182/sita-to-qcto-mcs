@@ -25,8 +25,9 @@ export default function Home() {
   const openOffers = (offers.data ?? []).filter((o) => o.status === 'open').length;
   const docsNeeded = (documents.data?.needed ?? []).flatMap((n) => n.items).filter((i) => ['missing', 'rejected', 'expired'].includes(i.state)).length;
   const learner = (courses.data ?? []).length > 0;
+  const assessor = (me.data?.roles ?? []).some((r) => r.role === 'assessor' || r.role === 'moderator');
   const dash = useDashboard(online && learner);
-  const card = (icon: 'gift' | 'file-plus' | 'search' | 'edit' | 'calendar', tone: string, color: string, title: string, body: string, to: string) => (
+  const card = (icon: 'gift' | 'file-plus' | 'search' | 'edit' | 'calendar' | 'check-square', tone: string, color: string, title: string, body: string, to: string) => (
     <Pressable accessibilityRole="button" onPress={() => router.push(to as never)}>
       <Card className="flex-row items-center gap-3">
         <View className={`h-10 w-10 items-center justify-center rounded-xl ${tone}`}>
@@ -101,6 +102,7 @@ export default function Home() {
         ))}
         {dash.data?.registers_to_sign ? card('edit', 'bg-warning-bg', '#8a5a0b', t('home.registers'), t('home.registersBody', { n: dash.data.registers_to_sign }), '/registers') : null}
         {learner ? card('calendar', 'bg-info-bg', '#2d68a8', t('timetable.title'), t('home.timetableBody'), '/timetable') : null}
+        {assessor ? card('check-square', 'bg-primary-50', '#4338ca', t('home.assess'), t('home.assessBody'), '/assess') : null}
         {openOffers ? card('gift', 'bg-success-bg', '#166c52', t('home.offers'), t('home.offersBody', { n: openOffers }), '/offers') : null}
         {docsNeeded ? card('file-plus', 'bg-warning-bg', '#8a5a0b', t('home.documents'), t('home.documentsBody', { n: docsNeeded }), '/documents') : null}
 

@@ -17,6 +17,7 @@ describe('notification routes', () => {
     expect(routeFor({ type: 'task', task_id: 'x' })).toBe('/learn');
     expect(routeFor({ type: 'logbook', week_id: 'x' })).toBe('/logbook');
     expect(routeFor({ type: 'logbook_mentor' })).toBe('/mentoring');
+    expect(routeFor({ type: 'result', result_id: 'x' })).toBe('/results');
   });
 
   it('ignores anything else, including a malformed id', () => {
