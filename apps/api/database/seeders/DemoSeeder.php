@@ -10,6 +10,7 @@ use Dompdf\Options;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Modules\Access\Models\CustomRole;
 use Modules\Access\Services\AccessService;
 use Modules\Agreements\Models\Agreement;
@@ -22,6 +23,7 @@ use Modules\Billing\Models\Subscription;
 use Modules\Billing\Support\SubscriptionStatus;
 use Modules\Cohorts\Models\Cohort;
 use Modules\Cohorts\Models\CohortStaff;
+use Modules\Cohorts\Models\Placement;
 use Modules\Cohorts\Services\CohortService;
 use Modules\Delivery\Models\Room;
 use Modules\Delivery\Services\MaterialService;
@@ -32,6 +34,7 @@ use Modules\Employers\Models\EmployerSite;
 use Modules\Employers\Models\Mentor;
 use Modules\Enrolment\Models\Application as LearnerApplication;
 use Modules\Enrolment\Models\ConsentText;
+use Modules\Enrolment\Models\Enrolment;
 use Modules\Enrolment\Services\ApplicationPdf;
 use Modules\Enrolment\Services\DocumentService;
 use Modules\Enrolment\Services\IntakeService;
@@ -45,12 +48,15 @@ use Modules\Identity\Models\UserTenant;
 use Modules\Identity\Support\IdType;
 use Modules\Identity\Support\MembershipStatus;
 use Modules\Identity\Support\SaIdNumber;
+use Modules\Logbook\Services\LogbookService;
+use Modules\Logbook\Support\EntryHash;
 use Modules\Onboarding\Models\Application;
 use Modules\People\Models\StaffCredential;
 use Modules\People\Services\ProfileService;
 use Modules\Qualifications\Models\CentreQualification;
 use Modules\Qualifications\Models\Programme;
 use Modules\Qualifications\Models\Qualification;
+use Modules\Qualifications\Models\QualificationModule;
 use Modules\Settings\Models\PlatformSetting;
 use Modules\Tenancy\Context\TenantContext;
 use Modules\Tenancy\Models\Centre;
@@ -388,6 +394,7 @@ final class DemoSeeder extends Seeder
             }
             $this->demoTimetable($cohort, $soweto, $bricklayer->id, $sekal);
             $this->demoMaterials($bricklayer->id, $sekal);
+            $this->demoLogbook($cohort, $bricklayer->id, $sekal);
         });
 
         $this->command?->info('Demo ready. Password: '.self::PASSWORD.' · TOTP secret: '.self::TOTP_SECRET);
@@ -415,6 +422,48 @@ final class DemoSeeder extends Seeder
             'room_id' => $room->id, 'facilitator_id' => $lindiwe->id, 'repeat' => ['days' => [1, 3], 'until' => $until]], $by);
         $timetable->create($cohort, ['kind' => 'practical', 'title' => 'Mixing mortar and laying a course', 'date' => $start->toDateString(), 'start' => '12:00', 'end' => '15:30',
             'room_id' => $yard->id, 'facilitator_id' => $lindiwe->id, 'repeat' => ['days' => [2, 4], 'until' => $until]], $by);
+    }
+
+    /**
+     * Demo only: a workplace module for Bricklayer (its curriculum is not loaded yet), logbook
+     * rules, Bongani placed at the Soweto yard with Bheki as mentor, and a week of entries.
+     */
+    private function demoLogbook(Cohort $cohort, string $qualificationId, User $by): void
+    {
+        $context = app(TenantContext::class);
+        $module = $context->runAsPlatform(fn () => QualificationModule::query()->where('qualification_id', $qualificationId)->where('kind', 'WM')->first()
+            ?? QualificationModule::query()->create(['qualification_id' => $qualificationId, 'kind' => 'WM', 'group' => 'compulsory', 'code' => 'WM-01',
+                'title' => 'Bricklaying on site (demo)', 'credits' => 30, 'sort' => 90]));
+        $logbook = app(LogbookService::class);
+        $logbook->saveRule($module, ['activities' => [
+            ['key' => 'setout', 'title' => 'Set out and level a wall'], ['key' => 'mix', 'title' => 'Mix mortar to the right ratio'],
+            ['key' => 'lay', 'title' => 'Lay bricks to the line'], ['key' => 'clean', 'title' => 'Clean and pack away tools'],
+        ], 'evidence_note' => 'Write what you did and who checked it.']);
+        $yard = EmployerSite::query()->where('name', 'Soweto yard')->firstOrFail();
+        $yard->forceFill(['latitude' => '-26.2632', 'longitude' => '27.8890'])->save();
+        Placement::query()->firstOrCreate(['cohort_id' => $cohort->id, 'site_id' => $yard->id], ['employer_id' => $yard->employer_id, 'planned_learners' => 10]);
+        $bheki = Mentor::query()->where('name', 'Bheki Mabaso')->firstOrFail();
+        $bongani = $context->runAsPlatform(fn () => User::query()->where('phone_e164', '+27831110005')->first());
+        $enrolment = $bongani ? Enrolment::query()->where('user_id', $bongani->id)->where('cohort_id', $cohort->id)->first() : null;
+        if ($bongani === null || $enrolment === null) {
+            return;
+        }
+        $today = CarbonImmutable::now(LogbookService::TZ)->startOfDay();
+        $logbook->place($cohort, ['enrolment_id' => $enrolment->id, 'site_id' => $yard->id, 'mentor_id' => $bheki->id, 'starts_on' => $today->subDays(14)->toDateString()]);
+        $prev = null;
+        $work = [['setout', 240, 'Set out the corner profiles with Bheki'], ['mix', 180, 'Mixed 1:4 mortar for the boundary wall'], ['lay', 300, 'Laid six courses on the boundary wall'],
+            ['lay', 360, 'Laid the garage wall to window height'], ['clean', 60, 'Cleaned the mixer and stacked the scaffolding']];
+        foreach ($work as $i => [$activity, $minutes, $note]) {
+            $day = $today->subDays(7 - $i);
+            if ($day->isWeekend()) {
+                continue;
+            }
+            $entry = ['client_id' => (string) Str::uuid(), 'module_id' => $module->id, 'activity_key' => $activity, 'work_date' => $day->toDateString(), 'minutes' => $minutes,
+                'note' => $note, 'photo_hashes' => [], 'device_time' => $day->setTime(16, 30)->format('Y-m-d\TH:i:sP'), 'latitude' => -26.2634, 'longitude' => 27.8893, 'accuracy' => 12];
+            $entry['prev_hash'] = $prev;
+            $entry['hash'] = EntryHash::make($prev, $entry['client_id'], $module->id, $activity, $entry['work_date'], $minutes, $note, [], $entry['device_time']);
+            $prev = $logbook->record($bongani, $entry)['entry']->hash;
+        }
     }
 
     /** Demo only: course notes (a small PDF) and a link for Bricklayer, published; Bongani can sign in with a password. */
