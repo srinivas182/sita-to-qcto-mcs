@@ -14,5 +14,8 @@ final class AssessmentServiceProvider extends ModuleServiceProvider
         return __DIR__;
     }
 
-    protected function bootModule(): void {}
+    protected function bootModule(): void
+    {
+        $this->loadViewsFrom(__DIR__.'/resources/views', 'assessment');
+    }
 }

@@ -190,8 +190,9 @@ final class AssessmentService
                 'client_id' => isset($data['client_id']) ? strtolower((string) $data['client_id']) : null]);
             $r->hash = ResultHash::of($r);
             $r->save();
+            app(ModerationService::class)->consider($r); // in the sample, or final at once
 
-            return $r;
+            return $r->refresh();
         });
         $this->audit->record('assessment.decided', $result, [], ['outcome' => $result->outcome, 'attempt' => $result->attempt]);
         app(ResultNotifier::class)->decided($result, $module);

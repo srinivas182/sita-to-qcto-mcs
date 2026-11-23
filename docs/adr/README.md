@@ -28,3 +28,4 @@
 - [ADR-027 Formative tasks and marking](ADR-027-formative-tasks.md)
 - [ADR-028 Workplace logbook entries and their hash chain](ADR-028-workplace-logbook.md)
 - [ADR-029 Internal summative assessment results](ADR-029-summative-assessment.md)
+- [ADR-030 Internal moderation and appeals](ADR-030-moderation-appeals.md)

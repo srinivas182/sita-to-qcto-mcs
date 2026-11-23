@@ -275,6 +275,16 @@ const learnerResults = createRoute({
   path: '/cohorts/$id/results/$enrolment',
   component: lazyRouteComponent(() => import('@/features/assessment/LearnerResultsPage'), 'LearnerResultsPage'),
 });
+const moderation = createRoute({
+  getParentRoute: () => app,
+  path: '/moderation',
+  component: lazyRouteComponent(() => import('@/features/assessment/ModerationPage'), 'ModerationPage'),
+});
+const cohortModeration = createRoute({
+  getParentRoute: () => app,
+  path: '/cohorts/$id/moderation',
+  component: lazyRouteComponent(() => import('@/features/assessment/CohortModerationPage'), 'CohortModerationPage'),
+});
 const myResults = createRoute({
   getParentRoute: () => app,
   path: '/my-results',
@@ -432,6 +442,8 @@ const routeTree = root.addChildren([
     cohortResults,
     learnerResults,
     myResults,
+    moderation,
+    cohortModeration,
     marking,
     classes,
     classSession,

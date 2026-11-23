@@ -18,6 +18,7 @@ use Modules\Agreements\Models\Signer;
 use Modules\Agreements\Services\AgreementService;
 use Modules\Agreements\Services\TemplateService;
 use Modules\Assessment\Services\AssessmentService;
+use Modules\Assessment\Services\ModerationService;
 use Modules\Billing\Models\BillingProfile;
 use Modules\Billing\Models\Package;
 use Modules\Billing\Models\Subscription;
@@ -459,9 +460,19 @@ final class DemoSeeder extends Seeder
         $day = CarbonImmutable::now(AssessmentService::TZ)->subDays(3)->toDateString();
         $svc->decide($sipho, ['enrolment_id' => $enrolment->id, 'instrument_id' => $test->id, 'outcome' => 'competent', 'score' => 74, 'assessed_on' => $day,
             'criteria' => [['key' => 'k1', 'met' => true], ['key' => 'k2', 'met' => true]], 'feedback' => 'Good grasp of mortar ratios.']);
-        $svc->decide($sipho, ['enrolment_id' => $enrolment->id, 'instrument_id' => $obs->id, 'outcome' => 'nyc', 'assessed_on' => $day,
+        $obs = $svc->decide($sipho, ['enrolment_id' => $enrolment->id, 'instrument_id' => $obs->id, 'outcome' => 'nyc', 'assessed_on' => $day,
             'criteria' => [['key' => 'plumb', 'met' => true], ['key' => 'bond', 'met' => false, 'comment' => 'Bond broken on course 4'], ['key' => 'joints', 'met' => true], ['key' => 'safe', 'met' => true]],
-            'feedback' => 'Keep the stretcher bond: check each course against the line before laying the next.', 'remediation' => 'Two practice walls with Lindiwe, then reassess.']);
+            'feedback' => 'Keep the stretcher bond: check each course against the line before laying the next.', 'remediation' => 'Two practice walls with Lindiwe, then reassess.'])['result'];
+
+        // Zanele moderates (registered assessor and moderator); Bongani has appealed the practical.
+        $zanele = $context->runAsPlatform(fn () => $this->person('Zanele', 'Khoza', 'zanele@demo.test'));
+        UserTenant::query()->firstOrCreate(['user_id' => $zanele->id], ['status' => MembershipStatus::Active, 'joined_at' => now(), 'centre_id' => $cohort->centre_id]);
+        foreach (['assessor', 'moderator'] as $role) {
+            app(AccessService::class)->assign($zanele, $role, $cohort->centre_id);
+            StaffCredential::query()->create(['user_id' => $zanele->id, 'role' => $role, 'body' => 'CETA', 'registration_number' => 'CETA/'.strtoupper(substr($role, 0, 3)).'/2022/0315',
+                'qualification_ids' => [$qualificationId], 'starts_on' => now()->subYears(2), 'expires_on' => now()->addYears(2)])->forceFill(['status' => 'verified', 'verified_at' => now()->subYears(2)])->save();
+        }
+        app(ModerationService::class)->appeal($obs, $bongani, ['reason' => 'Course 4 was a closer brick, not a broken bond. Lindiwe saw the wall.']);
     }
 
     /**

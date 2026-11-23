@@ -13,7 +13,7 @@ function assessmentSetup(object $test): void
 {
     logbookSetup($test);
     $test->naledi = makeMember($test->tym, [['assessor', $test->centre->id]], ['email' => 'naledi@tym.test', 'first_name' => 'Naledi', 'last_name' => 'Mthembu', 'password' => 'correct horse battery staple']);
-    $test->zanele = makeMember($test->tym, [['moderator', $test->centre->id]], ['email' => 'zanele@tym.test', 'first_name' => 'Zanele', 'last_name' => 'Khoza', 'password' => 'correct horse battery staple']);
+    $test->zanele = makeMember($test->tym, [['assessor', $test->centre->id], ['moderator', $test->centre->id]], ['email' => 'zanele@tym.test', 'first_name' => 'Zanele', 'last_name' => 'Khoza', 'password' => 'correct horse battery staple']);
     asTenant($test->tym, function () use ($test) {
         foreach ([[$test->naledi, 'assessor'], [$test->zanele, 'assessor'], [$test->zanele, 'moderator']] as [$u, $role]) {
             StaffCredential::query()->create(['user_id' => $u->id, 'role' => $role, 'body' => 'CETA', 'registration_number' => strtoupper($role).'-'.Str::random(4),
