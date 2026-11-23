@@ -17,6 +17,7 @@ use Modules\Agreements\Models\Agreement;
 use Modules\Agreements\Models\Signer;
 use Modules\Agreements\Services\AgreementService;
 use Modules\Agreements\Services\TemplateService;
+use Modules\Assessment\Services\AssessmentService;
 use Modules\Billing\Models\BillingProfile;
 use Modules\Billing\Models\Package;
 use Modules\Billing\Models\Subscription;
@@ -395,6 +396,7 @@ final class DemoSeeder extends Seeder
             $this->demoTimetable($cohort, $soweto, $bricklayer->id, $sekal);
             $this->demoMaterials($bricklayer->id, $sekal);
             $this->demoLogbook($cohort, $bricklayer->id, $sekal);
+            $this->demoAssessment($cohort, $bricklayer->id);
         });
 
         $this->command?->info('Demo ready. Password: '.self::PASSWORD.' · TOTP secret: '.self::TOTP_SECRET);
@@ -422,6 +424,44 @@ final class DemoSeeder extends Seeder
             'room_id' => $room->id, 'facilitator_id' => $lindiwe->id, 'repeat' => ['days' => [1, 3], 'until' => $until]], $by);
         $timetable->create($cohort, ['kind' => 'practical', 'title' => 'Mixing mortar and laying a course', 'date' => $start->toDateString(), 'start' => '12:00', 'end' => '15:30',
             'room_id' => $yard->id, 'facilitator_id' => $lindiwe->id, 'repeat' => ['days' => [2, 4], 'until' => $until]], $by);
+    }
+
+    /**
+     * Demo only: a knowledge and a practical module for Bricklayer (its curriculum is not loaded
+     * yet) with a test and an observation; Sipho registered as an assessor for it; Bongani has
+     * passed the test and is not yet competent in the practical.
+     */
+    private function demoAssessment(Cohort $cohort, string $qualificationId): void
+    {
+        $context = app(TenantContext::class);
+        [$km, $pm] = $context->runAsPlatform(fn () => [
+            QualificationModule::query()->firstOrCreate(['qualification_id' => $qualificationId, 'code' => 'KM-01'], ['kind' => 'KM', 'group' => 'compulsory', 'title' => 'Building materials (demo)', 'credits' => 4, 'sort' => 10]),
+            QualificationModule::query()->firstOrCreate(['qualification_id' => $qualificationId, 'code' => 'PM-01'], ['kind' => 'PM', 'group' => 'compulsory', 'title' => 'Lay a brick wall (demo)', 'credits' => 8, 'sort' => 20]),
+        ]);
+        $svc = app(AssessmentService::class);
+        $test = $svc->saveInstruments($km, ['instruments' => [['method' => 'test', 'title' => 'Materials test', 'pass_mark' => 60,
+            'criteria' => [['key' => 'k1', 'text' => 'Identifies bricks, blocks and mortar types'], ['key' => 'k2', 'text' => 'Explains mortar ratios']]]]])->first();
+        $obs = $svc->saveInstruments($pm, ['instruments' => [['method' => 'observation', 'title' => 'Build a one-brick wall to the line',
+            'criteria' => [['key' => 'plumb', 'text' => 'Wall is plumb and level'], ['key' => 'bond', 'text' => 'Stretcher bond kept'], ['key' => 'joints', 'text' => 'Joints 10 mm and filled'], ['key' => 'safe', 'text' => 'Works safely, PPE worn']],
+            'instructions' => 'Observe the learner build a 1 m wall, 6 courses high. Photograph the finished wall.']]])->first();
+        $sipho = $context->runAsPlatform(fn () => User::query()->where('email', 'sipho@demo.test')->first());
+        $bongani = $context->runAsPlatform(fn () => User::query()->where('phone_e164', '+27831110005')->first());
+        if ($sipho === null || $bongani === null || $test === null || $obs === null) {
+            return;
+        }
+        StaffCredential::query()->create(['user_id' => $sipho->id, 'role' => 'assessor', 'body' => 'CETA', 'registration_number' => 'CETA/ASS/2024/0877',
+            'qualification_ids' => [$qualificationId], 'starts_on' => now()->subYear(), 'expires_on' => now()->addYears(2)])->forceFill(['status' => 'verified', 'verified_at' => now()->subYear()])->save();
+        $enrolment = Enrolment::query()->where('user_id', $bongani->id)->where('cohort_id', $cohort->id)->first();
+        if ($enrolment === null) {
+            return;
+        }
+        $enrolment->forceFill(['enrolled_on' => CarbonImmutable::now(AssessmentService::TZ)->subDays(20)->toDateString()])->save();
+        $day = CarbonImmutable::now(AssessmentService::TZ)->subDays(3)->toDateString();
+        $svc->decide($sipho, ['enrolment_id' => $enrolment->id, 'instrument_id' => $test->id, 'outcome' => 'competent', 'score' => 74, 'assessed_on' => $day,
+            'criteria' => [['key' => 'k1', 'met' => true], ['key' => 'k2', 'met' => true]], 'feedback' => 'Good grasp of mortar ratios.']);
+        $svc->decide($sipho, ['enrolment_id' => $enrolment->id, 'instrument_id' => $obs->id, 'outcome' => 'nyc', 'assessed_on' => $day,
+            'criteria' => [['key' => 'plumb', 'met' => true], ['key' => 'bond', 'met' => false, 'comment' => 'Bond broken on course 4'], ['key' => 'joints', 'met' => true], ['key' => 'safe', 'met' => true]],
+            'feedback' => 'Keep the stretcher bond: check each course against the line before laying the next.', 'remediation' => 'Two practice walls with Lindiwe, then reassess.']);
     }
 
     /**

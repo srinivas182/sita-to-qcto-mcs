@@ -178,6 +178,13 @@ export function ProgrammesPage() {
                           >
                             Logbook<span className="sr-only"> for {p.qualification.title}</span>
                           </Link>
+                          <Link
+                            to="/programmes/$id/assessments"
+                            params={{ id: p.qualification.id }}
+                            className="text-small font-medium text-primary-700 hover:underline"
+                          >
+                            Assessments<span className="sr-only"> for {p.qualification.title}</span>
+                          </Link>
                         </span>
                       ),
                     },

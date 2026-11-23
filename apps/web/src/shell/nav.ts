@@ -1,4 +1,5 @@
 import {
+  Award,
   NotebookPen,
   Building2,
   CalendarRange,
@@ -76,7 +77,10 @@ const provider: NavItem[] = [
   { to: '/cohorts', label: 'nav.cohorts', icon: CalendarRange, group: 'main', permission: 'cohorts.view' },
   { to: '/classes', label: 'nav.classes', icon: ClipboardCheck, group: 'main', permission: 'learning.deliver' },
   { to: '/marking', label: 'nav.marking', icon: PenLine, group: 'main', permission: 'learning.deliver' },
+  { to: '/assessing', label: 'nav.assessing', icon: ClipboardCheck, group: 'main', permission: 'assessment.conduct' },
+  { to: '/assessing', label: 'nav.moderating', icon: ClipboardCheck, group: 'main', permission: 'assessment.moderate' },
   { to: '/my-course', label: 'nav.myCourse', icon: BookOpen, group: 'main', permission: 'learning.self' },
+  { to: '/my-results', label: 'nav.myResults', icon: Award, group: 'main', permission: 'learning.self' },
   {
     to: '/logbooks',
     label: 'nav.logbooks',
@@ -102,7 +106,9 @@ const providerAccount: NavItem[] = [{ to: '/profile', label: 'nav.profile', icon
 export function navFor(me: Me): NavItem[] {
   const items = me.tenant ? provider : platform;
   return [
-    ...items.filter((i) => !i.permission || me.permissions.includes(i.permission)),
+    ...items
+      .filter((i) => !i.permission || me.permissions.includes(i.permission))
+      .filter((i, n, all) => all.findIndex((x) => x.to === i.to) === n), // one entry per page
     ...(me.tenant ? providerAccount : []),
     ...account,
   ];

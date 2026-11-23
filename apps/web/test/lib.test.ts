@@ -56,7 +56,7 @@ describe('navigation', () => {
       }),
     ).map((i) => i.to);
 
-    expect(learner).toEqual(['/', '/my-course', '/profile', '/security']);
+    expect(learner).toEqual(['/', '/my-course', '/my-results', '/profile', '/security']);
     expect(owner).toEqual(['/', '/users', '/brand', '/support', '/audit', '/profile', '/security']);
   });
 
