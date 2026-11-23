@@ -24,7 +24,7 @@ use Throwable;
 /**
  * Nightly, POPIA s14: an applicant who never enrolled and has had no open application for
  * the provider's retention period (12 months by default) is removed from that provider:
- * applications, offers, documents and their files, ID checks, profile and membership.
+ * applications and their PDFs, offers, documents and their files, ID checks, profile and membership.
  * Their platform account stays (they may be with another provider). Consent records stay
  * as proof of what was agreed. Staff and anyone with a role are never touched.
  */
@@ -71,7 +71,8 @@ final class PurgeApplicants extends Command
 
     private function purge(string $userId): void
     {
-        $fileIds = LearnerDocument::query()->where('user_id', $userId)->pluck('file_id');
+        $fileIds = LearnerDocument::query()->where('user_id', $userId)->pluck('file_id')
+            ->merge(Application::query()->where('user_id', $userId)->whereNotNull('pdf_file_id')->pluck('pdf_file_id'));
         $files = File::query()->whereIn('id', $fileIds)->get();
         DB::transaction(function () use ($userId): void {
             $applications = Application::query()->where('user_id', $userId)->pluck('id');

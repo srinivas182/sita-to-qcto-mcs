@@ -64,6 +64,15 @@ return [
             'variants' => [],
             'public_variants' => false,
         ],
+        'learner_application' => [
+            'scope' => 'tenant',
+            'permission' => 'self',
+            'viewers' => 'applications.view',
+            'max_kb' => 2048,
+            'mimes' => ['application/pdf'],
+            'variants' => [],
+            'public_variants' => false,
+        ],
         'learner_document' => [
             'scope' => 'tenant',
             'permission' => 'self',

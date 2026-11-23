@@ -22,6 +22,7 @@ use Modules\Tenancy\Concerns\BelongsToTenant;
  * @property int|null $waitlist_position
  * @property string $source
  * @property Carbon $submitted_at
+ * @property string|null $pdf_file_id
  * @property Carbon|null $decided_at
  * @property string|null $decided_by
  * @property Carbon|null $documents_requested_at

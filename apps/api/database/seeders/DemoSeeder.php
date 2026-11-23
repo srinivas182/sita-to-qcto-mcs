@@ -23,6 +23,7 @@ use Modules\Employers\Models\EmployerSite;
 use Modules\Employers\Models\Mentor;
 use Modules\Enrolment\Models\Application as LearnerApplication;
 use Modules\Enrolment\Models\ConsentText;
+use Modules\Enrolment\Services\ApplicationPdf;
 use Modules\Enrolment\Services\DocumentService;
 use Modules\Enrolment\Services\IntakeService;
 use Modules\Enrolment\Services\OfferService;
@@ -346,6 +347,7 @@ final class DemoSeeder extends Seeder
                 UserTenant::query()->firstOrCreate(['user_id' => $person->id], ['status' => MembershipStatus::Active, 'joined_at' => now(), 'centre_id' => $soweto->id]);
                 $a = LearnerApplication::query()->create(['intake_id' => $intake->id, 'user_id' => $person->id, 'reference' => 'APP-DEMO0'.($n + 1),
                     'answers' => ['employed' => $n === 1, 'transport' => ['Taxi', 'Walk', 'Taxi', 'Own car', 'Taxi'][$n]], 'source' => $n === 2 ? 'app' : 'web', 'submitted_at' => now()->subDays(3 - $n)]);
+                app(ApplicationPdf::class)->keep($a);
                 // Thando's ID is accepted and his certificate waits to be checked; Kagiso's
                 // certificate was certified too long ago; Nomsa has added nothing yet.
                 if ($n < 2) {

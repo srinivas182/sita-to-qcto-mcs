@@ -8,6 +8,8 @@ use Carbon\CarbonImmutable;
 use Modules\Access\Services\AccessService;
 use Modules\Billing\Services\LearnerMeter;
 use Modules\Enrolment\Models\Application;
+use Modules\Files\Models\File;
+use Modules\Files\Storage\StoreFactory;
 use Modules\Identity\Models\User;
 use Modules\Identity\Models\UserTenant;
 use Modules\Identity\Support\IdType;
@@ -137,4 +139,19 @@ it('shows ages in whole years', function (): void {
     signInOwner($this, $this->tym, 'owner3@tym.test');
     $age = $this->getJson(TYM_V1."/learner-applications?intake_id={$intake->id}")->json('data.0.applicant.age');
     expect($age)->toBeInt()->toBe((int) floor(CarbonImmutable::parse('1992-02-20')->diffInYears(now())));
+});
+
+it('keeps a PDF of each application on the record, for the applicant and staff only', function (): void {
+    $intake = openIntake($this);
+    $this->withHeaders(webOrigin('tym.skills.test'));
+    $id = applyPublic($this, $intake)->assertCreated()->json('data.id');
+    $a = asTenant($this->tym, fn () => Application::query()->findOrFail($id));
+    expect($a->pdf_file_id)->not->toBeNull();
+    $file = asTenant($this->tym, fn () => File::query()->findOrFail($a->pdf_file_id));
+    expect($file->purpose)->toBe('learner_application')->and($file->owner_id)->toBe($a->user_id)
+        ->and(substr((string) app(StoreFactory::class)->forFile($file)->disk()->get($file->path), 0, 4))->toBe('%PDF');
+    $this->getJson(TYM_V1."/files/{$file->id}/download")->assertOk(); // the applicant, signed in after applying
+    signInOwner($this, $this->tym, 'pdf@tym.test');
+    $this->getJson(TYM_V1."/learner-applications/{$id}")->assertJsonPath('data.pdf_file_id', $file->id);
+    $this->getJson(TYM_V1."/files/{$file->id}/download")->assertOk();
 });

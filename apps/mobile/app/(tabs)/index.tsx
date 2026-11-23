@@ -8,6 +8,7 @@ import { useApp } from '@/lib/app';
 import { useMyAgreements } from '@/lib/agreements';
 import { useMe } from '@/lib/me';
 import { useMentoring } from '@/lib/mentoring';
+import { useMyCourses, useMyDocuments, useMyOffers } from '@/lib/enrolment';
 import { outbox } from '@/lib/outbox';
 
 export default function Home() {
@@ -17,11 +18,31 @@ export default function Home() {
   const agreements = useMyAgreements(online);
   const mentoring = useMentoring(online);
   const toSign = (agreements.data ?? []).filter((a) => a.can_sign).length;
+  const offers = useMyOffers(online);
+  const documents = useMyDocuments(online);
+  const courses = useMyCourses(online);
+  const openOffers = (offers.data ?? []).filter((o) => o.status === 'open').length;
+  const docsNeeded = (documents.data?.needed ?? []).flatMap((n) => n.items).filter((i) => ['missing', 'rejected', 'expired'].includes(i.state)).length;
+  const learner = (courses.data ?? []).length > 0;
+  const card = (icon: 'gift' | 'file-plus' | 'search', tone: string, color: string, title: string, body: string, to: string) => (
+    <Pressable accessibilityRole="button" onPress={() => router.push(to as never)}>
+      <Card className="flex-row items-center gap-3">
+        <View className={`h-10 w-10 items-center justify-center rounded-xl ${tone}`}>
+          <Feather name={icon} size={18} color={color} />
+        </View>
+        <View className="flex-1">
+          <Text className="font-semibold text-body text-ink dark:text-night-ink">{title}</Text>
+          <Text className="font-sans text-small text-muted dark:text-night-muted">{body}</Text>
+        </View>
+        <Feather name="chevron-right" size={18} color="#6b7186" />
+      </Card>
+    </Pressable>
+  );
   const parked = useQuery({ queryKey: ['outbox', 'parked', pending], queryFn: () => outbox.conflicts() });
 
   return (
     <Screen scroll>
-      <ScrollView contentContainerClassName="gap-4 pb-8 pt-4" refreshControl={<RefreshControl refreshing={me.isRefetching} onRefresh={() => void Promise.all([me.refetch(), syncNow(), agreements.refetch(), mentoring.refetch()])} />}>
+      <ScrollView contentContainerClassName="gap-4 pb-8 pt-4" refreshControl={<RefreshControl refreshing={me.isRefetching} onRefresh={() => void Promise.all([me.refetch(), syncNow(), agreements.refetch(), mentoring.refetch(), offers.refetch(), documents.refetch(), courses.refetch()])} />}>
         {tenant ? <Brand name={tenant.name} primary={tenant.branding.primary} /> : null}
 
         <View className="mt-2">
@@ -54,6 +75,9 @@ export default function Home() {
           </Card>
         ) : null}
 
+        {openOffers ? card('gift', 'bg-success-bg', '#166c52', t('home.offers'), t('home.offersBody', { n: openOffers }), '/offers') : null}
+        {docsNeeded ? card('file-plus', 'bg-warning-bg', '#8a5a0b', t('home.documents'), t('home.documentsBody', { n: docsNeeded }), '/documents') : null}
+
         {toSign ? (
           <Pressable accessibilityRole="button" onPress={() => router.push('/agreements' as never)}>
             <Card className="flex-row items-center gap-3">
@@ -68,6 +92,8 @@ export default function Home() {
             </Card>
           </Pressable>
         ) : null}
+
+        {!learner && !mentoring.data?.is_mentor ? card('search', 'bg-primary-50', '#4338ca', t('home.apply'), t('home.applyBody'), '/apply') : null}
 
         {mentoring.data?.is_mentor ? (
           <Pressable accessibilityRole="button" onPress={() => router.push('/mentoring' as never)}>

@@ -24,7 +24,7 @@ const home: Record<Exclude<Phase, 'loading'>, { route: string; allowed: string[]
   'signed-out': { route: '/sign-in', allowed: ['sign-in'] },
   'setup-lock': { route: '/setup-lock', allowed: ['setup-lock'] },
   locked: { route: '/unlock', allowed: ['unlock'] },
-  ready: { route: '/', allowed: ['(tabs)', 'agreements', 'mentoring'] },
+  ready: { route: '/', allowed: ['(tabs)', 'agreements', 'mentoring', 'apply', 'documents', 'offers'] },
 };
 
 function Gate() {

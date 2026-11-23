@@ -1,7 +1,7 @@
 # Sprint 4 — Applications and enrolment
 
 **Plan dates:** 4 – 15 Jan 2027 (Phase 1 – SaaS compliance core).
-**Status:** approved 23 Nov 2026 (recommendations in §9 accepted). In build: 4a intakes and applications, 4b documents done; 4c offers and enrolment next.
+**Status:** approved 23 Nov 2026 (recommendations in §9 accepted). Built: see `sprint-04-report.md`.
 
 **Goal (from the sprint plan):** *Learners enrolled correctly first time.*
 
