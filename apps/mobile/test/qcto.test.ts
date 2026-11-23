@@ -15,3 +15,17 @@ describe('QCTO profile problems', () => {
     expect(routeFor({ type: 'eisa' })).toBe('/results');
   });
 });
+
+import { rand, validAccount } from '../src/core/stipend';
+
+describe('stipends', () => {
+  it('shows rand and checks account numbers', () => {
+    expect(rand(150000)).toBe('R1 500,00');
+    expect(rand(90050)).toBe('R900,50');
+    expect(validAccount('1234 5678 90')).toBe('1234567890');
+    expect(validAccount('12a45')).toBeNull();
+  });
+  it('routes a stipend push to the stipend screen', () => {
+    expect(routeFor({ type: 'stipend' })).toBe('/stipends');
+  });
+});

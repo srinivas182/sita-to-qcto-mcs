@@ -17,5 +17,6 @@ export function routeFor(data: Record<string, unknown> | undefined): string | nu
   if (data?.type === 'logbook') return '/logbook';
   if (data?.type === 'result' || data?.type === 'eisa') return '/results';
   if (data?.type === 'logbook_mentor') return '/mentoring';
+  if (data?.type === 'stipend') return '/stipends';
   return null;
 }

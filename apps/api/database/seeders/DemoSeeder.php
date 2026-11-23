@@ -28,6 +28,8 @@ use Modules\Cohorts\Models\Cohort;
 use Modules\Cohorts\Models\CohortStaff;
 use Modules\Cohorts\Models\Placement;
 use Modules\Cohorts\Services\CohortService;
+use Modules\Delivery\Models\AttendanceRegister;
+use Modules\Delivery\Models\RegisterSignature;
 use Modules\Delivery\Models\Room;
 use Modules\Delivery\Services\MaterialService;
 use Modules\Delivery\Services\TaskService;
@@ -48,6 +50,7 @@ use Modules\Files\Support\FileStatus;
 use Modules\Funding\Models\Funder;
 use Modules\Funding\Models\GrantAgreement;
 use Modules\Funding\Services\GrantService;
+use Modules\Funding\Services\StipendService;
 use Modules\Identity\Models\MfaFactor;
 use Modules\Identity\Models\User;
 use Modules\Identity\Models\UserTenant;
@@ -450,7 +453,7 @@ final class DemoSeeder extends Seeder
         if (GrantAgreement::query()->where('reference', 'CETA/DG/2026-27/0142')->exists()) {
             return;
         }
-        $svc->saveAgreement($cohort, null, $by, [
+        $agreement = $svc->saveAgreement($cohort, null, $by, [
             'funder_id' => $ceta->id, 'reference' => 'CETA/DG/2026-27/0142', 'learners' => 20, 'amount_per_learner' => 45500, 'funding_kind' => 'full',
             'starts_on' => now()->subMonth()->toDateString(), 'ends_on' => now()->addYear()->toDateString(), 'enrolment_ids' => $enrolments,
             'tranches' => [
@@ -459,6 +462,26 @@ final class DemoSeeder extends Seeder
                 ['share_pct' => 30, 'milestones' => [['key' => 'sor'], ['key' => 'eisa']], 'evidence' => [['title' => 'Close-out report signed by the employer']]],
             ],
         ]);
+
+        // Stipends: R1 500 a month. Last month's register (demo: made directly), signed by most learners; one has bank details.
+        $stipends = app(StipendService::class);
+        $stipends->saveRule($agreement, ['stipend' => 1500, 'full_pct' => 80, 'hold_pct' => 50, 'prorata' => true]);
+        $month = now()->subMonth()->startOfMonth();
+        $users = Enrolment::query()->whereIn('id', $enrolments)->pluck('user_id')->values();
+        $pcts = [92, 71, 45, 100, 88];
+        $rows = $users->map(fn (string $u, int $i) => ['user_id' => $u, 'name' => '', 'pct' => $pcts[$i % 5], 'workplace_days' => 0])->all();
+        $register = AttendanceRegister::query()->create(['cohort_id' => $cohort->id, 'month' => $month->toDateString(), 'grid' => ['sessions' => [], 'learners' => $rows],
+            'grid_sha256' => hash('sha256', (string) json_encode($rows)), 'created_by' => $by->id]);
+        $register->forceFill(['status' => 'complete'])->save();
+        foreach ($users as $i => $u) {
+            RegisterSignature::query()->create(['register_id' => $register->id, 'user_id' => $u, 'role' => 'learner'])
+                ->forceFill(['status' => $i === 1 ? 'pending' : 'signed', 'signed_at' => $i === 1 ? null : now()->subDays(20)])->save();
+            if ($i !== 3) {
+                $stipends->saveBank($u, $by, ['holder_name' => 'Demo learner '.($i + 1), 'bank' => ['capitec', 'fnb', 'standard'][$i % 3],
+                    'account_number' => '10'.str_pad((string) (40000000 + $i), 8, '0', STR_PAD_LEFT), 'account_type' => 'savings']);
+            }
+        }
+        $stipends->propose($agreement, $month->format('Y-m'), $by);
     }
 
     /**

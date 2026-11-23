@@ -8,6 +8,8 @@ import { money, shortDate } from '@/lib/money';
 import { useCan } from '@/lib/session';
 import { uploadFile } from '@/lib/upload';
 import { AgreementDialog } from './AgreementDialog';
+import { BankDialog } from './BankDialog';
+import { StipendsCard } from './StipendsCard';
 import { TrancheTable } from './FundingPage';
 import type { AgreementDetail } from './types';
 
@@ -18,6 +20,7 @@ export function AgreementPage() {
   const qc = useQueryClient();
   const toast = useToast();
   const [editing, setEditing] = useState(false);
+  const [bankFor, setBankFor] = useState<{ enrolmentId: string; name: string | null } | null>(null);
   const q = useQuery({
     queryKey: ['grant', id],
     queryFn: () => call<{ data: AgreementDetail }>('GET', `/grant-agreements/${id}`).then((r) => r.data),
@@ -83,6 +86,7 @@ export function AgreementPage() {
             )
           : null}
       </Card>
+      <StipendsCard agreementId={a.id} manage={manage} />
       <Card>
         <CardHeader title="Learners" />
         {d.learners.length === 0 ? <p className="text-small text-muted">No learners on this agreement yet.</p> : null}
@@ -94,6 +98,15 @@ export function AgreementPage() {
                 {l.status === 'removed' ? <Badge>Taken off</Badge> : null}
                 {l.disabled ? <Badge tone="info">Disability allowance</Badge> : null}
                 <span className="text-small text-muted">{l.registers} signed registers</span>
+                {manage && l.status === 'active' ? (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setBankFor({ enrolmentId: l.enrolment_id, name: l.name })}
+                  >
+                    Bank details<span className="sr-only"> for {l.name}</span>
+                  </Button>
+                ) : null}
               </div>
               <ul className="grid gap-1 text-small">
                 {d.tranches.map((t) => {
@@ -116,6 +129,14 @@ export function AgreementPage() {
           ))}
         </ul>
       </Card>
+      {bankFor ? (
+        <BankDialog
+          enrolmentId={bankFor.enrolmentId}
+          name={bankFor.name}
+          agreementId={a.id}
+          onClose={() => setBankFor(null)}
+        />
+      ) : null}
       {editing ? <AgreementDialog cohortId={a.cohort_id} detail={d} onClose={() => setEditing(false)} /> : null}
     </>
   );
