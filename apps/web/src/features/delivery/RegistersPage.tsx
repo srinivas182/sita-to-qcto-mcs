@@ -28,12 +28,20 @@ export interface RegisterRow {
   status: 'signing' | 'complete' | 'submitted';
   submitted_on: string | null;
   submitted_note: string | null;
-  counts: { learners: number; signed: number; disputed: number; facilitators_signed: number; facilitators: number };
+  counts: {
+    learners: number;
+    signed: number;
+    disputed: number;
+    facilitators_signed: number;
+    facilitators: number;
+    mentors?: number;
+    mentors_signed?: number;
+  };
   signatures: {
     id: string;
     user_id: string;
     name: string | null;
-    role: 'learner' | 'facilitator';
+    role: 'learner' | 'facilitator' | 'mentor';
     status: 'pending' | 'signed' | 'disputed';
     dispute: string | null;
     signed_at: string | null;
@@ -124,6 +132,11 @@ export function RegistersPage() {
                 cell: (r) => (
                   <span className="text-small">
                     {r.counts.facilitators_signed} of {r.counts.facilitators}
+                    {r.counts.mentors ? (
+                      <span className="block text-muted">
+                        Mentors {r.counts.mentors_signed ?? 0} of {r.counts.mentors}
+                      </span>
+                    ) : null}
                   </span>
                 ),
               },
@@ -288,7 +301,9 @@ function SignaturesDialog({ register, onClose }: { register: RegisterRow; onClos
           <li key={s.id} className="flex flex-wrap items-start justify-between gap-2 text-small">
             <span>
               <span className="text-ink">{s.name}</span>{' '}
-              <span className="text-muted">· {s.role === 'facilitator' ? 'Facilitator' : 'Learner'}</span>
+              <span className="text-muted">
+                · {s.role === 'facilitator' ? 'Facilitator' : s.role === 'mentor' ? 'Workplace mentor' : 'Learner'}
+              </span>
               {s.dispute ? <span className="block text-danger">{s.dispute}</span> : null}
             </span>
             <Badge tone={tone[s.status]}>{label[s.status]}</Badge>

@@ -48,8 +48,18 @@ final class RegisterController
         if ($this->staff($request, $r)) {
             return response()->json(['data' => $data]);
         }
+        $mine = RegisterSignature::query()->where('register_id', $r->id)->where('user_id', $me->id)->pluck('role');
+        abort_if($mine->isEmpty(), 404);
+        if ($mine->contains('mentor')) {
+            // A workplace mentor sees the workplace days of the learners placed with them, not their classes.
+            $data['grid']['sessions'] = [];
+            $data['grid']['learners'] = array_values(array_map(fn (array $l) => ['marks' => []] + $l,
+                array_filter($data['grid']['learners'], fn (array $l) => in_array($me->id, $l['workplace_mentors'] ?? [], true))));
+            $data['signatures'] = array_values(array_filter($data['signatures'], fn (array $s) => $s['user_id'] === $me->id));
+
+            return response()->json(['data' => $data]);
+        }
         // A learner sees only their own line.
-        abort_unless(RegisterSignature::query()->where('register_id', $r->id)->where('user_id', $me->id)->exists(), 404);
         $data['grid']['learners'] = array_values(array_filter($data['grid']['learners'], fn (array $l) => $l['user_id'] === $me->id));
         $data['signatures'] = array_values(array_filter($data['signatures'], fn (array $s) => $s['user_id'] === $me->id));
 
@@ -67,7 +77,7 @@ final class RegisterController
 
     public function sign(Request $request, string $register): JsonResponse
     {
-        $data = $request->validate(['name' => ['required', 'string', 'max:150'], 'role' => ['sometimes', Rule::in(['learner', 'facilitator'])]]);
+        $data = $request->validate(['name' => ['required', 'string', 'max:150'], 'role' => ['sometimes', Rule::in(['learner', 'facilitator', 'mentor'])]]);
         $r = AttendanceRegister::query()->whereKey($register)->firstOrFail();
         /** @var User $me */
         $me = $request->user();

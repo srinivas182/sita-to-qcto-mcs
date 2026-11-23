@@ -19,7 +19,7 @@ import {
 import { ApiError, call, errorMessage } from '@/lib/api';
 import { shortDate } from '@/lib/money';
 import { useCan } from '@/lib/session';
-import { type Chain, type Entry, type ModuleHours, duration, entryState } from './types';
+import { type Chain, type Entry, type ModuleHours, type Signoff, duration, entryState, signoffState } from './types';
 
 interface PlacementRow {
   id: string;
@@ -39,6 +39,8 @@ interface Options {
 
 interface LearnerRow {
   user_id: string;
+  enrolment_id: string;
+  signoffs: Signoff[];
   name: string | null;
   hours: ModuleHours[];
   last_entry: string | null;
@@ -55,6 +57,8 @@ export function CohortLogbookPage() {
   const manage = can('cohorts.manage');
   const [placing, setPlacing] = useState(false);
   const [viewing, setViewing] = useState<LearnerRow | null>(null);
+  const [checking, setChecking] = useState<{ learner: LearnerRow; signoff: Signoff; code: string } | null>(null);
+  const assessor = can('assessment.conduct');
   const placements = useQuery({
     queryKey: ['learner-placements', id],
     queryFn: () => call<{ data: PlacementRow[]; options: Options }>('GET', `/cohorts/${id}/learner-placements`),
@@ -155,6 +159,12 @@ export function CohortLogbookPage() {
                         {h.signed_hours > 0 ? (
                           <span className="block text-muted">{h.signed_hours} h signed</span>
                         ) : null}
+                        <SignoffCell
+                          signoff={l.signoffs.find((x) => x.module_id === h.module_id)}
+                          canCheck={assessor}
+                          label={`${h.code} for ${l.name ?? 'the learner'}`}
+                          onCheck={(so) => setChecking({ learner: l, signoff: so, code: h.code })}
+                        />
                       </td>
                     ))}
                     <td className="px-2 py-2">
@@ -181,8 +191,32 @@ export function CohortLogbookPage() {
       {placing && placements.data ? (
         <PlaceDialog cohortId={id} options={placements.data.options} onClose={() => setPlacing(false)} />
       ) : null}
+      {checking ? <CheckDialog cohortId={id} {...checking} onClose={() => setChecking(null)} /> : null}
       {viewing ? <EntriesDialog cohortId={id} learner={viewing} onClose={() => setViewing(null)} /> : null}
     </>
+  );
+}
+
+function SignoffCell({
+  signoff,
+  canCheck,
+  label,
+  onCheck,
+}: {
+  signoff: Signoff | undefined;
+  canCheck: boolean;
+  label: string;
+  onCheck: (s: Signoff) => void;
+}) {
+  if (!signoff) return null;
+  return canCheck && signoff.status === 'signed' ? (
+    <Button size="sm" variant="secondary" className="mt-1" onClick={() => onCheck(signoff)}>
+      Check sign-off<span className="sr-only"> {label}</span>
+    </Button>
+  ) : (
+    <span className="mt-1 block">
+      <Badge tone={signoffState[signoff.status].tone}>{signoffState[signoff.status].label}</Badge>
+    </span>
   );
 }
 
@@ -378,6 +412,83 @@ function EntriesDialog({ cohortId, learner, onClose }: { cohortId: string; learn
           </ul>
         </>
       )}
+    </Dialog>
+  );
+}
+
+function CheckDialog({
+  cohortId,
+  learner,
+  signoff,
+  code,
+  onClose,
+}: {
+  cohortId: string;
+  learner: LearnerRow;
+  signoff: Signoff;
+  code: string;
+  onClose: () => void;
+}) {
+  const qc = useQueryClient();
+  const toast = useToast();
+  const [comment, setComment] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const check = useMutation({
+    mutationFn: (outcome: 'checked' | 'queried') =>
+      call('POST', `/logbook-signoffs/${signoff.id}/check`, { outcome, comment: comment || null }),
+    onSuccess: (_, outcome) => {
+      toast(outcome === 'checked' ? 'Logbook checked' : 'Sent back to the mentor');
+      void qc.invalidateQueries({ queryKey: ['cohort-logbook', cohortId] });
+      onClose();
+    },
+    onError: (e) => setError(e instanceof ApiError ? (Object.values(e.fields)[0]?.[0] ?? e.message) : errorMessage(e)),
+  });
+  const intact = learner.chain.ok && learner.chain.signatures_ok !== false;
+  return (
+    <Dialog
+      open
+      onOpenChange={(o) => !o && onClose()}
+      title={`Check ${code} for ${learner.name ?? 'the learner'}`}
+      description={`The mentor signed off ${signoff.hours} hours on ${shortDate(signoff.signed_at)}.`}
+      footer={
+        <>
+          <Button
+            variant="secondary"
+            loading={check.isPending && check.variables === 'queried'}
+            onClick={() => check.mutate('queried')}
+          >
+            Query
+          </Button>
+          <Button
+            disabled={!intact}
+            loading={check.isPending && check.variables === 'checked'}
+            onClick={() => check.mutate('checked')}
+          >
+            Confirm
+          </Button>
+        </>
+      }
+    >
+      <div className="grid gap-3">
+        {error ? <Alert tone="danger">{error}</Alert> : null}
+        {intact ? (
+          <Alert tone="success">The logbook is intact: no entry changed after it was written or signed.</Alert>
+        ) : (
+          <Alert tone="danger">The logbook changed after it was written or signed. Query it.</Alert>
+        )}
+        {signoff.mentor_comment ? <p className="text-small text-ink">Mentor: {signoff.mentor_comment}</p> : null}
+        <div className="grid gap-1.5">
+          <label htmlFor="check-comment" className="text-small font-medium text-ink">
+            Comment (needed to query)
+          </label>
+          <textarea
+            id="check-comment"
+            className="min-h-20 rounded-lg border border-line bg-surface px-3 py-2 text-body"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+          />
+        </div>
+      </div>
     </Dialog>
   );
 }

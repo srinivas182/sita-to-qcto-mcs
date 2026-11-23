@@ -14,7 +14,7 @@ import {
 } from '@/components/ui';
 import { ApiError, call, errorMessage } from '@/lib/api';
 import { shortDate } from '@/lib/money';
-import { type Entry, duration } from './types';
+import { type Entry, type ModuleHours, type Signoff, duration, signoffState } from './types';
 
 interface Week {
   id: string;
@@ -27,16 +27,21 @@ interface Week {
   minutes: number;
 }
 
+interface LearnerRow {
+  placement_id: string;
+  enrolment_id: string;
+  name: string | null;
+  site: string | null;
+  starts_on: string;
+  ends_on: string | null;
+  active: boolean;
+  modules: (ModuleHours & { signoff: Signoff | null })[];
+}
+
 interface Data {
   is_mentor: boolean;
-  learners: {
-    placement_id: string;
-    name: string | null;
-    site: string | null;
-    starts_on: string;
-    ends_on: string | null;
-    active: boolean;
-  }[];
+  statement: string;
+  learners: LearnerRow[];
   weeks: Week[];
 }
 
@@ -49,6 +54,7 @@ const weekState = {
 /** For a workplace mentor: the learners placed with them and their logbook weeks to sign. */
 export function MentorWeeksPage() {
   const [open, setOpen] = useState<Week | null>(null);
+  const [final, setFinal] = useState<{ learner: LearnerRow; module: LearnerRow['modules'][number] } | null>(null);
   const q = useQuery({
     queryKey: ['mentoring-weeks'],
     queryFn: () => call<{ data: Data }>('GET', '/mentoring/weeks').then((r) => r.data),
@@ -87,15 +93,49 @@ export function MentorWeeksPage() {
             ) : (
               <ul className="divide-y divide-line">
                 {d.learners.map((l) => (
-                  <li key={l.placement_id} className="flex flex-wrap items-center justify-between gap-2 py-2.5">
-                    <div>
-                      <p className="font-medium text-ink">{l.name}</p>
-                      <p className="text-small text-muted">
-                        {l.site} · from {shortDate(l.starts_on)}
-                        {l.ends_on ? ` to ${shortDate(l.ends_on)}` : ''}
-                      </p>
+                  <li key={l.placement_id} className="grid gap-2 py-2.5">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <p className="font-medium text-ink">{l.name}</p>
+                        <p className="text-small text-muted">
+                          {l.site} · from {shortDate(l.starts_on)}
+                          {l.ends_on ? ` to ${shortDate(l.ends_on)}` : ''}
+                        </p>
+                      </div>
+                      {l.active ? <Badge tone="success">On site</Badge> : <Badge>Not on site now</Badge>}
                     </div>
-                    {l.active ? <Badge tone="success">On site</Badge> : <Badge>Not on site now</Badge>}
+                    {l.modules.map((m) => {
+                      const ready = m.hours_needed !== null && m.signed_hours >= m.hours_needed;
+                      return (
+                        <div
+                          key={m.module_id}
+                          className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-line-soft px-3 py-2"
+                        >
+                          <p className="text-small text-ink">
+                            {m.code} {m.title}:{' '}
+                            <span className="tabular-nums">
+                              {m.signed_hours} h signed
+                              {m.hours_needed ? ` of ${m.hours_needed}` : ''}
+                            </span>
+                          </p>
+                          {m.signoff && m.signoff.status !== 'queried' ? (
+                            <Badge tone={signoffState[m.signoff.status].tone}>
+                              {signoffState[m.signoff.status].label}
+                            </Badge>
+                          ) : ready ? (
+                            <Button size="sm" onClick={() => setFinal({ learner: l, module: m })}>
+                              Sign off module
+                              <span className="sr-only">
+                                {' '}
+                                {m.code} for {l.name}
+                              </span>
+                            </Button>
+                          ) : m.signoff?.status === 'queried' ? (
+                            <Badge tone="danger">Queried: {m.signoff.check_comment}</Badge>
+                          ) : null}
+                        </div>
+                      );
+                    })}
                   </li>
                 ))}
               </ul>
@@ -110,6 +150,14 @@ export function MentorWeeksPage() {
         </div>
       )}
       {open ? <WeekDialog week={open} onClose={() => setOpen(null)} /> : null}
+      {final ? (
+        <FinalDialog
+          statement={d.statement}
+          learner={final.learner}
+          module={final.module}
+          onClose={() => setFinal(null)}
+        />
+      ) : null}
     </>
   );
 }
@@ -274,6 +322,81 @@ function WeekDialog({ week, onClose }: { week: Week; onClose: () => void }) {
           )}
         </div>
       )}
+    </Dialog>
+  );
+}
+
+function FinalDialog({
+  statement,
+  learner,
+  module,
+  onClose,
+}: {
+  statement: string;
+  learner: LearnerRow;
+  module: LearnerRow['modules'][number];
+  onClose: () => void;
+}) {
+  const qc = useQueryClient();
+  const toast = useToast();
+  const [authentic, setAuthentic] = useState(false);
+  const [comment, setComment] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const save = useMutation({
+    mutationFn: () =>
+      call('POST', '/logbook-signoffs', {
+        enrolment_id: learner.enrolment_id,
+        module_id: module.module_id,
+        authentic,
+        comment: comment || null,
+      }),
+    onSuccess: () => {
+      toast('Module signed off; the provider will check it');
+      void qc.invalidateQueries({ queryKey: ['mentoring-weeks'] });
+      onClose();
+    },
+    onError: (e) => setError(e instanceof ApiError ? (Object.values(e.fields)[0]?.[0] ?? e.message) : errorMessage(e)),
+  });
+  return (
+    <Dialog
+      open
+      onOpenChange={(o) => !o && onClose()}
+      title={`Sign off ${module.code} for ${learner.name ?? 'the learner'}`}
+      description={`${module.signed_hours} hours signed of the ${module.hours_needed ?? 0} needed.`}
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button loading={save.isPending} disabled={!authentic} onClick={() => save.mutate()}>
+            Sign off
+          </Button>
+        </>
+      }
+    >
+      <div className="grid gap-3">
+        {error ? <Alert tone="danger">{error}</Alert> : null}
+        <label className="flex items-start gap-2 text-small">
+          <input
+            type="checkbox"
+            className="mt-0.5 size-5"
+            checked={authentic}
+            onChange={(e) => setAuthentic(e.target.checked)}
+          />
+          {statement}
+        </label>
+        <div className="grid gap-1.5">
+          <label htmlFor="final-comment" className="text-small font-medium text-ink">
+            Comment for the provider (optional)
+          </label>
+          <textarea
+            id="final-comment"
+            className="min-h-20 rounded-lg border border-line bg-surface px-3 py-2 text-body"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+          />
+        </div>
+      </div>
     </Dialog>
   );
 }

@@ -17,15 +17,18 @@ interface Grid {
     attended: number;
     excused: number;
     pct: number | null;
+    workplace_days?: number;
+    workplace_hours?: number;
+    workplace?: Record<string, number>;
   }[];
 }
 interface Mine {
   id: string;
-  role: 'learner' | 'facilitator';
+  role: 'learner' | 'facilitator' | 'mentor';
   my_status: 'pending' | 'signed' | 'disputed';
 }
 
-/** A learner checks their month and signs (or disputes); a facilitator signs the whole register. */
+/** A learner checks their month and signs (or disputes); a facilitator signs the whole register; a mentor signs the workplace days. */
 export function MyRegisterPage() {
   const { id } = useParams({ from: '/app/my-registers/$id' });
   const qc = useQueryClient();
@@ -62,12 +65,31 @@ export function MyRegisterPage() {
   if (q.isError) return <Alert tone="danger">{errorMessage(q.error)}</Alert>;
   const r = q.data;
   const me = mine.data?.find((x) => x.role === 'learner') ?? mine.data?.[0];
-  const line = r.grid.learners.length === 1 ? r.grid.learners[0] : null;
+  const mentor = me?.role === 'mentor';
+  const line = !mentor && r.grid.learners.length === 1 ? r.grid.learners[0] : null;
 
   return (
     <>
       <PageHeader eyebrow={r.cohort ?? ''} title={`Attendance register: ${monthName(r.month)}`} />
-      {line ? (
+      {mentor ? (
+        <Card>
+          <p className="mb-3 text-body text-ink">Days your learners logged at your workplace this month:</p>
+          <ul className="grid gap-3 text-small">
+            {r.grid.learners.map((l) => (
+              <li key={l.user_id} className="border-b border-line pb-2">
+                <p className="font-medium text-ink">
+                  {l.name}: {l.workplace_days ?? 0} days, {l.workplace_hours ?? 0} h
+                </p>
+                <p className="text-muted">
+                  {Object.entries(l.workplace ?? {})
+                    .map(([d, m]) => `${d.slice(8)} (${Math.round((m / 60) * 10) / 10} h)`)
+                    .join(' · ')}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      ) : line ? (
         <Card>
           <p className="mb-3 text-body text-ink">
             You attended <strong>{line.attended}</strong> of {line.held} classes
@@ -147,7 +169,9 @@ export function MyRegisterPage() {
                 <p className="text-small text-muted">
                   {me.role === 'facilitator'
                     ? 'By signing you confirm this register is a true record of the classes you facilitated.'
-                    : 'By signing you confirm your attendance above is correct.'}
+                    : me.role === 'mentor'
+                      ? 'By signing you confirm these learners worked at your workplace on these days.'
+                      : 'By signing you confirm your attendance above is correct.'}
                 </p>
                 <Field
                   label="Type your full name"

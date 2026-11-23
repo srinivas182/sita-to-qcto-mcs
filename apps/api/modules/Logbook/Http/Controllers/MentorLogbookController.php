@@ -7,12 +7,14 @@ namespace Modules\Logbook\Http\Controllers;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Modules\Cohorts\Models\Cohort;
 use Modules\Employers\Models\EmployerSite;
 use Modules\Identity\Models\User;
 use Modules\Logbook\Models\LearnerPlacement;
 use Modules\Logbook\Models\LogbookEntry;
 use Modules\Logbook\Models\LogbookRule;
+use Modules\Logbook\Models\LogbookSignoff;
 use Modules\Logbook\Models\LogbookWeek;
 use Modules\Logbook\Services\LogbookService;
 use Modules\Logbook\Services\SignOffService;
@@ -37,12 +39,15 @@ final class MentorLogbookController
             ->selectRaw('learner_placement_id, week_start, count(*) as n, sum(minutes) as m')->groupBy('learner_placement_id', 'week_start')->get()
             ->keyBy(fn ($r) => $r->learner_placement_id.'|'.CarbonImmutable::parse((string) $r->week_start)->toDateString());
         $today = CarbonImmutable::now(LogbookService::TZ)->toDateString();
+        $signoffs = LogbookSignoff::query()->whereIn('enrolment_id', $placements->pluck('enrolment_id'))->get();
 
         return response()->json(['data' => [
             'is_mentor' => $mentorIds->isNotEmpty(),
+            'statement' => LogbookSignoff::STATEMENT,
             'learners' => $placements->filter(fn (LearnerPlacement $p) => $p->ends_on === null || $p->ends_on->toDateString() >= CarbonImmutable::now()->subMonth()->toDateString())
-                ->map(fn (LearnerPlacement $p) => ['placement_id' => $p->id, 'name' => $people->get($p->user_id)?->fullName(), 'site' => $sites->get($p->site_id),
-                    'starts_on' => $p->starts_on->toDateString(), 'ends_on' => $p->ends_on?->toDateString(), 'active' => $p->covers($today)])->values()->all(),
+                ->map(fn (LearnerPlacement $p) => ['placement_id' => $p->id, 'enrolment_id' => $p->enrolment_id, 'name' => $people->get($p->user_id)?->fullName(), 'site' => $sites->get($p->site_id),
+                    'starts_on' => $p->starts_on->toDateString(), 'ends_on' => $p->ends_on?->toDateString(), 'active' => $p->covers($today),
+                    'modules' => $this->modules($p, $signoffs)])->values()->all(),
             'weeks' => $weeks->map(function (LogbookWeek $w) use ($placements, $people, $totals) {
                 $t = $totals->get($w->learner_placement_id.'|'.$w->week_start->toDateString());
 
@@ -72,6 +77,15 @@ final class MentorLogbookController
         ]]);
     }
 
+    /** Final sign-off of a learner's work experience module, with the authenticity statement. */
+    public function final(Request $request): JsonResponse
+    {
+        /** @var User $me */
+        $me = $request->user();
+
+        return response()->json(['data' => SignOffService::presentSignoff($this->signOff()->final($me, $request->all()))], 201);
+    }
+
     public function sign(Request $request, string $week): JsonResponse
     {
         /** @var User $me */
@@ -86,6 +100,20 @@ final class MentorLogbookController
         $me = $request->user();
 
         return response()->json(['data' => SignOffService::present($this->signOff()->return($this->signOff()->mentorWeek($me, $week), $me, $request->all()))]);
+    }
+
+    /**
+     * Hours per work experience module for the learner, with the final sign-off if any.
+     *
+     * @param  Collection<int, LogbookSignoff>  $signoffs
+     * @return list<array<string, mixed>>
+     */
+    private function modules(LearnerPlacement $p, Collection $signoffs): array
+    {
+        $qualification = Cohort::query()->whereKey($p->cohort_id)->value('qualification_id');
+
+        return array_map(fn (array $h) => $h + ['signoff' => ($s = $signoffs->where('enrolment_id', $p->enrolment_id)->firstWhere('module_id', $h['module_id']))
+            ? SignOffService::presentSignoff($s) : null], app(LogbookService::class)->hours($p->user_id, (string) $qualification));
     }
 
     private function signOff(): SignOffService

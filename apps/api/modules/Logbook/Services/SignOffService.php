@@ -11,11 +11,14 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Modules\Audit\AuditLogger;
 use Modules\Employers\Models\Mentor;
+use Modules\Enrolment\Models\Enrolment;
 use Modules\Identity\Models\Device;
 use Modules\Identity\Models\User;
 use Modules\Identity\Push\PushService;
 use Modules\Logbook\Models\LearnerPlacement;
 use Modules\Logbook\Models\LogbookEntry;
+use Modules\Logbook\Models\LogbookRule;
+use Modules\Logbook\Models\LogbookSignoff;
 use Modules\Logbook\Models\LogbookWeek;
 use Throwable;
 
@@ -137,6 +140,81 @@ final class SignOffService
         return $w;
     }
 
+    /**
+     * The mentor's final sign-off for a learner's work experience module: every entry for the
+     * module is signed, the hours needed are reached, and the mentor confirms authenticity.
+     *
+     * @param  array<string, mixed>  $input
+     */
+    public function final(User $by, array $input): LogbookSignoff
+    {
+        $data = Validator::make($input, [
+            'enrolment_id' => ['required', 'ulid'],
+            'module_id' => ['required', 'ulid'],
+            'authentic' => ['accepted'],
+            'comment' => ['nullable', 'string', 'max:1000'],
+        ], ['authentic.accepted' => 'Confirm that the logbook is true.'])->validate();
+        $enrolment = Enrolment::query()->whereKey($data['enrolment_id'])->firstOrFail();
+        $mentorIds = $this->mentorsOf($by)->pluck('id');
+        $placement = LearnerPlacement::query()->where('enrolment_id', $enrolment->id)->whereIn('mentor_id', $mentorIds)->orderByDesc('starts_on')->first() ?? abort(404);
+        $rule = LogbookRule::query()->where('module_id', $data['module_id'])->first()
+            ?? throw ValidationException::withMessages(['module_id' => 'This module has no logbook.']);
+        $existing = LogbookSignoff::query()->where('enrolment_id', $enrolment->id)->where('module_id', $rule->module_id)->first();
+        if ($existing !== null && $existing->status !== 'queried') {
+            throw ValidationException::withMessages(['module_id' => 'You have already signed off this module.']);
+        }
+        $entries = LogbookEntry::query()->where('user_id', $enrolment->user_id)->where('module_id', $rule->module_id)->where('status', '!=', 'corrected')->orderBy('seq')->get();
+        if ($entries->whereIn('status', ['submitted', 'returned'])->isNotEmpty()) {
+            throw ValidationException::withMessages(['module_id' => 'Sign or send back the open weeks first.']);
+        }
+        $minutes = (int) $entries->sum('minutes');
+        if ($minutes < $rule->hours_needed * 60) {
+            throw ValidationException::withMessages(['module_id' => sprintf('The learner has %s of the %d hours needed.', round($minutes / 60, 1), $rule->hours_needed)]);
+        }
+        $mentor = $this->mentorsOf($by)->firstWhere('id', $placement->mentor_id);
+        $s = $existing ?? new LogbookSignoff(['enrolment_id' => $enrolment->id, 'user_id' => $enrolment->user_id, 'module_id' => $rule->module_id]);
+        $s->fill(['mentor_id' => $mentor?->id, 'signed_by' => $by->id, 'signed_at' => now(), 'minutes' => $minutes, 'signature' => self::signature($entries),
+            'statement_version' => LogbookSignoff::STATEMENT_VERSION, 'mentor_comment' => $data['comment'] ?? null,
+            'status' => 'signed', 'checked_by' => null, 'checked_at' => null, 'check_comment' => null])->save();
+        $this->audit->record('logbook.final_signoff', $s, [], ['minutes' => $minutes, 'statement' => LogbookSignoff::STATEMENT_VERSION]);
+        $this->tell($enrolment->user_id, 'Module signed off', "{$mentor?->name} signed off your workplace logbook for this module.", null);
+
+        return $s;
+    }
+
+    /**
+     * The provider's assessor checks the signed-off logbook: confirmed, or queried with a
+     * comment (the mentor then signs off again once it is sorted out).
+     *
+     * @param  array<string, mixed>  $input
+     */
+    public function check(LogbookSignoff $s, User $by, array $input): LogbookSignoff
+    {
+        $data = Validator::make($input, [
+            'outcome' => ['required', 'in:checked,queried'],
+            'comment' => ['required_if:outcome,queried', 'nullable', 'string', 'max:1000'],
+        ], ['comment.required_if' => 'Say what needs looking into.'])->validate();
+        if ($s->status !== 'signed') {
+            throw ValidationException::withMessages(['outcome' => 'This sign-off is not waiting for a check.']);
+        }
+        $entries = LogbookEntry::query()->where('user_id', $s->user_id)->where('module_id', $s->module_id)->where('status', 'signed')->get();
+        if ($data['outcome'] === 'checked' && ! hash_equals($s->signature, self::signature($entries))) {
+            throw ValidationException::withMessages(['outcome' => 'The logbook changed after the mentor signed it off. Query it instead.']);
+        }
+        $s->forceFill(['status' => $data['outcome'], 'checked_by' => $by->id, 'checked_at' => now(), 'check_comment' => $data['comment'] ?? null])->save();
+        $this->audit->record('logbook.signoff_'.$data['outcome'], $s);
+
+        return $s;
+    }
+
+    /** @return array<string, mixed> */
+    public static function presentSignoff(LogbookSignoff $s): array
+    {
+        return ['id' => $s->id, 'enrolment_id' => $s->enrolment_id, 'user_id' => $s->user_id, 'module_id' => $s->module_id, 'status' => $s->status,
+            'hours' => round($s->minutes / 60, 1), 'signed_at' => $s->signed_at->toIso8601String(), 'mentor_comment' => $s->mentor_comment,
+            'checked_at' => $s->checked_at?->toIso8601String(), 'check_comment' => $s->check_comment];
+    }
+
     /** Whether the signature still matches the entries (an entry changed after signing shows). */
     public function intact(LogbookWeek $w): bool
     {
@@ -156,11 +234,11 @@ final class SignOffService
             'status' => $w->status, 'signed_at' => $w->signed_at?->toIso8601String(), 'comment' => $w->comment];
     }
 
-    private function tell(string $userId, string $title, string $body, LogbookWeek $w): void
+    private function tell(string $userId, string $title, string $body, ?LogbookWeek $w): void
     {
         foreach (Device::query()->where('user_id', $userId)->whereNull('revoked_at')->whereNotNull('push_token')->get() as $d) {
             try {
-                $this->pushes->send($d, $title, $body, ['type' => 'logbook', 'week_id' => $w->id]);
+                $this->pushes->send($d, $title, $body, array_filter(['type' => 'logbook', 'week_id' => $w?->id]));
             } catch (Throwable $e) {
                 report($e);
             }
